@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#FFFBF5] text-slate-800 font-sans antialiased;
+    background-image: radial-gradient(#FDE047 0.75px, transparent 0.75px), radial-gradient(#FFB6C1 0.75px, #FFFBF5 0.75px);
+    background-size: 30px 30px;
+    background-position: 0 0, 15px 15px;
+    word-break: keep-all;
+  }
+}
+
+/* Custom 64px Finger Touch Button Utility for Grade 1 Kids */
+.btn-finger-64 {
+  @apply min-h-[64px] min-w-[64px] px-6 py-4 rounded-3xl font-extrabold text-base
+         flex items-center justify-center gap-3 select-none
+         transition-all duration-150 active:scale-90 hover:scale-105
+         shadow-md hover:shadow-lg cursor-pointer;
+}
+
+/* Custom child-friendly button styling helper */
+.btn-cute {
+  @apply transition-transform transform active:scale-95 hover:scale-105 shadow-cute hover:shadow-cute-lg rounded-2xl font-bold;
+}
+
+/* Glass card container */
+.card-pastel {
+  @apply bg-white/90 backdrop-blur-md rounded-3xl border-2 border-pink-100 shadow-pastel p-5;
+}
