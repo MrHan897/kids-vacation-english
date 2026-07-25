@@ -199,24 +199,24 @@ export const MyRoomModule: React.FC<MyRoomModuleProps> = ({ userProfile, activeC
                     <motion.div
                       key={it.id}
                       drag
-                      dragConstraints={{ left: -120, right: 120, top: -120, bottom: 120 }}
+                      dragConstraints={{ left: -140, right: 140, top: -140, bottom: 140 }}
                       dragElastic={0.1}
                       onDragStart={() => playSound('click')}
                       onDragEnd={() => playSound('reward')}
                       whileDrag={{ scale: 1.4, z: 50 }}
                       whileHover={{ scale: 1.3, z: 30 }}
-                      className="absolute cursor-grab active:cursor-grabbing flex flex-col items-center select-none z-20"
+                      className="absolute cursor-grab active:cursor-grabbing flex flex-col items-center select-none z-20 group"
                       style={{
                         left: `${it.position?.x ?? 50}%`,
                         top: `${it.position?.y ?? 50}%`,
-                        transform: 'translate(-50%, -50%) translateZ(40px) rotateX(-60deg) rotateZ(30deg)',
+                        transform: 'translate(-50%, -50%) translateZ(40px) rotateX(-58deg) rotateZ(28deg)',
                       }}
                     >
-                      <span className="text-5xl sm:text-6xl filter drop-shadow-[0_12px_12px_rgba(0,0,0,0.7)] pointer-events-none">
+                      <span className="text-5xl sm:text-6xl filter drop-shadow-[0_12px_12px_rgba(0,0,0,0.8)] pointer-events-none transition-transform group-hover:scale-110">
                         {it.icon}
                       </span>
-                      <span className="text-[10px] font-black text-slate-900 bg-white/95 px-2 py-0.5 rounded-full border border-purple-300 shadow-md whitespace-nowrap pointer-events-none">
-                        {it.name} ✋ (터치 드래그)
+                      <span className="text-[10px] font-black text-slate-900 bg-yellow-300/95 px-2 py-0.5 rounded-full border border-yellow-400 shadow-md whitespace-nowrap pointer-events-none mt-0.5 opacity-90 group-hover:opacity-100">
+                        {it.name} 🖐️
                       </span>
                     </motion.div>
                   ))}

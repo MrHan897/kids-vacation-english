@@ -8,7 +8,7 @@ export const DEFAULT_MYROOM_ITEMS: MyRoomItem[] = [
     category: 'furniture',
     costStickers: 0,
     unlocked: true,
-    position: { x: 15, y: 55 },
+    position: { x: 20, y: 30 },
   },
   {
     id: 'room-[#FEF08A]',
@@ -17,7 +17,7 @@ export const DEFAULT_MYROOM_ITEMS: MyRoomItem[] = [
     category: 'furniture',
     costStickers: 1,
     unlocked: true,
-    position: { x: 65, y: 55 },
+    position: { x: 80, y: 75 },
   },
   {
     id: 'room-teddy',
@@ -35,7 +35,7 @@ export const DEFAULT_MYROOM_ITEMS: MyRoomItem[] = [
     category: 'decor',
     costStickers: 3,
     unlocked: false,
-    position: { x: 80, y: 25 },
+    position: { x: 75, y: 25 },
   },
   {
     id: 'room-bug-box',
@@ -44,7 +44,7 @@ export const DEFAULT_MYROOM_ITEMS: MyRoomItem[] = [
     category: 'toy',
     costStickers: 4,
     unlocked: false,
-    position: { x: 45, y: 75 },
+    position: { x: 50, y: 80 },
   },
   {
     id: 'room-gold-crown-bed',
@@ -53,7 +53,7 @@ export const DEFAULT_MYROOM_ITEMS: MyRoomItem[] = [
     category: 'special',
     costStickers: 5,
     unlocked: false,
-    position: { x: 50, y: 30 },
+    position: { x: 45, y: 30 },
   },
 ];
 
