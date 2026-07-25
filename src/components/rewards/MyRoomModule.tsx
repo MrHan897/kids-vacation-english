@@ -236,16 +236,24 @@ export const MyRoomModule: React.FC<MyRoomModuleProps> = ({ userProfile, activeC
                   <ShoppingBag className="w-4 h-4 text-pink-400" />
                   <span>3D 가구 & 나만의 상상 커스텀 상점</span>
                 </h4>
-                <button
-                  onClick={() => setShowCustomModal(true)}
-                  className="px-3.5 py-1.5 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-md flex items-center gap-1 transition-all border border-yellow-200"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>✨ 나만의 상상 3D 가구 만들기</span>
-                </button>
               </div>
 
+              {/* Grid with 1st Item dedicated to Custom Creation */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {/* 1st Card: Prominent Custom Creator Button */}
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setShowCustomModal(true)}
+                  className="p-3 rounded-2xl border-2 border-yellow-400 bg-gradient-to-r from-yellow-400/90 via-amber-500/90 to-pink-500/90 text-slate-950 flex flex-col items-center justify-center text-center font-black shadow-lg ring-2 ring-yellow-300 active:scale-95 cursor-pointer"
+                >
+                  <span className="text-3xl animate-bounce">✨</span>
+                  <span className="text-xs font-black mt-1 text-slate-950">나만의 상상 3D 가구</span>
+                  <span className="text-[10px] font-bold text-slate-900 bg-white/80 px-2 py-0.5 rounded-full mt-1">
+                    + 직접 새로 만들기 🚀
+                  </span>
+                </motion.button>
+
                 {items.map((it) => (
                   <div
                     key={it.id}
