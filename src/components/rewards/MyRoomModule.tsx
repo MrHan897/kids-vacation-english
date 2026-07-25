@@ -175,14 +175,14 @@ export const MyRoomModule: React.FC<MyRoomModuleProps> = ({ userProfile, activeC
               </div>
             </div>
 
-            {/* 3D Isometric Room Canvas */}
-            <div className="relative w-full h-80 sm:h-96 bg-slate-950 rounded-3xl border-4 border-indigo-500 shadow-inner overflow-hidden flex items-center justify-center p-4">
-              {/* Grid Floor */}
+            {/* Full-bleed 3D Isometric Room Canvas */}
+            <div className="relative w-full h-[400px] sm:h-[480px] bg-gradient-to-b from-indigo-950 via-purple-950 to-slate-950 rounded-3xl border-4 border-indigo-500 shadow-inner overflow-hidden flex items-center justify-center p-0">
+              {/* Full-bleed Roblox 3D Isometric Grid Floor Plane */}
               <motion.div
-                animate={{ rotateX: 60, rotateZ: -30 + cameraAngle }}
+                animate={{ rotateX: 58, rotateZ: -28 + cameraAngle }}
                 transition={{ type: 'spring', stiffness: 100, damping: 18 }}
                 style={{ transformStyle: 'preserve-3d' }}
-                className="relative w-72 h-72 sm:w-96 sm:h-96 bg-gradient-to-br from-indigo-800 to-purple-900 rounded-3xl border-8 border-indigo-400 shadow-[0_30px_60px_rgba(0,0,0,0.8)] grid grid-cols-6 grid-rows-6 gap-1 p-3"
+                className="relative w-[130%] h-[130%] sm:w-[125%] sm:h-[125%] bg-gradient-to-br from-indigo-800 via-purple-900 to-indigo-950 border-8 border-indigo-400/80 shadow-[0_30px_70px_rgba(0,0,0,0.9)] grid grid-cols-6 grid-rows-6 gap-1.5 p-4"
               >
                 {/* 3D Tiles */}
                 {Array.from({ length: 36 }).map((_, idx) => (
