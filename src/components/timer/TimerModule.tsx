@@ -14,6 +14,9 @@ export const TimerModule: React.FC = () => {
   const [completedSessions, setCompletedSessions] = useState<number>(0);
   const [showRewardModal, setShowRewardModal] = useState<boolean>(false);
 
+  const [customWorkMinutes, setCustomWorkMinutes] = useState<number>(25);
+  const [customBreakMinutes, setCustomBreakMinutes] = useState<number>(5);
+
   useEffect(() => {
     let interval: number | undefined;
 
@@ -34,21 +37,21 @@ export const TimerModule: React.FC = () => {
           id: 'stk-pomodoro-1',
           name: '집중왕 스티커',
           icon: '⏱️',
-          description: '25분 포모도로 공부를 성공적으로 마쳤어요!',
+          description: `${customWorkMinutes}분 포모도로 공부를 성공적으로 마쳤어요!`,
         });
 
         setShowRewardModal(true);
         setMode('break');
-        setSeconds(5 * 60);
+        setSeconds(customBreakMinutes * 60);
       } else {
         playSound('success');
         setMode('work');
-        setSeconds(25 * 60);
+        setSeconds(customWorkMinutes * 60);
       }
     }
 
     return () => clearInterval(interval);
-  }, [isRunning, seconds, mode, completedSessions]);
+  }, [isRunning, seconds, mode, completedSessions, customWorkMinutes, customBreakMinutes]);
 
   const handleStart = () => {
     playSound('click');
@@ -63,14 +66,26 @@ export const TimerModule: React.FC = () => {
   const handleReset = () => {
     playSound('click');
     setIsRunning(false);
-    setSeconds(mode === 'work' ? 25 * 60 : 5 * 60);
+    setSeconds(mode === 'work' ? customWorkMinutes * 60 : customBreakMinutes * 60);
   };
 
   const handleSwitchMode = (targetMode: 'work' | 'break') => {
     playSound('click');
     setMode(targetMode);
     setIsRunning(false);
-    setSeconds(targetMode === 'work' ? 25 * 60 : 5 * 60);
+    setSeconds(targetMode === 'work' ? customWorkMinutes * 60 : customBreakMinutes * 60);
+  };
+
+  const handleSetCustomMinutes = (mins: number) => {
+    playSound('click');
+    setIsRunning(false);
+    if (mode === 'work') {
+      setCustomWorkMinutes(mins);
+      setSeconds(mins * 60);
+    } else {
+      setCustomBreakMinutes(mins);
+      setSeconds(mins * 60);
+    }
   };
 
   const handleClaimSticker = () => {
@@ -90,6 +105,9 @@ export const TimerModule: React.FC = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const presetWorkOptions = [5, 10, 15, 20, 25, 30, 45, 60];
+  const presetBreakOptions = [3, 5, 10, 15];
+
   return (
     <div
       data-testid="pomodoro-timer"
@@ -101,11 +119,11 @@ export const TimerModule: React.FC = () => {
           <TimerIcon className="w-6 h-6" />
         </div>
         <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
-          어린이 캐릭터 포모도로 타이머 ⏱️
+          자유시간 설정 포모도로 타이머 ⏱️
         </h2>
       </div>
       <p className="text-xs text-slate-500 font-semibold mb-4">
-        25분 동안 캐릭터 친구와 신나게 공부하고, 5분 동안 단잠 휴식을 취해요!
+        원하는 공부 시간과 쉬는 시간을 자유롭게 선택하거나 직접 입력해보세요!
       </p>
 
       {/* Mode Selector Buttons */}
@@ -119,7 +137,7 @@ export const TimerModule: React.FC = () => {
               : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
           }`}
         >
-          <span>📖 공부 시간 (25분)</span>
+          <span>📖 공부 시간 ({customWorkMinutes}분)</span>
         </button>
 
         <button
@@ -132,8 +150,33 @@ export const TimerModule: React.FC = () => {
               : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
           }`}
         >
-          <span>🍡 쉬는 시간 (5분)</span>
+          <span>🍡 쉬는 시간 ({customBreakMinutes}분)</span>
         </button>
+      </div>
+
+      {/* Custom Duration Minute Preset Selector */}
+      <div className="bg-white p-3 rounded-2xl border-2 border-sky-100 my-3 shadow-xs space-y-2">
+        <span className="text-xs font-black text-slate-700 block">
+          ⏱️ {mode === 'work' ? '공부 시간' : '쉬는 시간'} 자유 설정 (분):
+        </span>
+        <div className="flex flex-wrap items-center justify-center gap-1.5">
+          {(mode === 'work' ? presetWorkOptions : presetBreakOptions).map((mins) => {
+            const isCurrent = mode === 'work' ? customWorkMinutes === mins : customBreakMinutes === mins;
+            return (
+              <button
+                key={mins}
+                onClick={() => handleSetCustomMinutes(mins)}
+                className={`px-3 py-1.5 rounded-xl font-extrabold text-xs transition-all ${
+                  isCurrent
+                    ? 'bg-sky-500 text-white shadow-sm ring-2 ring-sky-200 font-black'
+                    : 'bg-slate-100 text-slate-600 hover:bg-sky-100'
+                }`}
+              >
+                {mins}분
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Mascot Selector */}
