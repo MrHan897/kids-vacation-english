@@ -131,10 +131,10 @@ export const TimerModule: React.FC = () => {
         <button
           type="button"
           onClick={() => handleSwitchMode('work')}
-          className={`px-4 py-2 rounded-2xl font-black text-xs transition-all flex items-center gap-1.5 ${
+          className={`px-5 py-2.5 rounded-2xl font-black text-sm transition-all flex items-center gap-1.5 border-2 ${
             mode === 'work'
-              ? 'bg-pastel-blue text-sky-900 border-2 border-sky-300 shadow-sm scale-105'
-              : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+              ? 'bg-pastel-blue text-sky-900 border-sky-400 shadow-md scale-105 ring-2 ring-sky-200'
+              : 'bg-slate-100 text-slate-500 hover:bg-slate-200 border-transparent'
           }`}
         >
           <span>📖 공부 시간 ({customWorkMinutes}분)</span>
@@ -144,38 +144,64 @@ export const TimerModule: React.FC = () => {
           type="button"
           data-testid="timer-mode-break"
           onClick={() => handleSwitchMode('break')}
-          className={`px-4 py-2 rounded-2xl font-black text-xs transition-all flex items-center gap-1.5 ${
+          className={`px-5 py-2.5 rounded-2xl font-black text-sm transition-all flex items-center gap-1.5 border-2 ${
             mode === 'break'
-              ? 'bg-pastel-mint text-emerald-900 border-2 border-emerald-300 shadow-sm scale-105'
-              : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+              ? 'bg-pastel-mint text-emerald-900 border-emerald-400 shadow-md scale-105 ring-2 ring-emerald-200'
+              : 'bg-slate-100 text-slate-500 hover:bg-slate-200 border-transparent'
           }`}
         >
           <span>🍡 쉬는 시간 ({customBreakMinutes}분)</span>
         </button>
       </div>
 
-      {/* Custom Duration Minute Preset Selector */}
-      <div className="bg-white p-3 rounded-2xl border-2 border-sky-100 my-3 shadow-xs space-y-2">
-        <span className="text-xs font-black text-slate-700 block">
-          ⏱️ {mode === 'work' ? '공부 시간' : '쉬는 시간'} 자유 설정 (분):
-        </span>
-        <div className="flex flex-wrap items-center justify-center gap-1.5">
+      {/* Prominent Custom Duration Minute Preset Selector */}
+      <div className="bg-sky-50/90 p-4 rounded-3xl border-2 border-sky-200 my-4 shadow-sm space-y-3">
+        <div className="flex items-center justify-between px-1">
+          <span className="text-xs font-black text-sky-900 flex items-center gap-1">
+            ⏱️ {mode === 'work' ? '공부 시간' : '쉬는 시간'} 자유 설정:
+          </span>
+          <span className="text-xs font-extrabold text-sky-700 bg-white px-2 py-0.5 rounded-full border border-sky-200">
+            현재: {mode === 'work' ? customWorkMinutes : customBreakMinutes}분
+          </span>
+        </div>
+
+        {/* Preset Minute Buttons */}
+        <div className="flex flex-wrap items-center justify-center gap-2">
           {(mode === 'work' ? presetWorkOptions : presetBreakOptions).map((mins) => {
             const isCurrent = mode === 'work' ? customWorkMinutes === mins : customBreakMinutes === mins;
             return (
               <button
                 key={mins}
                 onClick={() => handleSetCustomMinutes(mins)}
-                className={`px-3 py-1.5 rounded-xl font-extrabold text-xs transition-all ${
+                className={`px-3.5 py-2 rounded-2xl font-black text-xs transition-all border-2 ${
                   isCurrent
-                    ? 'bg-sky-500 text-white shadow-sm ring-2 ring-sky-200 font-black'
-                    : 'bg-slate-100 text-slate-600 hover:bg-sky-100'
+                    ? 'bg-sky-600 text-white border-sky-700 shadow-md scale-105'
+                    : 'bg-white text-slate-700 hover:bg-sky-100 border-sky-100 shadow-xs'
                 }`}
               >
                 {mins}분
               </button>
             );
           })}
+        </div>
+
+        {/* Custom Direct Minute Input */}
+        <div className="flex items-center justify-center gap-2 pt-1 border-t border-sky-100">
+          <span className="text-xs font-extrabold text-slate-600">직접 입력:</span>
+          <input
+            type="number"
+            min="1"
+            max="180"
+            value={mode === 'work' ? customWorkMinutes : customBreakMinutes}
+            onChange={(e) => {
+              const val = parseInt(e.target.value, 10);
+              if (!isNaN(val) && val > 0 && val <= 180) {
+                handleSetCustomMinutes(val);
+              }
+            }}
+            className="w-20 px-3 py-1.5 rounded-xl border-2 border-sky-300 font-mono font-black text-sm text-center bg-white text-slate-800 shadow-inner focus:outline-none focus:ring-2 focus:ring-sky-400"
+          />
+          <span className="text-xs font-black text-slate-700">분</span>
         </div>
       </div>
 
