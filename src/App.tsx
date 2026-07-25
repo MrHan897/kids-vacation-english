@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ActiveTab, UserProfile, GradeLevel } from './types';
-import { getRewards, getCharacters, getUserProfile, saveUserProfile, resetAllData, addSticker } from './services/storage';
+import { getRewards, getCharacters, getUserProfile, saveUserProfile, resetAllData, addSticker, logAnalyticsEvent } from './services/storage';
 import { Header } from './components/common/Header';
 import { Navbar } from './components/common/Navbar';
 import { TimetableModule } from './components/timetable/TimetableModule';
@@ -12,6 +12,7 @@ import { OutdoorActivityModule } from './components/outdoor/OutdoorActivityModul
 import { RewardModule } from './components/rewards/RewardModule';
 import { MyRoomModule } from './components/rewards/MyRoomModule';
 import { TutorialModal } from './components/common/TutorialModal';
+import { DeveloperDashboardModal } from './components/common/DeveloperDashboardModal';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const App: React.FC = () => {
@@ -20,12 +21,26 @@ export const App: React.FC = () => {
   const [characters, setCharacters] = useState(() => getCharacters());
   const [userProfile, setUserProfile] = useState<UserProfile>(() => getUserProfile());
   const [isTutorialOpen, setIsTutorialOpen] = useState<boolean>(false);
+  const [isDevDashboardOpen, setIsDevDashboardOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    // Refresh rewards & active characters when tab changes
+    // Refresh rewards & active characters when tab changes & log analytics page view
     setRewards(getRewards());
     setCharacters(getCharacters());
+    logAnalyticsEvent('page_view', activeTab, `[${activeTab}] 탭 전환 이용 내역`, userProfile.grade);
   }, [activeTab]);
+
+  // Keyboard Secret Shortcut: Ctrl + Shift + D to open Secret Developer Analytics Dashboard
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && (e.key === 'D' || e.key === 'd' || e.key === 'ㅇ')) {
+        e.preventDefault();
+        setIsDevDashboardOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Safe active character fallback to prevent runtime undefined crashes
   const activeCharacter =
@@ -81,6 +96,7 @@ export const App: React.FC = () => {
           activeCharacterAvatar={activeCharacter.avatar}
           onReset={handleResetData}
           onOpenTutorial={() => setIsTutorialOpen(true)}
+          onOpenDevDashboard={() => setIsDevDashboardOpen(true)}
         />
 
         {/* Navigation Bar */}
@@ -121,6 +137,12 @@ export const App: React.FC = () => {
           setActiveTab(tab);
           setIsTutorialOpen(false);
         }}
+      />
+
+      {/* Secret Developer Analytics Dashboard Modal (Hidden from public UI) */}
+      <DeveloperDashboardModal
+        isOpen={isDevDashboardOpen}
+        onClose={() => setIsDevDashboardOpen(false)}
       />
 
       {/* Footer */}

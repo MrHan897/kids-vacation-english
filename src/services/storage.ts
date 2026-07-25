@@ -334,6 +334,89 @@ export function saveDailyQuests(quests: DailyQuest[]): void {
   safeSet(STORAGE_KEYS.QUESTS, quests);
 }
 
+import { AnalyticsLog, AnalyticsSummary } from '../types';
+
+const ANALYTICS_KEY = 'kids_vacation_developer_analytics';
+
+export function getAnalyticsData(): AnalyticsSummary {
+  const defaultSummary: AnalyticsSummary = {
+    totalVisits: 1,
+    totalStudySessions: 3,
+    totalQuizzesSolved: 12,
+    totalCustomFurnitureCreated: 2,
+    activeGrade: '초등 1학년',
+    logs: [
+      {
+        id: 'log-init-1',
+        timestamp: new Date(Date.now() - 3600000 * 2).toISOString(),
+        eventType: 'page_view',
+        tab: 'timetable',
+        details: '방학 시간표 24시간 원형 시계 확인',
+        userGrade: '초등 1학년',
+      },
+      {
+        id: 'log-init-2',
+        timestamp: new Date(Date.now() - 3600000).toISOString(),
+        eventType: 'timer_complete',
+        tab: 'timer',
+        details: '뽀모도로 타이머 25분 몰입 공부 완수',
+        userGrade: '초등 1학년',
+      },
+      {
+        id: 'log-init-3',
+        timestamp: new Date().toISOString(),
+        eventType: 'furniture_custom',
+        tab: 'myroom',
+        details: '✨ 나만의 상상 3D 가구 [우주선 책상 🛸] 생성',
+        userGrade: '초등 1학년',
+      },
+    ],
+  };
+  return safeParse<AnalyticsSummary>(ANALYTICS_KEY, defaultSummary);
+}
+
+export function logAnalyticsEvent(
+  eventType: AnalyticsLog['eventType'],
+  tab: string,
+  details: string,
+  userGrade: string = '초등 1학년'
+): void {
+  try {
+    const current = getAnalyticsData();
+    const newLog: AnalyticsLog = {
+      id: `analytics-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      eventType,
+      tab,
+      details,
+      userGrade,
+    };
+
+    let totalVisits = current.totalVisits;
+    let totalStudySessions = current.totalStudySessions;
+    let totalQuizzesSolved = current.totalQuizzesSolved;
+    let totalCustomFurnitureCreated = current.totalCustomFurnitureCreated;
+
+    if (eventType === 'page_view') totalVisits += 1;
+    if (eventType === 'timer_complete') totalStudySessions += 1;
+    if (eventType === 'quiz_solve' || eventType === 'math_solve') totalQuizzesSolved += 1;
+    if (eventType === 'furniture_custom') totalCustomFurnitureCreated += 1;
+
+    const updated: AnalyticsSummary = {
+      totalVisits,
+      totalStudySessions,
+      totalQuizzesSolved,
+      totalCustomFurnitureCreated,
+      activeGrade: userGrade,
+      logs: [newLog, ...current.logs.slice(0, 49)], // Keep last 50 logs
+    };
+
+    safeSet(ANALYTICS_KEY, updated);
+  } catch (err) {
+    console.error('[storage] Failed to log analytics event:', err);
+  }
+}
+
 export function resetAllData(): void {
   try {
     localStorage.removeItem(STORAGE_KEYS.SCHEDULE);
@@ -343,6 +426,7 @@ export function resetAllData(): void {
     localStorage.removeItem(STORAGE_KEYS.PROFILE);
     localStorage.removeItem(STORAGE_KEYS.MYROOM);
     localStorage.removeItem(STORAGE_KEYS.QUESTS);
+    localStorage.removeItem(ANALYTICS_KEY);
   } catch (err) {
     console.error('[storage] Failed to reset storage data:', err);
   }

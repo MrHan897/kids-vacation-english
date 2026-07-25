@@ -12,6 +12,7 @@ interface HeaderProps {
   activeCharacterAvatar: string;
   onReset: () => void;
   onOpenTutorial?: () => void;
+  onOpenDevDashboard?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -22,12 +23,24 @@ export const Header: React.FC<HeaderProps> = ({
   activeCharacterAvatar,
   onReset,
   onOpenTutorial,
+  onOpenDevDashboard,
 }) => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [secretClickCount, setSecretClickCount] = useState(0);
 
   const handleTTSDemo = () => {
     playSound('click');
     speakText(`Hello ${userProfile.name}! Welcome to Summer Vacation English!`, 'en-US');
+
+    // Secret 5-tap developer dashboard trigger on child avatar icon
+    setSecretClickCount((prev) => {
+      const next = prev + 1;
+      if (next >= 5) {
+        if (onOpenDevDashboard) onOpenDevDashboard();
+        return 0;
+      }
+      return next;
+    });
   };
 
   return (

@@ -147,13 +147,21 @@ export interface DailyQuest {
   parentApproved: boolean;
 }
 
-export interface VoiceEvaluationResult {
-  wordId: string;
-  recognizedText: string;
-  score: number;
-  crownTier: 'gold' | 'silver' | 'bronze' | 'try_again';
-  praiseAudioMessage: string;
+export interface AnalyticsLog {
+  id: string;
   timestamp: string;
+  eventType: 'page_view' | 'timer_complete' | 'phonics_study' | 'quiz_solve' | 'math_solve' | 'furniture_custom' | 'outdoor_bookmark' | 'profile_change';
+  tab: string;
+  details: string;
+  userGrade: string;
 }
 
+export interface AnalyticsSummary {
+  totalVisits: number;
+  totalStudySessions: number;
+  totalQuizzesSolved: number;
+  totalCustomFurnitureCreated: number;
+  activeGrade: string;
+  logs: AnalyticsLog[];
+}
 
