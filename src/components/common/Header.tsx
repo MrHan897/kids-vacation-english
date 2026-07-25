@@ -11,6 +11,7 @@ interface HeaderProps {
   activeCharacterName: string;
   activeCharacterAvatar: string;
   onReset: () => void;
+  onOpenTutorial?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -20,6 +21,7 @@ export const Header: React.FC<HeaderProps> = ({
   activeCharacterName,
   activeCharacterAvatar,
   onReset,
+  onOpenTutorial,
 }) => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
@@ -64,6 +66,20 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* User Badges & Action Buttons */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {/* Online Tutorial Guide Button */}
+          {onOpenTutorial && (
+            <button
+              onClick={() => {
+                playSound('click');
+                onOpenTutorial();
+              }}
+              className="flex items-center gap-1 px-3 py-1.5 bg-purple-100 hover:bg-purple-200 border-2 border-purple-300 text-purple-900 rounded-2xl text-xs font-black shadow-xs transition-all active:scale-95"
+              title="이용 안내 보기"
+            >
+              <span>📖 이용 안내</span>
+            </button>
+          )}
+
           {/* Active Character Badge */}
           <div className="flex items-center gap-1.5 bg-pastel-purple-light border-2 border-pastel-purple text-purple-900 px-3 py-1.5 rounded-2xl text-xs sm:text-sm font-bold shadow-xs">
             <span className="text-lg">{activeCharacterAvatar}</span>

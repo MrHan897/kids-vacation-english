@@ -104,11 +104,26 @@ export interface ProgressState {
   lastActiveDate: string;
 }
 
-export type ActiveTab = 'timetable' | 'timer' | 'phonics' | 'quiz' | 'rewards';
+export type GradeLevel = 'grade1' | 'grade2' | 'grade3';
+
+export type MathCategory = 'addition' | 'subtraction' | 'multiplication' | 'shapes';
+
+export interface MathQuestion {
+  id: string;
+  grade: GradeLevel;
+  category: MathCategory;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation: string;
+  icon: string;
+}
+
+export type ActiveTab = 'timetable' | 'timer' | 'phonics' | 'quiz' | 'math' | 'rewards';
 
 export interface UserProfile {
   name: string;
-  grade: string;
+  grade: GradeLevel | string;
   avatar: string;
   createdAt: string;
 }

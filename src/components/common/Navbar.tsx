@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Timer, BookOpen, HelpCircle, Trophy } from 'lucide-react';
+import { Calendar, Timer, BookOpen, HelpCircle, Trophy, Calculator } from 'lucide-react';
 import { ActiveTab } from '../../types';
 import { playSound } from '../../services/audio';
 
@@ -14,6 +14,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
     { id: 'timer', label: '뽀모도로 타이머', shortLabel: '타이머', icon: Timer, color: 'bg-pastel-blue text-sky-900 border-sky-300' },
     { id: 'phonics', label: '파닉스 알파벳', shortLabel: '파닉스', icon: BookOpen, color: 'bg-pastel-purple text-purple-900 border-purple-300' },
     { id: 'quiz', label: '기초 영어 퀴즈', shortLabel: '영어퀴즈', icon: HelpCircle, color: 'bg-pastel-mint text-emerald-900 border-emerald-300' },
+    { id: 'math', label: '어린이 수학 놀이', shortLabel: '수학놀이', icon: Calculator, color: 'bg-amber-100 text-amber-900 border-amber-300' },
     { id: 'rewards', label: '칭찬 스티커 & 캐릭터', shortLabel: '보상함', icon: Trophy, color: 'bg-pastel-yellow text-amber-900 border-amber-300' },
   ];
 
@@ -25,7 +26,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
   return (
     <>
       {/* Desktop / Tablet Navbar (Top) */}
-      <nav className="hidden md:block w-full max-w-4xl mx-auto px-4 my-4">
+      <nav className="hidden md:block w-full max-w-5xl mx-auto px-4 my-4">
         <div className="bg-white/90 backdrop-blur-md rounded-3xl p-2 shadow-pastel border-2 border-pink-100 flex items-center justify-around gap-2">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -36,6 +37,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
               timer: 'nav-timer',
               phonics: 'nav-english',
               quiz: 'nav-quiz',
+              math: 'nav-math',
               rewards: 'nav-rewards',
             };
 
@@ -70,6 +72,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
               timer: 'nav-timer',
               phonics: 'nav-english',
               quiz: 'nav-quiz',
+              math: 'nav-math',
               rewards: 'nav-rewards',
             };
 
