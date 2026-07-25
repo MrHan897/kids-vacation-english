@@ -1,5 +1,4 @@
 import { ScheduleItem, RewardState, ProgressState, CharacterItem, StickerItem, UserProfile } from '../types';
-import { DEFAULT_SCHEDULE } from '../data/defaultSchedule';
 import { DEFAULT_CHARACTERS } from '../data/characterData';
 
 const STORAGE_KEYS = {
@@ -60,6 +59,22 @@ function safeSet<T>(key: string, value: T): void {
   } catch (err) {
     console.error(`[storage] Failed to save item for key "${key}":`, err);
   }
+}
+
+import { GRADE1_SCHEDULE, GRADE2_SCHEDULE, GRADE3_SCHEDULE, DEFAULT_SCHEDULE } from '../data/defaultSchedule';
+
+/**
+ * Reset and load default timetable schedule according to grade selection
+ */
+export function resetScheduleByGrade(grade: string): ScheduleItem[] {
+  let selectedSchedule: ScheduleItem[] = GRADE1_SCHEDULE;
+  if (grade === '초등 2학년' || grade === 'grade2') {
+    selectedSchedule = GRADE2_SCHEDULE;
+  } else if (grade === '초등 3학년' || grade === '초등 4학년 이상' || grade === 'grade3') {
+    selectedSchedule = GRADE3_SCHEDULE;
+  }
+  saveSchedule(selectedSchedule);
+  return selectedSchedule;
 }
 
 /**

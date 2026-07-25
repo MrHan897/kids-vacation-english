@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { UserProfile } from '../../types';
 import { playSound } from '../../services/audio';
+import { resetScheduleByGrade } from '../../services/storage';
 import { Check, Sparkles, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -51,6 +52,12 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({
     if (!name.trim()) return;
 
     playSound('success');
+    
+    // Auto switch schedule template if grade changed
+    if (userProfile.grade !== grade) {
+      resetScheduleByGrade(grade);
+    }
+
     onSaveProfile({
       ...userProfile,
       name: name.trim(),

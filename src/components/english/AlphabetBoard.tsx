@@ -10,12 +10,31 @@ interface AlphabetBoardProps {
 }
 
 export const AlphabetBoard: React.FC<AlphabetBoardProps> = ({ onCardSelect }) => {
+  const [selectedGrade, setSelectedGrade] = useState<'grade1' | 'grade2' | 'grade3'>('grade1');
   const [selectedLetter, setSelectedLetter] = useState<string>('A');
   const [isListening, setIsListening] = useState(false);
   const [sttFeedback, setSttFeedback] = useState<string | null>(null);
   const [showStarDust, setShowStarDust] = useState(false);
 
-  const activeCard = PHONICS_DATA.find((c) => c.letter === selectedLetter) || PHONICS_DATA[0];
+  // Level-specific Phonics card adjustments
+  const baseCard = PHONICS_DATA.find((c) => c.letter === selectedLetter) || PHONICS_DATA[0];
+
+  const activeCard: PhonicsCard = {
+    ...baseCard,
+    word: selectedGrade === 'grade2' ? `${baseCard.word} & Friends` : selectedGrade === 'grade3' ? `${baseCard.word} Story` : baseCard.word,
+    exampleSentence:
+      selectedGrade === 'grade2'
+        ? `Look! My cute ${baseCard.word} is playing happily.`
+        : selectedGrade === 'grade3'
+        ? `I love reading fun stories about ${baseCard.word} every day!`
+        : baseCard.exampleSentence,
+  };
+
+  const handleSelectGrade = (grade: 'grade1' | 'grade2' | 'grade3') => {
+    playSound('click');
+    setSelectedGrade(grade);
+    setSttFeedback(null);
+  };
 
   const handleSelect = (card: PhonicsCard) => {
     setSelectedLetter(card.letter);
@@ -44,12 +63,12 @@ export const AlphabetBoard: React.FC<AlphabetBoardProps> = ({ onCardSelect }) =>
       (res) => {
         setIsListening(false);
         const spoken = res.transcript.trim().toLowerCase();
-        const target = activeCard.word.toLowerCase();
+        const target = baseCard.word.toLowerCase();
 
         if (spoken.includes(target) || target.includes(spoken)) {
           playSound('success');
           setShowStarDust(true);
-          setSttFeedback(`🎉 대단해요! "${res.transcript}" 완벽한 발음입니다! ⭐`);
+          setSttFeedback(`🎉 대단해요! "${res.transcript}" 완벽한 ${selectedGrade === 'grade3' ? '고학년 레벨' : '파닉스'} 발음입니다! ⭐`);
           setTimeout(() => setShowStarDust(false), 2000);
         } else {
           playSound('click');
@@ -72,6 +91,30 @@ export const AlphabetBoard: React.FC<AlphabetBoardProps> = ({ onCardSelect }) =>
     <div className="space-y-6 relative" data-testid="phonics-card-grid">
       {showStarDust && <StarDustFX />}
 
+      {/* Grade Level Selection Tabs */}
+      <div className="flex items-center justify-center gap-3 bg-white p-2.5 rounded-3xl border-2 border-purple-200 shadow-sm">
+        {[
+          { id: 'grade1', label: '초등 1학년 레벨 🐣 (파닉스 기초)' },
+          { id: 'grade2', label: '초등 2학년 레벨 🐥 (이중자음 & 단어)' },
+          { id: 'grade3', label: '초등 3학년 레벨 🦅 (문장 & 실생활 회화)' },
+        ].map((item) => {
+          const isSelected = selectedGrade === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => handleSelectGrade(item.id as any)}
+              className={`flex-1 min-h-[48px] py-2 px-3 rounded-2xl font-black text-xs sm:text-sm transition-all flex items-center justify-center ${
+                isSelected
+                  ? 'bg-purple-600 text-white shadow-md ring-2 ring-purple-300 border-2 border-purple-700'
+                  : 'bg-purple-50 text-purple-900 hover:bg-purple-100'
+              }`}
+            >
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Featured Card Viewer */}
       <div className="card-pastel bg-gradient-to-br from-purple-50 via-white to-pink-50 p-6 rounded-3xl border-2 border-purple-100 shadow-md">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
@@ -90,7 +133,7 @@ export const AlphabetBoard: React.FC<AlphabetBoardProps> = ({ onCardSelect }) =>
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="text-xs bg-purple-100 text-purple-700 font-bold px-2.5 py-0.5 rounded-full">
-                  파닉스: {activeCard.phonicsSound}
+                  {selectedGrade === 'grade1' ? '1학년 알파벳 기초' : selectedGrade === 'grade2' ? '2학년 단어 확장' : '3학년 스토리 회화'} - 파닉스: {activeCard.phonicsSound}
                 </span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-800">
@@ -149,7 +192,9 @@ export const AlphabetBoard: React.FC<AlphabetBoardProps> = ({ onCardSelect }) =>
       <div className="card-pastel bg-white p-5 rounded-3xl border-2 border-purple-100">
         <div className="flex items-center gap-2 mb-4">
           <BookOpen className="w-5 h-5 text-purple-500" />
-          <h3 className="text-lg font-bold text-slate-800">알파벳 A ~ Z 파닉스 카드</h3>
+          <h3 className="text-lg font-bold text-slate-800">
+            {selectedGrade === 'grade1' ? '1학년 기초' : selectedGrade === 'grade2' ? '2학년 단어' : '3학년 문장'} A ~ Z 파닉스 카드
+          </h3>
         </div>
 
         <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-9 gap-2.5">
