@@ -126,6 +126,20 @@ export const Header: React.FC<HeaderProps> = ({
             <Volume2 className="w-4 h-4" />
           </button>
 
+          {/* Developer Analytics Dashboard Button */}
+          {onOpenDevDashboard && (
+            <button
+              onClick={() => {
+                playSound('click');
+                onOpenDevDashboard();
+              }}
+              title="비공개 개발자 관리자 대시보드"
+              className="p-2 bg-slate-900 hover:bg-slate-800 text-yellow-300 rounded-2xl transition-all active:scale-95 shadow-xs border-2 border-indigo-400"
+            >
+              <span className="text-xs font-black">📊 관리</span>
+            </button>
+          )}
+
           {/* Reset Storage Button */}
           <button
             data-testid="reset-data-btn"
