@@ -175,53 +175,36 @@ export const MyRoomModule: React.FC<MyRoomModuleProps> = ({ userProfile, activeC
               </div>
             </div>
 
-            {/* Full-bleed 3D Isometric Room Canvas */}
-            <div className="relative w-full h-[400px] sm:h-[480px] bg-gradient-to-b from-indigo-950 via-purple-950 to-slate-950 rounded-3xl border-4 border-indigo-500 shadow-inner overflow-hidden flex items-center justify-center p-0">
-              {/* Full-bleed Roblox 3D Isometric Grid Floor Plane */}
-              <motion.div
-                animate={{ rotateX: 58, rotateZ: -28 + cameraAngle }}
-                transition={{ type: 'spring', stiffness: 100, damping: 18 }}
-                style={{ transformStyle: 'preserve-3d' }}
-                className="relative w-[130%] h-[130%] sm:w-[125%] sm:h-[125%] bg-gradient-to-br from-indigo-800 via-purple-900 to-indigo-950 border-8 border-indigo-400/80 shadow-[0_30px_70px_rgba(0,0,0,0.9)] grid grid-cols-6 grid-rows-6 gap-1.5 p-4"
-              >
-                {/* 3D Tiles */}
-                {Array.from({ length: 36 }).map((_, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-indigo-400/20 rounded-xl border border-indigo-300/30 backdrop-blur-xs"
-                  />
-                ))}
-
-                {/* Direct Touch Drag-and-Drop 3D Placed Items */}
+            {/* Clean Flat Canvas for Pure Icons without 3D Grid Map */}
+            <div className="relative w-full h-[380px] sm:h-[450px] bg-gradient-to-b from-indigo-950 via-purple-950 to-slate-950 rounded-3xl border-4 border-indigo-500 shadow-inner overflow-hidden flex items-center justify-center p-4">
+              {/* Pure Icon Container without 3D floor transform */}
+              <div className="relative w-full h-full">
+                {/* Direct Touch Drag-and-Drop Pure Item Icons (No 3D Map, No Text Labels) */}
                 {items
                   .filter((it) => it.unlocked)
                   .map((it) => (
                     <motion.div
                       key={it.id}
                       drag
-                      dragConstraints={{ left: -140, right: 140, top: -140, bottom: 140 }}
+                      dragConstraints={{ left: -160, right: 160, top: -140, bottom: 140 }}
                       dragElastic={0.1}
                       onDragStart={() => playSound('click')}
                       onDragEnd={() => playSound('reward')}
-                      whileDrag={{ scale: 1.4, z: 50 }}
-                      whileHover={{ scale: 1.3, z: 30 }}
+                      whileDrag={{ scale: 1.4, zIndex: 50 }}
+                      whileHover={{ scale: 1.3, zIndex: 40 }}
                       className="absolute cursor-grab active:cursor-grabbing flex flex-col items-center select-none z-20 group"
                       style={{
                         left: `${it.position?.x ?? 50}%`,
                         top: `${it.position?.y ?? 50}%`,
-                        transform: 'translate(-50%, -50%) translateZ(40px) rotateX(-58deg) rotateZ(28deg)',
+                        transform: 'translate(-50%, -50%)',
                       }}
                     >
-                      <span className="text-5xl sm:text-6xl filter drop-shadow-[0_12px_12px_rgba(0,0,0,0.8)] pointer-events-none transition-transform group-hover:scale-110">
+                      <span className="text-6xl sm:text-7xl filter drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)] pointer-events-none transition-transform group-hover:scale-110">
                         {it.icon}
-                      </span>
-                      <span className="text-[10px] font-black text-slate-900 bg-yellow-300/95 px-2 py-0.5 rounded-full border border-yellow-400 shadow-md whitespace-nowrap pointer-events-none mt-0.5 opacity-90 group-hover:opacity-100">
-                        {it.name} 🖐️
                       </span>
                     </motion.div>
                   ))}
-                {/* Pure 3D Placed Items without center rabbit overlay */}
-              </motion.div>
+              </div>
             </div>
 
             {/* Direct Touch Drag Tip */}
