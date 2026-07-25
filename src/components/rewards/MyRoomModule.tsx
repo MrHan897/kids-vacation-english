@@ -19,6 +19,31 @@ export const MyRoomModule: React.FC<MyRoomModuleProps> = ({ userProfile, activeC
 
   // Roblox 3D Perspective Controls
   const [cameraAngle, setCameraAngle] = useState<number>(20);
+  const [showCustomModal, setShowCustomModal] = useState(false);
+  const [customName, setCustomName] = useState('');
+  const [customIcon, setCustomIcon] = useState('🛸');
+
+  const handleCreateCustomItem = () => {
+    if (!customName.trim()) return;
+    playSound('reward');
+    const newItem: MyRoomItem = {
+      id: `custom-room-${Date.now()}`,
+      name: customName.trim(),
+      icon: customIcon,
+      category: 'special',
+      costStickers: 0,
+      unlocked: true,
+      position: { x: Math.floor(Math.random() * 50) + 25, y: Math.floor(Math.random() * 50) + 25 },
+    };
+
+    const updated = [...items, newItem];
+    setItems(updated);
+    saveMyRoomItems(updated);
+    setShowCustomModal(false);
+    setCustomName('');
+    setShowPraiseToast(`✨ 나만의 상상 3D 가구 [${newItem.name} ${newItem.icon}]가 마이룸에 설치되었습니다!`);
+    setTimeout(() => setShowPraiseToast(null), 3500);
+  };
 
   const handleToggleQuest = (questId: string) => {
     playSound('click');
@@ -195,21 +220,7 @@ export const MyRoomModule: React.FC<MyRoomModuleProps> = ({ userProfile, activeC
                       </span>
                     </motion.div>
                   ))}
-                {/* Pure 3D Avatar Character Standing Directly on 3D Grid Floor */}
-                <motion.div
-                  className="absolute z-30 cursor-pointer flex flex-col items-center select-none"
-                  style={{
-                    left: '50%',
-                    top: '40%',
-                    transform: 'translate(-50%, -50%) translateZ(45px) rotateX(-60deg) rotateZ(30deg)',
-                  }}
-                >
-                  <InteractiveMascot
-                    avatar={activeCharacter?.avatar || userProfile?.avatar || '🐰'}
-                    name={`${userProfile?.name || '지우'}`}
-                    pureAvatar={true}
-                  />
-                </motion.div>
+                {/* Pure 3D Placed Items without center rabbit overlay */}
               </motion.div>
             </div>
 
@@ -218,12 +229,22 @@ export const MyRoomModule: React.FC<MyRoomModuleProps> = ({ userProfile, activeC
               💡 스마트폰 터치 팁: 화면 속 가구를 손가락으로 꾹 눌러 원하는 곳으로 자유롭게 끌어다 놓으세요! 🖐️
             </div>
 
-            {/* Item Shop Grid */}
+            {/* Custom 3D Furniture Creator Section */}
             <div className="pt-4 border-t border-indigo-800 space-y-3 mt-4">
-              <h4 className="text-sm font-black text-yellow-300 flex items-center gap-1.5">
-                <ShoppingBag className="w-4 h-4 text-pink-400" />
-                <span>3D 가구 & 소품 상점</span>
-              </h4>
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-black text-yellow-300 flex items-center gap-1.5">
+                  <ShoppingBag className="w-4 h-4 text-pink-400" />
+                  <span>3D 가구 & 나만의 상상 커스텀 상점</span>
+                </h4>
+                <button
+                  onClick={() => setShowCustomModal(true)}
+                  className="px-3.5 py-1.5 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-md flex items-center gap-1 transition-all border border-yellow-200"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>✨ 나만의 상상 3D 가구 만들기</span>
+                </button>
+              </div>
+
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {items.map((it) => (
                   <div
@@ -325,6 +346,78 @@ export const MyRoomModule: React.FC<MyRoomModuleProps> = ({ userProfile, activeC
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+      {/* Custom 3D Furniture Creator Modal */}
+      {showCustomModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-gradient-to-b from-indigo-900 via-purple-900 to-slate-900 p-6 rounded-3xl border-4 border-indigo-400 max-w-md w-full text-white space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-indigo-700/60 pb-3">
+              <h3 className="text-lg font-black text-yellow-300 flex items-center gap-2">
+                ✨ 나만의 상상 3D 가구 커스텀 모드
+              </h3>
+              <button
+                onClick={() => setShowCustomModal(false)}
+                className="text-slate-400 hover:text-white font-bold text-sm"
+              >
+                ✕ 닫기
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-black text-indigo-200 block mb-1">
+                  1. 가구 아이콘 선택 (이모지):
+                </label>
+                <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                  {['🛸', '🚀', '🏰', '🏎️', '🎮', '🦕', '🎸', '⚽', '🍕', '🍰', '🎁', '💎', '🌈', '🤖', '🐱'].map(
+                    (emoji) => (
+                      <button
+                        key={emoji}
+                        onClick={() => setCustomIcon(emoji)}
+                        className={`text-2xl p-2 rounded-xl border-2 transition-all shrink-0 ${
+                          customIcon === emoji
+                            ? 'bg-yellow-400 border-yellow-300 scale-110 shadow-md'
+                            : 'bg-indigo-950 border-indigo-700 hover:bg-indigo-800'
+                        }`}
+                      >
+                        {emoji}
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-black text-indigo-200 block mb-1">
+                  2. 상상하는 가구 이름 입력:
+                </label>
+                <input
+                  type="text"
+                  placeholder="예: 우주선 책상, 미니 로봇 장식"
+                  value={customName}
+                  onChange={(e) => setCustomName(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-indigo-950 border-2 border-indigo-500 rounded-xl text-white font-bold text-sm focus:outline-none focus:border-yellow-400"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                onClick={() => setShowCustomModal(false)}
+                className="flex-1 py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-black text-xs rounded-xl"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleCreateCustomItem}
+                disabled={!customName.trim()}
+                className="flex-1 py-3 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-md disabled:opacity-50"
+              >
+                3D 아지트에 즉시 설치! 🚀
+              </button>
+            </div>
           </div>
         </div>
       )}
