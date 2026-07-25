@@ -12,7 +12,6 @@ interface MathModuleProps {
 }
 
 export const MathModule: React.FC<MathModuleProps> = ({ grade = 'grade1', onEarnSticker }) => {
-  const [selectedGrade, setSelectedGrade] = useState<GradeLevel>(grade);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnswered, setIsAnswered] = useState<boolean>(false);
@@ -20,17 +19,10 @@ export const MathModule: React.FC<MathModuleProps> = ({ grade = 'grade1', onEarn
   const [score, setScore] = useState<number>(0);
   const [showStarDust, setShowStarDust] = useState<boolean>(false);
 
-  const currentQuestions = MATH_QUESTIONS.filter((q) => q.grade === selectedGrade);
+  const currentQuestions = MATH_QUESTIONS.filter((q) => q.grade === grade);
   const currentQuestion: MathQuestion = currentQuestions[currentIndex] || currentQuestions[0];
 
-  const handleSelectGrade = (newGrade: GradeLevel) => {
-    playSound('click');
-    setSelectedGrade(newGrade);
-    setCurrentIndex(0);
-    setSelectedOption(null);
-    setIsAnswered(false);
-    setIsCorrect(false);
-  };
+
 
   const handleOptionClick = (optionIdx: number) => {
     if (isAnswered) return;
@@ -92,28 +84,21 @@ export const MathModule: React.FC<MathModuleProps> = ({ grade = 'grade1', onEarn
         </div>
       </div>
 
-      {/* Grade Selector Tabs */}
-      <div className="flex items-center justify-center gap-3 bg-white p-2 rounded-3xl border-2 border-amber-200 shadow-sm">
-        {(['grade1', 'grade2', 'grade3'] as GradeLevel[]).map((gLevel) => {
-          const isSelected = selectedGrade === gLevel;
-          const label = gLevel === 'grade1' ? '초등 1학년 🐣' : gLevel === 'grade2' ? '초등 2학년 🐥' : '초등 3학년 🦅';
-
-          return (
-            <motion.button
-              key={gLevel}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => handleSelectGrade(gLevel)}
-              className={`flex-1 min-h-[50px] py-2 px-4 rounded-2xl font-black text-sm transition-all flex items-center justify-center gap-2 ${
-                isSelected
-                  ? 'bg-amber-400 text-slate-900 shadow-md ring-2 ring-amber-300 border-2 border-amber-500'
-                  : 'bg-slate-50 text-slate-600 hover:bg-amber-100'
-              }`}
-            >
-              <span>{label}</span>
-            </motion.button>
-          );
-        })}
+      {/* Grade Title Indicator Badge */}
+      <div className="flex items-center justify-between bg-white p-3.5 px-5 rounded-3xl border-2 border-amber-200 shadow-sm">
+        <span className="text-xs font-black text-amber-900 flex items-center gap-1.5">
+          <Calculator className="w-4 h-4 text-amber-600" />
+          <span>
+            {grade === 'grade1'
+              ? '🐣 1학년: 기초 수 세기 & 10 이하 덧셈/뺄셈'
+              : grade === 'grade2'
+              ? '🐥 2학년: 두 자리 덧셈/뺄셈 & 구구단 2~9단'
+              : '🦅 3학년: 세 자리 연산, 입체도형 & 기초 분수 개념'}
+          </span>
+        </span>
+        <span className="text-xs font-extrabold text-amber-800 bg-amber-100 px-3 py-1 rounded-full border border-amber-300">
+          프로필 학년 자동 맞춤 🎯
+        </span>
       </div>
 
       {/* Main Question Card Area */}
