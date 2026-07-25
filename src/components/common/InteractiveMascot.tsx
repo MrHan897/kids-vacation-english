@@ -5,15 +5,15 @@ interface MascotProps {
   avatar?: string;
   name?: string;
   onSuccess?: boolean;
+  pureAvatar?: boolean;
 }
 
-export const InteractiveMascot: React.FC<MascotProps> = ({ avatar = '🐰', name = '마법 토끼', onSuccess }) => {
+export const InteractiveMascot: React.FC<MascotProps> = ({ avatar = '🐰', name = '마법 토끼', onSuccess, pureAvatar }) => {
   const [isTouched, setIsTouched] = useState(false);
   const [sparks, setSparks] = useState<{ id: number; char: string; x: number }[]>([]);
 
   const handleTouch = () => {
     setIsTouched(true);
-    // 한글 자음 스파크 팝업 생성 (ㅊ, ㅈ, ㅎ, ✨, 💖)
     const koreanChars = ['ㅊ', 'ㅈ', 'ㅎ', '✨', '💖'];
     const newSpark = {
       id: Date.now(),
@@ -21,9 +21,56 @@ export const InteractiveMascot: React.FC<MascotProps> = ({ avatar = '🐰', name
       x: (Math.random() - 0.5) * 60,
     };
     setSparks((prev) => [...prev.slice(-4), newSpark]);
-
     setTimeout(() => setIsTouched(false), 300);
   };
+
+  if (pureAvatar) {
+    return (
+      <div className="relative flex flex-col items-center justify-center select-none cursor-pointer" onClick={handleTouch}>
+        {/* 한글 스파크 파티클 레이어 */}
+        <AnimatePresence>
+          {sparks.map((spark) => (
+            <motion.span
+              key={spark.id}
+              initial={{ opacity: 1, y: 0, scale: 0.5, x: spark.x }}
+              animate={{ opacity: 0, y: -60, scale: 1.4, rotate: spark.x }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
+              className="absolute -top-4 text-2xl font-black text-yellow-300 pointer-events-none select-none drop-shadow-md z-30"
+            >
+              {spark.char}
+            </motion.span>
+          ))}
+        </AnimatePresence>
+
+        {/* 순수 3D 아바타 피규어 (흰색 카드 상자 없음) */}
+        <motion.div
+          animate={
+            onSuccess
+              ? { rotateY: [0, 360], scale: [1, 1.2, 1], y: [0, -15, 0] }
+              : isTouched
+              ? { scaleY: 0.85, scaleX: 1.15 }
+              : { y: [0, -8, 0] }
+          }
+          transition={
+            onSuccess
+              ? { duration: 0.8, ease: 'backOut' }
+              : isTouched
+              ? { duration: 0.15 }
+              : { repeat: Infinity, duration: 2.5, ease: 'easeInOut' }
+          }
+          className="flex flex-col items-center"
+        >
+          <span className="text-6xl sm:text-7xl filter drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)]">
+            {avatar}
+          </span>
+          <span className="mt-1 font-black text-[11px] text-slate-900 bg-yellow-300 px-2.5 py-0.5 rounded-full border border-yellow-400 shadow-lg whitespace-nowrap">
+            {name} 🌟
+          </span>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex flex-col items-center justify-center p-4">

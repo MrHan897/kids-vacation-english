@@ -195,15 +195,22 @@ export const MyRoomModule: React.FC<MyRoomModuleProps> = ({ userProfile, activeC
                       </span>
                     </motion.div>
                   ))}
+                {/* Pure 3D Avatar Character Standing Directly on 3D Grid Floor */}
+                <motion.div
+                  className="absolute z-30 cursor-pointer flex flex-col items-center select-none"
+                  style={{
+                    left: '50%',
+                    top: '40%',
+                    transform: 'translate(-50%, -50%) translateZ(45px) rotateX(-60deg) rotateZ(30deg)',
+                  }}
+                >
+                  <InteractiveMascot
+                    avatar={activeCharacter?.avatar || userProfile?.avatar || '🐰'}
+                    name={`${userProfile?.name || '지우'}`}
+                    pureAvatar={true}
+                  />
+                </motion.div>
               </motion.div>
-
-              {/* User Profile Selected Active Character Overlay */}
-              <div className="absolute bottom-3 right-3 z-30 flex flex-col items-center">
-                <InteractiveMascot
-                  avatar={activeCharacter?.avatar || userProfile?.avatar || '🐰'}
-                  name={`${userProfile?.name || '지우'}의 ${activeCharacter?.name || '캐릭터'}`}
-                />
-              </div>
             </div>
 
             {/* Direct Touch Drag Tip */}
