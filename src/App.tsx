@@ -96,7 +96,7 @@ export const App: React.FC = () => {
             >
               {activeTab === 'timetable' && <TimetableModule onNavigateTab={setActiveTab} />}
               {activeTab === 'timer' && <TimerModule />}
-              {activeTab === 'phonics' && <PhonicsModule />}
+              {activeTab === 'phonics' && <PhonicsModule grade={currentGradeLevel} />}
               {activeTab === 'quiz' && <QuizModule />}
               {activeTab === 'math' && (
                 <MathModule grade={currentGradeLevel} onEarnSticker={handleEarnSticker} />
