@@ -102,7 +102,9 @@ export const App: React.FC = () => {
               {activeTab === 'math' && (
                 <MathModule grade={currentGradeLevel} onEarnSticker={handleEarnSticker} />
               )}
-              {activeTab === 'myroom' && <MyRoomModule />}
+              {activeTab === 'myroom' && (
+                <MyRoomModule userProfile={userProfile} activeCharacter={activeCharacter} />
+              )}
               {activeTab === 'rewards' && <RewardModule />}
             </motion.div>
           </AnimatePresence>

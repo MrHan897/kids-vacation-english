@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
-import { MyRoomItem, DailyQuest } from '../../types';
+import { MyRoomItem, DailyQuest, UserProfile } from '../../types';
 import { getMyRoomItems, saveMyRoomItems, getDailyQuests, saveDailyQuests, addSticker } from '../../services/storage';
 import { playSound } from '../../services/audio';
 import { InteractiveMascot } from '../common/InteractiveMascot';
-import { Sparkles, CheckCircle2, Award, Heart, ShoppingBag, Plus, Move, RotateCw, Box } from 'lucide-react';
+import { Sparkles, CheckCircle2, Award, Heart, ShoppingBag, Plus, RotateCw, Box, Hand } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export const MyRoomModule: React.FC = () => {
+interface MyRoomModuleProps {
+  userProfile?: UserProfile;
+  activeCharacter?: { name: string; avatar: string };
+}
+
+export const MyRoomModule: React.FC<MyRoomModuleProps> = ({ userProfile, activeCharacter }) => {
   const [items, setItems] = useState<MyRoomItem[]>(() => getMyRoomItems());
   const [quests, setQuests] = useState<DailyQuest[]>(() => getDailyQuests());
   const [activeTab, setActiveTab] = useState<'room' | 'quests'>('room');
@@ -14,7 +19,6 @@ export const MyRoomModule: React.FC = () => {
 
   // Roblox 3D Perspective Controls
   const [cameraAngle, setCameraAngle] = useState<number>(20);
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
 
   const handleToggleQuest = (questId: string) => {
     playSound('click');
@@ -78,22 +82,6 @@ export const MyRoomModule: React.FC = () => {
     setTimeout(() => setShowPraiseToast(null), 3000);
   };
 
-  const handleMoveItem = (id: string, deltaX: number, deltaY: number) => {
-    playSound('click');
-    const updated = items.map((it) => {
-      if (it.id === id) {
-        const curX = it.position?.x ?? 50;
-        const curY = it.position?.y ?? 50;
-        const newX = Math.max(15, Math.min(85, curX + deltaX));
-        const newY = Math.max(20, Math.min(80, curY + deltaY));
-        return { ...it, position: { x: newX, y: newY } };
-      }
-      return it;
-    });
-    setItems(updated);
-    saveMyRoomItems(updated);
-  };
-
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Toast Notification */}
@@ -115,7 +103,7 @@ export const MyRoomModule: React.FC = () => {
           }`}
         >
           <Box className="w-5 h-5 text-yellow-300 animate-pulse" />
-          <span>🎮 로블록스 3D 마이룸 아지트</span>
+          <span>🎮 스마트폰 직접 터치 3D 마이룸</span>
         </button>
 
         <button
@@ -135,15 +123,16 @@ export const MyRoomModule: React.FC = () => {
       {activeTab === 'room' && (
         <div className="space-y-6">
           <div className="card-pastel bg-gradient-to-b from-indigo-900 via-purple-900 to-slate-900 p-6 rounded-3xl border-4 border-indigo-400 relative overflow-hidden shadow-2xl">
-            {/* Header with Camera Rotation */}
+            {/* Header with User Profile Character Info */}
             <div className="flex items-center justify-between border-b border-indigo-700/60 pb-3 mb-4 text-white">
               <div>
                 <h3 className="text-xl font-black text-yellow-300 flex items-center gap-2 drop-shadow-md">
-                  🎮 3D 로블록스 입체 마이룸 아지트
+                  🎮 {userProfile?.name || '지우'}의 3D 로블록스 마이룸
                   <Sparkles className="w-5 h-5 text-yellow-400 fill-yellow-300 animate-bounce" />
                 </h3>
-                <p className="text-xs text-indigo-200 font-bold mt-0.5">
-                  가구를 터치해 위치를 지정하고 3D 각도를 회전시켜 나만의 로블록스 방을 만들어보세요!
+                <p className="text-xs text-indigo-200 font-bold mt-0.5 flex items-center gap-1">
+                  <Hand className="w-4 h-4 text-yellow-300 animate-pulse" />
+                  <span>스마트폰 화면에서 가구를 손가락으로 직접 끌어서 이동시키세요!</span>
                 </p>
               </div>
 
@@ -178,85 +167,49 @@ export const MyRoomModule: React.FC = () => {
                   />
                 ))}
 
-                {/* Placed Items */}
+                {/* Direct Touch Drag-and-Drop 3D Placed Items */}
                 {items
                   .filter((it) => it.unlocked)
-                  .map((it) => {
-                    const isSelected = selectedItemId === it.id;
-                    return (
-                      <motion.div
-                        key={it.id}
-                        onClick={() => {
-                          playSound('click');
-                          setSelectedItemId(it.id);
-                        }}
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        whileHover={{ scale: 1.3, z: 30 }}
-                        className={`absolute cursor-pointer flex flex-col items-center select-none ${
-                          isSelected ? 'ring-4 ring-yellow-400 rounded-2xl bg-yellow-300/30 p-2 z-40' : 'z-20'
-                        }`}
-                        style={{
-                          left: `${it.position?.x ?? 50}%`,
-                          top: `${it.position?.y ?? 50}%`,
-                          transform: 'translate(-50%, -50%) translateZ(40px) rotateX(-60deg) rotateZ(30deg)',
-                        }}
-                      >
-                        <span className="text-5xl sm:text-6xl filter drop-shadow-[0_12px_12px_rgba(0,0,0,0.7)]">
-                          {it.icon}
-                        </span>
-                        <span className="text-[10px] font-black text-slate-900 bg-white/95 px-2 py-0.5 rounded-full border border-purple-300 shadow-md whitespace-nowrap">
-                          {it.name}
-                        </span>
-                      </motion.div>
-                    );
-                  })}
+                  .map((it) => (
+                    <motion.div
+                      key={it.id}
+                      drag
+                      dragConstraints={{ left: -120, right: 120, top: -120, bottom: 120 }}
+                      dragElastic={0.1}
+                      onDragStart={() => playSound('click')}
+                      onDragEnd={() => playSound('reward')}
+                      whileDrag={{ scale: 1.4, z: 50 }}
+                      whileHover={{ scale: 1.3, z: 30 }}
+                      className="absolute cursor-grab active:cursor-grabbing flex flex-col items-center select-none z-20"
+                      style={{
+                        left: `${it.position?.x ?? 50}%`,
+                        top: `${it.position?.y ?? 50}%`,
+                        transform: 'translate(-50%, -50%) translateZ(40px) rotateX(-60deg) rotateZ(30deg)',
+                      }}
+                    >
+                      <span className="text-5xl sm:text-6xl filter drop-shadow-[0_12px_12px_rgba(0,0,0,0.7)] pointer-events-none">
+                        {it.icon}
+                      </span>
+                      <span className="text-[10px] font-black text-slate-900 bg-white/95 px-2 py-0.5 rounded-full border border-purple-300 shadow-md whitespace-nowrap pointer-events-none">
+                        {it.name} ✋ (터치 드래그)
+                      </span>
+                    </motion.div>
+                  ))}
               </motion.div>
 
-              {/* Builder Mascot Overlay */}
-              <div className="absolute bottom-3 right-3 z-30 scale-85">
-                <InteractiveMascot avatar="🐰" name="3D 로블록스 빌더 토끼" />
+              {/* User Profile Selected Active Character Overlay */}
+              <div className="absolute bottom-3 right-3 z-30 flex flex-col items-center">
+                <InteractiveMascot
+                  avatar={activeCharacter?.avatar || userProfile?.avatar || '🐰'}
+                  name={`${userProfile?.name || '지우'}의 ${activeCharacter?.name || '캐릭터'}`}
+                />
               </div>
             </div>
 
-            {/* 3D Item Position Controller */}
-            {selectedItemId && (
-              <div className="mt-4 p-4 bg-indigo-950/90 rounded-2xl border-2 border-indigo-400 flex flex-col sm:flex-row items-center justify-between gap-3 text-white">
-                <div className="flex items-center gap-2">
-                  <Move className="w-5 h-5 text-yellow-400 animate-bounce" />
-                  <span className="text-xs font-black text-yellow-300">
-                    선택된 가구: {items.find((it) => it.id === selectedItemId)?.name}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleMoveItem(selectedItemId, -5, 0)}
-                    className="px-3.5 py-1.5 bg-indigo-700 hover:bg-indigo-600 font-black text-xs rounded-xl border border-indigo-400 active:scale-95"
-                  >
-                    ⬅️ 왼쪽
-                  </button>
-                  <button
-                    onClick={() => handleMoveItem(selectedItemId, 5, 0)}
-                    className="px-3.5 py-1.5 bg-indigo-700 hover:bg-indigo-600 font-black text-xs rounded-xl border border-indigo-400 active:scale-95"
-                  >
-                    ➡️ 오른쪽
-                  </button>
-                  <button
-                    onClick={() => handleMoveItem(selectedItemId, 0, -5)}
-                    className="px-3.5 py-1.5 bg-indigo-700 hover:bg-indigo-600 font-black text-xs rounded-xl border border-indigo-400 active:scale-95"
-                  >
-                    ⬆️ 위
-                  </button>
-                  <button
-                    onClick={() => handleMoveItem(selectedItemId, 0, 5)}
-                    className="px-3.5 py-1.5 bg-indigo-700 hover:bg-indigo-600 font-black text-xs rounded-xl border border-indigo-400 active:scale-95"
-                  >
-                    ⬇️ 아래
-                  </button>
-                </div>
-              </div>
-            )}
+            {/* Direct Touch Drag Tip */}
+            <div className="mt-3 p-3 bg-indigo-950/90 rounded-2xl border border-indigo-400 text-center text-xs font-black text-yellow-300">
+              💡 스마트폰 터치 팁: 화면 속 가구를 손가락으로 꾹 눌러 원하는 곳으로 자유롭게 끌어다 놓으세요! 🖐️
+            </div>
 
             {/* Item Shop Grid */}
             <div className="pt-4 border-t border-indigo-800 space-y-3 mt-4">
