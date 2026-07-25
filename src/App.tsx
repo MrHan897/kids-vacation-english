@@ -8,6 +8,7 @@ import { TimerModule } from './components/timer/TimerModule';
 import { PhonicsModule } from './components/english/PhonicsModule';
 import { QuizModule } from './components/english/QuizModule';
 import { MathModule } from './components/math/MathModule';
+import { OutdoorActivityModule } from './components/outdoor/OutdoorActivityModule';
 import { RewardModule } from './components/rewards/RewardModule';
 import { MyRoomModule } from './components/rewards/MyRoomModule';
 import { TutorialModal } from './components/common/TutorialModal';
@@ -102,6 +103,7 @@ export const App: React.FC = () => {
               {activeTab === 'math' && (
                 <MathModule grade={currentGradeLevel} onEarnSticker={handleEarnSticker} />
               )}
+              {activeTab === 'outdoor' && <OutdoorActivityModule />}
               {activeTab === 'myroom' && (
                 <MyRoomModule userProfile={userProfile} activeCharacter={activeCharacter} />
               )}

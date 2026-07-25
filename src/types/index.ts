@@ -119,7 +119,7 @@ export interface MathQuestion {
   icon: string;
 }
 
-export type ActiveTab = 'timetable' | 'timer' | 'phonics' | 'quiz' | 'math' | 'rewards' | 'myroom';
+export type ActiveTab = 'timetable' | 'timer' | 'phonics' | 'quiz' | 'math' | 'rewards' | 'myroom' | 'outdoor';
 
 export interface UserProfile {
   name: string;
