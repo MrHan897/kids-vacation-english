@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Timer, BookOpen, HelpCircle, Trophy, Calculator } from 'lucide-react';
+import { Calendar, Timer, BookOpen, HelpCircle, Trophy, Calculator, Home } from 'lucide-react';
 import { ActiveTab } from '../../types';
 import { playSound } from '../../services/audio';
 
@@ -15,6 +15,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
     { id: 'phonics', label: '파닉스 알파벳', shortLabel: '파닉스', icon: BookOpen, color: 'bg-pastel-purple text-purple-900 border-purple-300' },
     { id: 'quiz', label: '기초 영어 퀴즈', shortLabel: '영어퀴즈', icon: HelpCircle, color: 'bg-pastel-mint text-emerald-900 border-emerald-300' },
     { id: 'math', label: '어린이 수학 놀이', shortLabel: '수학놀이', icon: Calculator, color: 'bg-amber-100 text-amber-900 border-amber-300' },
+    { id: 'myroom', label: '마이룸 아지트', shortLabel: '마이룸', icon: Home, color: 'bg-purple-100 text-purple-900 border-purple-300' },
     { id: 'rewards', label: '칭찬 스티커 & 캐릭터', shortLabel: '보상함', icon: Trophy, color: 'bg-pastel-yellow text-amber-900 border-amber-300' },
   ];
 
@@ -38,6 +39,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
               phonics: 'nav-english',
               quiz: 'nav-quiz',
               math: 'nav-math',
+              myroom: 'nav-myroom',
               rewards: 'nav-rewards',
             };
 
@@ -73,6 +75,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
               phonics: 'nav-english',
               quiz: 'nav-quiz',
               math: 'nav-math',
+              myroom: 'nav-myroom',
               rewards: 'nav-rewards',
             };
 

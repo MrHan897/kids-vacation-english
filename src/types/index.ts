@@ -119,7 +119,7 @@ export interface MathQuestion {
   icon: string;
 }
 
-export type ActiveTab = 'timetable' | 'timer' | 'phonics' | 'quiz' | 'math' | 'rewards';
+export type ActiveTab = 'timetable' | 'timer' | 'phonics' | 'quiz' | 'math' | 'rewards' | 'myroom';
 
 export interface UserProfile {
   name: string;
@@ -127,4 +127,33 @@ export interface UserProfile {
   avatar: string;
   createdAt: string;
 }
+
+export interface MyRoomItem {
+  id: string;
+  name: string;
+  icon: string;
+  category: 'furniture' | 'decor' | 'toy' | 'special';
+  costStickers: number;
+  unlocked: boolean;
+  position?: { x: number; y: number };
+}
+
+export interface DailyQuest {
+  id: string;
+  title: string;
+  category: 'routine' | 'study' | 'timer';
+  rewardStickerId: string;
+  completed: boolean;
+  parentApproved: boolean;
+}
+
+export interface VoiceEvaluationResult {
+  wordId: string;
+  recognizedText: string;
+  score: number;
+  crownTier: 'gold' | 'silver' | 'bronze' | 'try_again';
+  praiseAudioMessage: string;
+  timestamp: string;
+}
+
 

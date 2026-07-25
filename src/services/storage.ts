@@ -7,6 +7,8 @@ const STORAGE_KEYS = {
   PROGRESS: 'kids_vacation_progress',
   CHARACTERS: 'kids_vacation_characters',
   PROFILE: 'kids_vacation_user_profile',
+  MYROOM: 'kids_vacation_myroom',
+  QUESTS: 'kids_vacation_daily_quests',
 };
 
 const INITIAL_REWARD_STATE: RewardState = {
@@ -313,9 +315,25 @@ export function saveUserProfile(profile: UserProfile): void {
   safeSet(STORAGE_KEYS.PROFILE, profile);
 }
 
-/**
- * Reset all storage data back to defaults
- */
+import { DEFAULT_MYROOM_ITEMS, DEFAULT_DAILY_QUESTS } from '../data/myRoomData';
+import { MyRoomItem, DailyQuest } from '../types';
+
+export function getMyRoomItems(): MyRoomItem[] {
+  return safeParse<MyRoomItem[]>(STORAGE_KEYS.MYROOM, DEFAULT_MYROOM_ITEMS);
+}
+
+export function saveMyRoomItems(items: MyRoomItem[]): void {
+  safeSet(STORAGE_KEYS.MYROOM, items);
+}
+
+export function getDailyQuests(): DailyQuest[] {
+  return safeParse<DailyQuest[]>(STORAGE_KEYS.QUESTS, DEFAULT_DAILY_QUESTS);
+}
+
+export function saveDailyQuests(quests: DailyQuest[]): void {
+  safeSet(STORAGE_KEYS.QUESTS, quests);
+}
+
 export function resetAllData(): void {
   try {
     localStorage.removeItem(STORAGE_KEYS.SCHEDULE);
@@ -323,6 +341,8 @@ export function resetAllData(): void {
     localStorage.removeItem(STORAGE_KEYS.PROGRESS);
     localStorage.removeItem(STORAGE_KEYS.CHARACTERS);
     localStorage.removeItem(STORAGE_KEYS.PROFILE);
+    localStorage.removeItem(STORAGE_KEYS.MYROOM);
+    localStorage.removeItem(STORAGE_KEYS.QUESTS);
   } catch (err) {
     console.error('[storage] Failed to reset storage data:', err);
   }

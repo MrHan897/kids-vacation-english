@@ -12,6 +12,8 @@ interface PhonicsModuleProps {
   grade?: GradeLevel;
 }
 
+import VoiceCrown from './VoiceCrown';
+
 export const PhonicsModule: React.FC<PhonicsModuleProps> = ({ grade = 'grade1' }) => {
   const [activeSubTab, setActiveSubTab] = useState<'program' | 'game'>('program');
 
@@ -142,7 +144,12 @@ export const PhonicsModule: React.FC<PhonicsModuleProps> = ({ grade = 'grade1' }
           {showStarDust && <StarDustFX />}
 
           {/* 1️⃣ Grade 1: Standard A-Z Word Phonics */}
-          {grade === 'grade1' && <AlphabetBoard />}
+          {grade === 'grade1' && (
+            <div className="space-y-6">
+              <VoiceCrown targetWord="Apple" translation="사과" icon="🍎" />
+              <AlphabetBoard />
+            </div>
+          )}
 
           {/* 2️⃣ Grade 2: Sight Words & Blends Combination Phonics System */}
           {grade === 'grade2' && (

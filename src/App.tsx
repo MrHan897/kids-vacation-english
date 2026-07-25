@@ -9,6 +9,7 @@ import { PhonicsModule } from './components/english/PhonicsModule';
 import { QuizModule } from './components/english/QuizModule';
 import { MathModule } from './components/math/MathModule';
 import { RewardModule } from './components/rewards/RewardModule';
+import { MyRoomModule } from './components/rewards/MyRoomModule';
 import { TutorialModal } from './components/common/TutorialModal';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -101,6 +102,7 @@ export const App: React.FC = () => {
               {activeTab === 'math' && (
                 <MathModule grade={currentGradeLevel} onEarnSticker={handleEarnSticker} />
               )}
+              {activeTab === 'myroom' && <MyRoomModule />}
               {activeTab === 'rewards' && <RewardModule />}
             </motion.div>
           </AnimatePresence>

@@ -1,0 +1,85 @@
+import { MyRoomItem, DailyQuest } from '../types';
+
+export const DEFAULT_MYROOM_ITEMS: MyRoomItem[] = [
+  {
+    id: 'room-desk',
+    name: '꿈꾸는 공부 책상',
+    icon: '🪵',
+    category: 'furniture',
+    costStickers: 0,
+    unlocked: true,
+    position: { x: 15, y: 55 },
+  },
+  {
+    id: 'room-[#FEF08A]',
+    name: '무지개 구름 침대',
+    icon: '🛏️',
+    category: 'furniture',
+    costStickers: 1,
+    unlocked: true,
+    position: { x: 65, y: 55 },
+  },
+  {
+    id: 'room-teddy',
+    name: '폭신 곰인형',
+    icon: '🧸',
+    category: 'toy',
+    costStickers: 2,
+    unlocked: false,
+    position: { x: 25, y: 70 },
+  },
+  {
+    id: 'room-lamp',
+    name: '반짝 별빛 조명',
+    icon: '💡',
+    category: 'decor',
+    costStickers: 3,
+    unlocked: false,
+    position: { x: 80, y: 25 },
+  },
+  {
+    id: 'room-bug-box',
+    name: '여름 곤충 채집통',
+    icon: '🦋',
+    category: 'toy',
+    costStickers: 4,
+    unlocked: false,
+    position: { x: 45, y: 75 },
+  },
+  {
+    id: 'room-gold-crown-bed',
+    name: '학부모 칭찬 황금 왕관',
+    icon: '👑',
+    category: 'special',
+    costStickers: 5,
+    unlocked: false,
+    position: { x: 50, y: 30 },
+  },
+];
+
+export const DEFAULT_DAILY_QUESTS: DailyQuest[] = [
+  {
+    id: 'q-routine',
+    title: '아침 방학 생활표 확인하기 ⏰',
+    category: 'routine',
+    rewardStickerId: 'stk-routine',
+    completed: true,
+    parentApproved: true,
+  },
+  {
+    id: 'q-phonics',
+    title: '파닉스 알파벳 카드 3장 완독하기 🔤',
+    category: 'study',
+    rewardStickerId: 'stk-phonics',
+    completed: false,
+    parentApproved: false,
+  },
+  {
+    id: 'q-timer',
+    title: '뽀모도로 타이머로 공부 마치기 ⏱️',
+    category: 'timer',
+    rewardStickerId: 'stk-timer',
+    completed: false,
+    parentApproved: false,
+  },
+];
