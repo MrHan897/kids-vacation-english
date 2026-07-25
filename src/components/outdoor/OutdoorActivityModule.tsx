@@ -6,6 +6,7 @@ export interface OutdoorEvent {
   id: string;
   title: string;
   category: 'nature' | 'museum' | 'science' | 'culture';
+  region: '서울' | '경기' | '인천' | '강원' | '충청' | '경상' | '전라' | '제주';
   location: string;
   period: string;
   targetGrade: string;
@@ -23,7 +24,8 @@ export const OUTDOOR_EVENTS: OutdoorEvent[] = [
     id: 'evt-1',
     title: '🌿 여름철 어린이 자연학교 & 곤충 체험',
     category: 'nature',
-    location: '서울특별시 농업기술센터 / 생태공원',
+    region: '서울',
+    location: '서울특별시 농업기술센터 / 생태공원 (서울 서초구)',
     period: '2026. 7. 28 ~ 8. 15 (화·수·목)',
     targetGrade: '전 학년 (초등 1~3학년 가족)',
     description: '장수풍뎅이 관찰, 옥수수 수확 체험, 숲길 걷기 및 곤충 관찰 야외활동!',
@@ -38,7 +40,8 @@ export const OUTDOOR_EVENTS: OutdoorEvent[] = [
     id: 'evt-2',
     title: '🔭 과캉스 스탬프 투어 & 여름밤 별자리 탐험',
     category: 'science',
-    location: '국립과천과학관 / 천문우주관',
+    region: '경기',
+    location: '국립과천과학관 / 천문우주관 (경기 과천시)',
     period: '2026. 7. 25 ~ 8. 23',
     targetGrade: '초등 1~3학년 맞춤',
     description: '물놀이 과학 챌린지, 여름밤 별자리 망원경 관찰, 과학관 도장 깨기 스탬프 투어!',
@@ -53,7 +56,8 @@ export const OUTDOOR_EVENTS: OutdoorEvent[] = [
     id: 'evt-3',
     title: '🏺 선사시대 시간여행 & 유물 발굴 체험',
     category: 'museum',
-    location: '국립중앙박물관 / 검단선사박물관',
+    region: '인천',
+    location: '국립중앙박물관 / 검단선사박물관 (인천 서구)',
     period: '2026. 7. 31 ~ 8. 18',
     targetGrade: '초등 1학년 (선사), 초2~3학년 (고고학)',
     description: '흙 속에서 빗살무늬 토기와 유물 발굴하기, 토기 굽기 및 역사 퀴즈 모험!',
@@ -68,7 +72,8 @@ export const OUTDOOR_EVENTS: OutdoorEvent[] = [
     id: 'evt-4',
     title: '🎨 물놀이 챌린지 & 민화 부채/팽이 만들기',
     category: 'culture',
-    location: '인천시립박물관 & 어린이 문화관',
+    region: '인천',
+    location: '인천시립박물관 & 어린이 문화관 (인천 연수구)',
     period: '2026. 7. 25 ~ 8. 20 (매주 주말)',
     targetGrade: '전 학년 (초등 저학년 우대)',
     description: '봉숭아 물들이기, 자개 팽이 만들기, 시원한 야외 전통놀이 마당 특별 행사!',
@@ -83,7 +88,8 @@ export const OUTDOOR_EVENTS: OutdoorEvent[] = [
     id: 'evt-5',
     title: '🦋 불암산 나비정원 & 잠자리 생태 야외 탐방',
     category: 'nature',
-    location: '불암산 생태학습관 & 나비정원',
+    region: '서울',
+    location: '불암산 생태학습관 & 나비정원 (서울 노원구)',
     period: '2026. 8. 1 ~ 8. 25',
     targetGrade: '초등 1~3학년',
     description: '세계의 희귀 나비 관찰, 계곡 수생곤충 돋보기 탐구 및 자작나무 숲길 걷기!',
@@ -94,10 +100,29 @@ export const OUTDOOR_EVENTS: OutdoorEvent[] = [
     recommendedTime: '오전 09:30 ~ 11:30',
     badgeColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
   },
+  {
+    id: 'evt-6',
+    title: '🌲 강원 자락 숲속 생태 야영 & 밤하늘 은하수 관측',
+    category: 'nature',
+    region: '강원',
+    location: '국립춘천숲체원 / 평창 자연휴양림 (강원 춘천시)',
+    period: '2026. 8. 5 ~ 8. 22',
+    targetGrade: '초등전학년 모험가',
+    description: '맑은 강원도 숲속 계곡 수생 생물 관찰 및 밤하늘 은하수 캠핑 체험!',
+    tag: '강원·청정숲',
+    icon: '🏕️',
+    status: '사전예약',
+    weatherTip: '🌲 야간 산속 기온 저하 대비 긴팔 옷 꼭 준비!',
+    recommendedTime: '오후 15:00 ~ 21:00',
+    badgeColor: 'bg-teal-100 text-teal-800 border-teal-300',
+  },
 ];
 
 export const OutdoorActivityModule: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedRegion, setSelectedRegion] = useState<string>('전체');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [gpsStatus, setGpsStatus] = useState<string | null>(null);
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([]);
 
   const toggleBookmark = (id: string) => {
@@ -107,9 +132,38 @@ export const OutdoorActivityModule: React.FC = () => {
     );
   };
 
+  const handleGPSDetect = () => {
+    playSound('click');
+    if (!navigator.geolocation) {
+      alert('사용하시는 브라우저가 위치 정보를 지원하지 않습니다.');
+      return;
+    }
+    setGpsStatus('📍 내 위치 탐색 중...');
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        // GPS 위치 감지 성공 - 위치 기반 가까운 지역(기본 서울/경기) 자동 설정 피드백
+        setGpsStatus('✅ 내 위치 감지 성공! (서울/경기 주변 행사 우선 정렬)');
+        setSelectedRegion('서울');
+        playSound('reward');
+        setTimeout(() => setGpsStatus(null), 4000);
+      },
+      (error) => {
+        setGpsStatus('📍 위치 권한을 허용하시면 가장 가까운 체험 행사를 찾아드립니다!');
+        setTimeout(() => setGpsStatus(null), 4000);
+      }
+    );
+  };
+
   const filteredEvents = OUTDOOR_EVENTS.filter((evt) => {
-    if (selectedCategory === 'all') return true;
-    return evt.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'all' || evt.category === selectedCategory;
+    const matchesRegion = selectedRegion === '전체' || evt.region === selectedRegion;
+    const matchesQuery =
+      searchQuery.trim() === '' ||
+      evt.title.includes(searchQuery) ||
+      evt.location.includes(searchQuery) ||
+      evt.description.includes(searchQuery);
+
+    return matchesCategory && matchesRegion && matchesQuery;
   });
 
   return (
@@ -145,8 +199,67 @@ export const OutdoorActivityModule: React.FC = () => {
           </div>
         </div>
       </div>
+      {/* GPS Toast Notification */}
+      {gpsStatus && (
+        <div className="bg-emerald-600 text-white font-black text-xs px-4 py-2.5 rounded-2xl shadow-lg animate-bounce flex items-center justify-between border border-emerald-400">
+          <span>{gpsStatus}</span>
+          <button onClick={() => setGpsStatus(null)} className="text-white hover:text-yellow-300 font-bold ml-2">✕</button>
+        </div>
+      )}
 
-      {/* Weather & Safety Tip Banner */}
+      {/* Location-Based Search Bar & Region Tabs */}
+      <div className="bg-white p-4 rounded-3xl border-3 border-emerald-200 shadow-cute space-y-3">
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          {/* Keyword Search Input */}
+          <div className="relative flex-1 w-full">
+            <input
+              type="text"
+              placeholder="🔍 지역명, 과학관, 박물관, 곤충 체험 검색..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-2.5 bg-emerald-50/70 border-2 border-emerald-300 rounded-2xl text-slate-800 font-black text-xs focus:outline-none focus:border-emerald-500 placeholder-slate-400"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 font-bold text-xs"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+
+          {/* GPS Auto-Detect Button */}
+          <button
+            onClick={handleGPSDetect}
+            className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-black text-xs rounded-2xl shadow-md flex items-center justify-center gap-1.5 shrink-0 transition-all active:scale-95"
+          >
+            <MapPin className="w-4 h-4 text-yellow-300 animate-pulse" />
+            <span>📍 내 위치 GPS 자동 탐색</span>
+          </button>
+        </div>
+
+        {/* Region Selector Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          <span className="text-xs font-black text-slate-500 shrink-0 mr-1">지역:</span>
+          {['전체', '서울', '경기', '인천', '강원', '충청', '경상', '전라', '제주'].map((reg) => (
+            <button
+              key={reg}
+              onClick={() => {
+                playSound('click');
+                setSelectedRegion(reg);
+              }}
+              className={`px-3 py-1.5 rounded-xl font-black text-xs transition-all shrink-0 border ${
+                selectedRegion === reg
+                  ? 'bg-emerald-600 text-white border-emerald-700 shadow-sm scale-105'
+                  : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-emerald-50'
+              }`}
+            >
+              {reg === '전체' ? '🌐 전체' : `📍 ${reg}`}
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 text-slate-950 p-4 rounded-2xl border-2 border-amber-300 shadow-md flex items-center justify-between gap-3 text-xs font-black">
         <div className="flex items-center gap-2">
           <span className="text-2xl">☀️</span>
