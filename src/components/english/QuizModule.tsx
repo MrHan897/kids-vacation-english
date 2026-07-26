@@ -37,6 +37,9 @@ export const QuizModule: React.FC = () => {
     setSelectedOption(idx);
   };
 
+  const [comboStreak, setComboStreak] = useState<number>(0);
+  const [showRewardToast, setShowRewardToast] = useState<string | null>(null);
+
   const handleCheckAnswer = () => {
     if (selectedOption === null || !currentQuiz || isSubmitted) return;
 
@@ -45,11 +48,31 @@ export const QuizModule: React.FC = () => {
       playSound('success');
       setScore((prev) => prev + 1);
 
+      // Increase Combo Streak
+      const nextCombo = comboStreak + 1;
+      setComboStreak(nextCombo);
+
+      // Check 3-Combo Streak Bonus Mission Reward
+      if (nextCombo === 3) {
+        playSound('reward');
+        addSticker({
+          id: `stk-combo-${Date.now()}`,
+          name: '🔥 3연속 퍼펙트 콤보',
+          icon: '🔥',
+          description: '3문제를 연속으로 올바르게 맞혔어요!',
+          category: 'crown',
+          unlockedAt: new Date().toISOString(),
+        });
+        setShowRewardToast('🔥 3연속 퍼펙트 콤보 달성! [퍼펙트 스티커] 획득!');
+        setTimeout(() => setShowRewardToast(null), 4000);
+      }
+
       if (currentQuiz.audioPrompt) {
         speakText(currentQuiz.audioPrompt, 'en-US');
       }
     } else {
       playSound('click');
+      setComboStreak(0); // Reset combo streak on incorrect answer
     }
   };
 
@@ -60,11 +83,11 @@ export const QuizModule: React.FC = () => {
       setSelectedOption(null);
       setIsSubmitted(false);
     } else {
-      // Completed category quiz round
+      // Completed category 5-quiz round set mission
       setIsCategoryCompleted(true);
       playSound('reward');
 
-      // 1. Award Sticker
+      // 1. Award Set Mission Completion Sticker (Only given upon set completion, not per single question)
       const categoryNames: Record<QuizCategory, string> = {
         feelings: '기분 표현',
         greetings: '영어 인사',
@@ -75,9 +98,9 @@ export const QuizModule: React.FC = () => {
 
       addSticker({
         id: `stk-quiz-${activeCategory}-${Date.now()}`,
-        name: `${catName} 퀴즈 박사`,
+        name: `🎯 ${catName} 5문제 완주`,
         icon: '💯',
-        description: `${catName} 영어 퀴즈를 모두 풀었습니다!`,
+        description: `${catName} 퀴즈 5문제 완주 미션을 성공했어요!`,
         category: 'trophy',
         unlockedAt: new Date().toISOString(),
       });

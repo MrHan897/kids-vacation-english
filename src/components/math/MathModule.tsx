@@ -18,6 +18,7 @@ export const MathModule: React.FC<MathModuleProps> = ({ grade = 'grade1', onEarn
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [score, setScore] = useState<number>(0);
   const [showStarDust, setShowStarDust] = useState<boolean>(false);
+  const [comboStreak, setComboStreak] = useState<number>(0);
 
   const currentQuestions = MATH_QUESTIONS.filter((q) => q.grade === grade);
   const currentQuestion: MathQuestion = currentQuestions[currentIndex] || currentQuestions[0];
@@ -37,11 +38,20 @@ export const MathModule: React.FC<MathModuleProps> = ({ grade = 'grade1', onEarn
       speakText('정답이에요! 정말 똑똑하네요!', 'ko-KR');
       setScore((prev) => prev + 10);
       setShowStarDust(true);
-      if (onEarnSticker) onEarnSticker();
+
+      const nextCombo = comboStreak + 1;
+      setComboStreak(nextCombo);
+
+      // Award 3-Combo Streak Bonus Sticker
+      if (nextCombo === 3) {
+        if (onEarnSticker) onEarnSticker();
+      }
+
       setTimeout(() => setShowStarDust(false), 2500);
     } else {
       playSound('click');
       speakText('아쉬워요! 설명을 보고 다시 도전해보세요!', 'ko-KR');
+      setComboStreak(0);
     }
   };
 
@@ -53,8 +63,11 @@ export const MathModule: React.FC<MathModuleProps> = ({ grade = 'grade1', onEarn
     if (currentIndex + 1 < currentQuestions.length) {
       setCurrentIndex((prev) => prev + 1);
     } else {
+      // Completed 5-problem math set mission! Award Set Sticker
       setCurrentIndex(0);
-      speakText('모든 수학 문제를 풀었어요! 멋져요!', 'ko-KR');
+      setComboStreak(0);
+      speakText('수학 5문제 완주 미션을 성공했어요! 멋져요!', 'ko-KR');
+      if (onEarnSticker) onEarnSticker(); // Award Set Completion Sticker
     }
   };
 
