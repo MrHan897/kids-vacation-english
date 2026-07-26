@@ -81,7 +81,11 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
     }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
     playSound('click');
     const updated = schedule.filter((item) => item.id !== id);
     setSchedule(updated);
@@ -125,7 +129,10 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
 
   return (
     <div data-testid="timetable-container" className="space-y-6">
-      {/* Header Banner */}
+      {/* 1. 24-Hour Interactive Circular Clock View (여름방학 일일 계획표) - Placed Top */}
+      <CircularClock schedule={schedule} onSelectSlot={handleEdit} />
+
+      {/* 2. Header Banner (나만의 여름방학 시간표 & 일정 추가하기) - Placed Below Circular Clock */}
       <div className="card-pastel bg-gradient-to-r from-pastel-pink-light via-white to-pastel-blue-light border-2 border-pink-100 p-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -165,7 +172,7 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
           </div>
         </div>
 
-      {/* Completion Progress Bar */}
+        {/* Completion Progress Bar */}
         <div className="mt-5 pt-4 border-t border-pink-100/60">
           <div className="flex items-center justify-between text-xs font-extrabold text-slate-600 mb-1.5">
             <span className="flex items-center gap-1.5">
@@ -187,9 +194,6 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
           </div>
         </div>
       </div>
-
-      {/* 24-Hour Interactive Circular Clock View */}
-      <CircularClock schedule={schedule} onSelectSlot={handleEdit} />
 
       {/* Timetable Slots Grid / List */}
       {schedule.length === 0 ? (
