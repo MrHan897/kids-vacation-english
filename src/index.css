@@ -3,29 +3,45 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    touch-action: manipulation;
+  }
   body {
-    @apply bg-[#FFFBF5] text-slate-800 font-sans antialiased;
-    background-image: radial-gradient(#FDE047 0.75px, transparent 0.75px), radial-gradient(#FFB6C1 0.75px, #FFFBF5 0.75px);
-    background-size: 30px 30px;
-    background-position: 0 0, 15px 15px;
+    @apply bg-[#FFFBF5] text-slate-900 font-sans antialiased text-base leading-relaxed;
+    background-image: radial-gradient(#FDE047 0.85px, transparent 0.85px), radial-gradient(#FFB6C1 0.85px, #FFFBF5 0.85px);
+    background-size: 28px 28px;
+    background-position: 0 0, 14px 14px;
     word-break: keep-all;
+    overflow-x: hidden;
+    padding-bottom: env(safe-area-inset-bottom, 16px);
   }
 }
 
-/* Custom 64px Finger Touch Button Utility for Grade 1 Kids */
+/* Custom 64px Finger Touch Button Utility for Grade 1 Kids Mobile */
 .btn-finger-64 {
-  @apply min-h-[64px] min-w-[64px] px-6 py-4 rounded-3xl font-extrabold text-base
-         flex items-center justify-center gap-3 select-none
-         transition-all duration-150 active:scale-90 hover:scale-105
-         shadow-md hover:shadow-lg cursor-pointer;
+  @apply min-h-[56px] sm:min-h-[64px] min-w-[56px] sm:min-w-[64px] px-5 sm:px-6 py-3.5 sm:py-4 rounded-3xl font-black text-sm sm:text-base
+         flex items-center justify-center gap-2.5 sm:gap-3 select-none
+         transition-all duration-150 active:scale-95 hover:scale-105
+         shadow-md hover:shadow-lg cursor-pointer border-2;
 }
 
 /* Custom child-friendly button styling helper */
 .btn-cute {
-  @apply transition-transform transform active:scale-95 hover:scale-105 shadow-cute hover:shadow-cute-lg rounded-2xl font-bold;
+  @apply transition-transform transform active:scale-95 hover:scale-105 shadow-cute hover:shadow-cute-lg rounded-2xl font-black text-xs sm:text-sm;
 }
 
-/* Glass card container */
+/* Glass card container with high contrast border */
 .card-pastel {
-  @apply bg-white/90 backdrop-blur-md rounded-3xl border-2 border-pink-100 shadow-pastel p-5;
+  @apply bg-white/95 backdrop-blur-md rounded-3xl border-2 border-pink-200 shadow-pastel p-4 sm:p-6;
 }
+
+/* Mobile Scrollbar Hide */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
