@@ -67,37 +67,39 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
       {/* Mobile Sticky Bottom Navigation Bar (Thumb-Friendly 64px Touch Target) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t-2 border-pink-100 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-2 py-1.5 pb-safe">
         <div className="flex items-center justify-around gap-1">
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
+          {tabs
+            .filter((tab) => tab.id !== 'outdoor')
+            .map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
 
-            const testIdMap: Record<ActiveTab, string> = {
-              timetable: 'nav-timetable',
-              timer: 'nav-timer',
-              phonics: 'nav-english',
-              quiz: 'nav-quiz',
-              math: 'nav-math',
-              outdoor: 'nav-outdoor',
-              myroom: 'nav-myroom',
-              rewards: 'nav-rewards',
-            };
+              const testIdMap: Record<ActiveTab, string> = {
+                timetable: 'nav-timetable',
+                timer: 'nav-timer',
+                phonics: 'nav-english',
+                quiz: 'nav-quiz',
+                math: 'nav-math',
+                outdoor: 'nav-outdoor',
+                myroom: 'nav-myroom',
+                rewards: 'nav-rewards',
+              };
 
-            return (
-              <button
-                key={tab.id}
-                data-testid={testIdMap[tab.id]}
-                onClick={() => handleSelect(tab.id)}
-                className={`flex-1 min-h-[60px] flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-2xl transition-all duration-150 active:scale-90 select-none ${
-                  isActive
-                    ? `${tab.color} font-black scale-105 shadow-md border-2`
-                    : 'text-slate-500 font-bold hover:text-slate-700'
-                }`}
-              >
-                <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''}`} />
-                <span className="text-[11px] font-extrabold tracking-tight">{tab.shortLabel}</span>
-              </button>
-            );
-          })}
+              return (
+                <button
+                  key={tab.id}
+                  data-testid={testIdMap[tab.id]}
+                  onClick={() => handleSelect(tab.id)}
+                  className={`flex-1 min-h-[60px] flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-2xl transition-all duration-150 active:scale-90 select-none ${
+                    isActive
+                      ? `${tab.color} font-black scale-105 shadow-md border-2`
+                      : 'text-slate-500 font-bold hover:text-slate-700'
+                  }`}
+                >
+                  <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''}`} />
+                  <span className="text-[11px] font-extrabold tracking-tight">{tab.shortLabel}</span>
+                </button>
+              );
+            })}
         </div>
       </nav>
     </>
