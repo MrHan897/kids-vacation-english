@@ -72,6 +72,14 @@ const CATEGORY_STYLES = {
     badge: 'bg-orange-100 text-orange-700',
     label: '늘봄',
   },
+  exercise: {
+    bg: 'bg-rose-50',
+    border: 'border-rose-200',
+    hoverBorder: 'hover:border-rose-400',
+    iconBg: 'bg-rose-200 text-rose-800',
+    badge: 'bg-rose-100 text-rose-700',
+    label: '운동',
+  },
 };
 
 export const TimeSlot: React.FC<TimeSlotProps> = ({

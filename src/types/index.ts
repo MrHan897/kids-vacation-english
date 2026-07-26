@@ -1,4 +1,4 @@
-export type ActivityCategory = 'study' | 'play' | 'meal' | 'rest' | 'music' | 'academy' | 'neulbom';
+export type ActivityCategory = 'study' | 'play' | 'meal' | 'rest' | 'music' | 'academy' | 'neulbom' | 'exercise';
 
 export interface TimetableItem {
   id: string;

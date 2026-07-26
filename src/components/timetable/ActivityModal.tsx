@@ -19,6 +19,7 @@ const CATEGORY_COLORS: Record<ActivityCategory, { bg: string; border: string; te
   music: { bg: 'bg-emerald-100', border: 'border-emerald-300', text: 'text-emerald-800', hex: '#6EE7B7' },
   academy: { bg: 'bg-indigo-100', border: 'border-indigo-300', text: 'text-indigo-800', hex: '#A5B4FC' },
   neulbom: { bg: 'bg-orange-100', border: 'border-orange-300', text: 'text-orange-800', hex: '#FDBA74' },
+  exercise: { bg: 'bg-rose-100', border: 'border-rose-300', text: 'text-rose-800', hex: '#FDA4AF' },
 };
 
 const ICON_OPTIONS = [
@@ -183,6 +184,7 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                 <option value="music">🎵 음악 (피아노 & 악기 레슨)</option>
                 <option value="academy">🏫 학원 (영어/수학/예체능 학원)</option>
                 <option value="neulbom">🌱 늘봄 (초등 늘봄 방과후 교실)</option>
+                <option value="exercise">⚽ 운동 (체육 & 야외 신체 활동)</option>
               </select>
             </div>
 
