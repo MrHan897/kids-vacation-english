@@ -3,7 +3,7 @@ import { ScheduleItem } from '../../types';
 import { playSound } from '../../services/audio';
 import { CheckCircle2, Circle, Clock, Trash2, Edit3, GripVertical } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { renderScheduleIcon } from '../../utils/iconHelper';
+import { renderScheduleIcon, getScheduleIconStyle } from '../../utils/iconHelper';
 
 interface TimeSlotProps {
   item: ScheduleItem;
@@ -93,7 +93,8 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
   onDragOver,
   onDrop,
 }) => {
-  const style = CATEGORY_STYLES[item.category] || CATEGORY_STYLES.study;
+  const categoryStyle = CATEGORY_STYLES[item.category] || CATEGORY_STYLES.study;
+  const iconStyle = getScheduleIconStyle(item.icon, item.category);
 
   const renderIcon = () => {
     return renderScheduleIcon(item.icon, item.category);
@@ -112,7 +113,7 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
       className={`p-4 rounded-3xl border-2 transition-all group relative flex items-center justify-between ${
         item.completed
           ? 'bg-emerald-50/70 border-emerald-200 opacity-80 shadow-sm'
-          : `${style.bg} ${style.border} ${style.hoverBorder} hover:shadow-md`
+          : `${iconStyle.bg} ${iconStyle.border} hover:shadow-md`
       }`}
     >
       <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
@@ -125,9 +126,8 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
         <div
           data-testid={`activity-icon-${item.icon || 'book'}`}
           className={`w-11 h-11 rounded-2xl flex items-center justify-center font-bold shrink-0 ${
-            item.completed ? 'bg-emerald-200 text-emerald-800' : style.iconBg
+            item.completed ? 'bg-emerald-200 text-emerald-800' : `${iconStyle.bg} ${iconStyle.color} ${iconStyle.border} border-2`
           }`}
-          style={item.color ? { backgroundColor: item.completed ? '#A7F3D0' : item.color } : undefined}
         >
           {renderIcon()}
         </div>
@@ -139,8 +139,8 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
               <Clock className="w-3 h-3 text-slate-400" />
               {displayTime}
             </span>
-            <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${style.badge}`}>
-              {style.label}
+            <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${iconStyle.badge}`}>
+              {categoryStyle.label}
             </span>
           </div>
 

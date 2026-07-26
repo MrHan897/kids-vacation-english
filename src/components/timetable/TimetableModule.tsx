@@ -20,9 +20,27 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
   const [showCelebration, setShowCelebration] = useState(false);
 
   useEffect(() => {
-    // Keep local state in sync with external changes if needed
-    setSchedule(getSchedule());
+    // Keep local state in sync with external changes and auto-sort by time
+    setSchedule(sortScheduleChronologically(getSchedule()));
   }, []);
+
+  // Helper to convert time string (e.g. "09:30 - 10:50") to start minutes for sorting
+  const getStartMinutes = (item: ScheduleItem): number => {
+    const timeStr = item.timeSlot || item.time || '09:00';
+    const startPart = timeStr.split('-')[0].trim();
+    const parts = startPart.split(':');
+    if (parts.length >= 2) {
+      const h = parseInt(parts[0], 10) || 0;
+      const m = parseInt(parts[1], 10) || 0;
+      return h * 60 + m;
+    }
+    const h = parseInt(parts[0], 10) || 0;
+    return h * 60;
+  };
+
+  const sortScheduleChronologically = (items: ScheduleItem[]): ScheduleItem[] => {
+    return [...items].sort((a, b) => getStartMinutes(a) - getStartMinutes(b));
+  };
 
   const handleSaveItem = (itemData: Partial<ScheduleItem>) => {
     let updated: ScheduleItem[];
@@ -47,8 +65,9 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
       updated = [...schedule, newItem];
     }
 
-    setSchedule(updated);
-    saveSchedule(updated);
+    const sorted = sortScheduleChronologically(updated);
+    setSchedule(sorted);
+    saveSchedule(sorted);
   };
 
   const handleToggleComplete = (id: string) => {
@@ -218,7 +237,9 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
       ) : (
         <div className="space-y-3">
           <div className="flex items-center justify-between px-2 text-xs font-bold text-slate-400">
-            <span>마우스로 드래그해서 순서를 바꿀 수 있어요</span>
+            <span className="flex items-center gap-1.5 text-pink-600 font-extrabold">
+              ⏰ 시작 시간에 맞춰 자동으로 정렬돼요
+            </span>
             <span>총 {schedule.length}개의 일정</span>
           </div>
 
