@@ -96,7 +96,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Active Character Badge */}
           <div className="flex items-center gap-1.5 bg-pastel-purple-light border-2 border-pastel-purple text-purple-900 px-3 py-1.5 rounded-2xl text-xs sm:text-sm font-bold shadow-xs">
             <span className="text-lg">{activeCharacterAvatar}</span>
-            <span>{activeCharacterName}</span>
+            <span>{activeCharacterName ? activeCharacterName.split('(')[0].trim() : '마법 토끼'}</span>
           </div>
 
           {/* Sticker Count Badge */}

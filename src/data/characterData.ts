@@ -3,7 +3,7 @@ import { CharacterItem, StickerItem } from '../types';
 export const DEFAULT_CHARACTERS: CharacterItem[] = [
   {
     id: 'char-bunny',
-    name: '마법 토끼 (Magic Bunny)',
+    name: '마법 토끼',
     title: '시간표 대장 토끼',
     avatar: '🐰',
     description: '부지런하게 하루 계획을 지키는 귀여운 마법 토끼 친구!',
@@ -14,7 +14,7 @@ export const DEFAULT_CHARACTERS: CharacterItem[] = [
   },
   {
     id: 'char-bear',
-    name: '곰돌이 (Teddy Bear)',
+    name: '곰돌이',
     title: '파닉스 박사 곰',
     avatar: '🐻',
     description: '알파벳 발음을 똑똑하게 잘 알려주는 친절한 곰 삼촌!',
@@ -25,7 +25,7 @@ export const DEFAULT_CHARACTERS: CharacterItem[] = [
   },
   {
     id: 'char-owl',
-    name: '똑똑이 부엉이 (Smart Owl)',
+    name: '똑똑이 부엉이',
     title: '지혜의 왕 부엉이',
     avatar: '🦉',
     description: '모르는 문제를 척척 해결하는 지혜로운 숲속 부엉이!',
@@ -36,7 +36,7 @@ export const DEFAULT_CHARACTERS: CharacterItem[] = [
   },
   {
     id: 'char-kitty',
-    name: '장난꾸러기 고양이 (Playful Kitty)',
+    name: '장난꾸러기 고양이',
     title: '퀴즈 왕 고양이',
     avatar: '🐱',
     description: '영어 퀴즈를 쏙쏙 맞춰서 칭찬 스티커를 모으는 고양이!',
@@ -47,7 +47,7 @@ export const DEFAULT_CHARACTERS: CharacterItem[] = [
   },
   {
     id: 'char-dino',
-    name: '슈퍼 공룡 (Super Dino)',
+    name: '슈퍼 공룡',
     title: '용맹이 챔피언 공룡',
     avatar: '🦖',
     description: '어려운 도전도 씩씩하게 해내는 용감한 공룡 챔피언!',
@@ -58,7 +58,7 @@ export const DEFAULT_CHARACTERS: CharacterItem[] = [
   },
   {
     id: 'char-dragon',
-    name: '별빛 드래곤 (Star Dragon)',
+    name: '별빛 드래곤',
     title: '전설의 마스터 드래곤',
     avatar: '🐲',
     description: '방학 동안 학습 스티커를 모두 모은 전설의 스피릿 드래곤!',
