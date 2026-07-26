@@ -61,31 +61,50 @@ export const CircularClock: React.FC<CircularClockProps> = ({ schedule, onSelect
   // 12-Hour Tick Marks (inner hub)
   const inner12Hours = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 
-  // Convert "HH:MM" or time range "09:00 - 10:00" or overnight "21:00 - 10:00" to list of 24h segments
+  // Convert time string "HH:MM" or time range "09:30 - 10:50" to precise floating-point hours (e.g. 9.5 to 10.833)
+  const parseTimeToFloat = (timeStr?: string, fallback = 9): number => {
+    if (!timeStr) return fallback;
+    const clean = timeStr.trim();
+    const parts = clean.split(':');
+    if (parts.length >= 2) {
+      const h = parseInt(parts[0], 10);
+      const m = parseInt(parts[1], 10);
+      if (!isNaN(h) && !isNaN(m)) {
+        return (h % 24) + (m / 60);
+      }
+    } else if (parts.length === 1) {
+      const h = parseInt(parts[0], 10);
+      if (!isNaN(h)) return h % 24;
+    }
+    return fallback;
+  };
+
+  // Convert ScheduleItem into exact floating 24-hour time segments
   const parseHoursSegments = (item: ScheduleItem): { startHour: number; endHour: number }[] => {
     let start = 9;
     let end = 10;
 
     if (item.timeSlot && item.timeSlot.includes('-')) {
       const parts = item.timeSlot.split('-').map((s) => s.trim());
-      const sH = parseInt(parts[0].split(':')[0], 10);
-      const eH = parseInt(parts[1].split(':')[0], 10);
-      if (!isNaN(sH)) start = sH % 24;
-      if (!isNaN(eH)) end = eH === 0 ? 24 : eH % 24;
+      start = parseTimeToFloat(parts[0], 9);
+      end = parseTimeToFloat(parts[1], 10);
+      if (end === 0) end = 24; // Handle midnight end as 24.0
     } else if (item.time) {
-      const sH = parseInt(item.time.split(':')[0], 10);
-      if (!isNaN(sH)) {
-        start = sH % 24;
-        end = (start + 1) % 25;
-      }
+      start = parseTimeToFloat(item.time, 9);
+      end = (start + 1) > 24 ? 24 : start + 1;
     }
 
-    // Overnight schedule spanning midnight (e.g. 21:00 - 10:00)
-    if (start >= end) {
+    // Overnight schedule spanning midnight (e.g. 21:00 - 08:00 -> 21..24 and 0..8)
+    if (start > end) {
       return [
         { startHour: start, endHour: 24 },
         { startHour: 0, endHour: end },
       ];
+    }
+
+    // Equal times fall back to 1 hour segment
+    if (start === end) {
+      end = start + 1 > 24 ? 24 : start + 1;
     }
 
     return [{ startHour: start, endHour: end }];
@@ -98,8 +117,14 @@ export const CircularClock: React.FC<CircularClockProps> = ({ schedule, onSelect
 
   // Helper to calculate SVG donut slice path
   const createSlicePath = (startHour: number, endHour: number) => {
+    let diff = endHour - startHour;
+    if (diff < 0) diff += 24;
+    
+    // Clamp diff to avoid 0-degree full circle SVG glitch
+    if (diff <= 0.001) diff = 0.5;
+
     const startAngle = hourToAngle(startHour) * (Math.PI / 180);
-    const endAngle = hourToAngle(endHour) * (Math.PI / 180);
+    const endAngle = hourToAngle(startHour + diff) * (Math.PI / 180);
 
     const x1_out = center + outerRadius * Math.cos(startAngle);
     const y1_out = center + outerRadius * Math.sin(startAngle);
@@ -111,7 +136,7 @@ export const CircularClock: React.FC<CircularClockProps> = ({ schedule, onSelect
     const x2_in = center + innerHubRadius * Math.cos(startAngle);
     const y2_in = center + innerHubRadius * Math.sin(startAngle);
 
-    const largeArc = endHour - startHour > 12 ? 1 : 0;
+    const largeArc = diff >= 12 ? 1 : 0;
 
     return `M ${x1_out} ${y1_out} A ${outerRadius} ${outerRadius} 0 ${largeArc} 1 ${x2_out} ${y2_out} L ${x1_in} ${y1_in} A ${innerHubRadius} ${innerHubRadius} 0 ${largeArc} 0 ${x2_in} ${y2_in} Z`;
   };
