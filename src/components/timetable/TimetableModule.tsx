@@ -148,10 +148,51 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
 
   return (
     <div data-testid="timetable-container" className="space-y-6">
-      {/* 1. 24-Hour Interactive Circular Clock View (여름방학 일일 계획표) - Placed Top */}
+      {/* [1위 최상단] ☀️ 여름방학 일일 계획표 (24시간 파스텔 대형 원형 시계) */}
       <CircularClock schedule={schedule} onSelectSlot={handleEdit} />
 
-      {/* 2. Stand-alone Gamified '오늘의 목표' (Today's Goal) Block - Placed Below CircularClock */}
+      {/* [2위] 🗓️ 나만의 여름방학 시간표 & + 일정 추가하기 버튼 */}
+      <div className="card-pastel bg-gradient-to-r from-pastel-pink-light via-white to-pastel-blue-light border-2 border-pink-100 p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-pastel-pink text-pink-700 rounded-2xl shadow-sm">
+              <Calendar className="w-7 h-7" />
+            </div>
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
+                나만의 여름방학 시간표 🗓️
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 font-semibold mt-0.5">
+                스스로 계획을 짜고 차근차근 실천하며 칭찬 스티커를 받아요!
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 self-stretch sm:self-auto">
+            {/* Add Activity Button (Main Test IDs) */}
+            <button
+              type="button"
+              data-testid="add-activity-btn"
+              onClick={handleOpenAddModal}
+              className="flex-1 sm:flex-initial btn-cute bg-pastel-pink-dark hover:bg-pink-500 text-white px-4 py-2.5 rounded-2xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span>일정 추가하기</span>
+            </button>
+
+            {/* Duplicate Add Schedule Button to fulfill exact data-testid="add-schedule-btn" contract */}
+            <button
+              type="button"
+              data-testid="add-schedule-btn"
+              onClick={handleOpenAddModal}
+              className="hidden"
+              aria-label="Add Schedule"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* [3위] 🎯 오늘의 목표 (독립 퀘스트 달성률 게이밍 카드) */}
       <motion.div
         layout
         className="card-pastel bg-gradient-to-r from-amber-50 via-pink-50 to-emerald-50 border-4 border-pink-300 p-5 shadow-lg relative overflow-hidden"
@@ -201,47 +242,6 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
           </motion.div>
         </div>
       </motion.div>
-
-      {/* 3. Header Banner (나만의 여름방학 시간표 & 일정 추가하기) - Placed Below Circular Clock */}
-      <div className="card-pastel bg-gradient-to-r from-pastel-pink-light via-white to-pastel-blue-light border-2 border-pink-100 p-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-pastel-pink text-pink-700 rounded-2xl shadow-sm">
-              <Calendar className="w-7 h-7" />
-            </div>
-            <div>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
-                나만의 여름방학 시간표 🗓️
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-500 font-semibold mt-0.5">
-                스스로 계획을 짜고 차근차근 실천하며 칭찬 스티커를 받아요!
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 self-stretch sm:self-auto">
-            {/* Add Activity Button (Main Test IDs) */}
-            <button
-              type="button"
-              data-testid="add-activity-btn"
-              onClick={handleOpenAddModal}
-              className="flex-1 sm:flex-initial btn-cute bg-pastel-pink-dark hover:bg-pink-500 text-white px-4 py-2.5 rounded-2xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2"
-            >
-              <Plus className="w-4 h-4" />
-              <span>일정 추가하기</span>
-            </button>
-
-            {/* Duplicate Add Schedule Button to fulfill exact data-testid="add-schedule-btn" contract */}
-            <button
-              type="button"
-              data-testid="add-schedule-btn"
-              onClick={handleOpenAddModal}
-              className="hidden"
-              aria-label="Add Schedule"
-            />
-          </div>
-        </div>
-      </div>
 
       {/* Timetable Slots Grid / List */}
       {schedule.length === 0 ? (
