@@ -148,10 +148,61 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
 
   return (
     <div data-testid="timetable-container" className="space-y-6">
-      {/* 1. 24-Hour Interactive Circular Clock View (여름방학 일일 계획표) - Placed Top */}
+      {/* 1. Stand-alone Gamified '오늘의 목표' (Today's Goal) Block - Placed Top above CircularClock */}
+      <motion.div
+        layout
+        className="card-pastel bg-gradient-to-r from-amber-50 via-pink-50 to-emerald-50 border-4 border-pink-300 p-5 shadow-lg relative overflow-hidden"
+      >
+        {/* Background Star Confetti Details */}
+        <div className="absolute top-2 right-3 text-amber-300 text-sm animate-pulse">✨</div>
+        <div className="absolute bottom-2 left-3 text-pink-300 text-xs">⭐</div>
+
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl animate-bounce">🎯</span>
+            <div>
+              <h3 className="text-base sm:text-lg font-black text-slate-800 tracking-tight flex items-center gap-1.5">
+                오늘의 목표
+                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-pink-500 text-white shadow-sm">
+                  {schedule.length > 0 && completedCount === schedule.length ? '👑 ALL CLEAR' : 'LV.1 퀘스트'}
+                </span>
+              </h3>
+              <p className="text-[11px] font-bold text-slate-500">
+                일정을 하나씩 달성할 때마다 레벨업 스티커와 게임 효과음이 팡팡! 🚀
+              </p>
+            </div>
+          </div>
+
+          <div className="text-right">
+            <span className="text-lg sm:text-2xl font-black text-pink-600 tracking-tight">
+              {completedCount} <span className="text-xs text-slate-400 font-bold">/ {schedule.length}개 완료</span>
+            </span>
+            <div className="text-[10px] font-black text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded-full inline-block mt-0.5">
+              달성률 {schedule.length > 0 ? Math.round((completedCount / schedule.length) * 100) : 0}%
+            </div>
+          </div>
+        </div>
+
+        {/* Gamified Thick Visual Progress Bar for Smartphones */}
+        <div className="relative w-full h-5 bg-white/90 rounded-full overflow-hidden p-1 border-2 border-pink-200 shadow-inner mt-2">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{
+              width: `${schedule.length > 0 ? (completedCount / schedule.length) * 100 : 0}%`,
+            }}
+            transition={{ type: 'spring', stiffness: 100, damping: 15 }}
+            className="h-full bg-gradient-to-r from-pink-500 via-purple-500 to-emerald-400 rounded-full relative"
+          >
+            {/* Shimmer Highlight Line */}
+            <div className="absolute top-0 left-0 right-0 h-1/2 bg-white/40 rounded-t-full" />
+          </motion.div>
+        </div>
+      </motion.div>
+
+      {/* 2. 24-Hour Interactive Circular Clock View (여름방학 일일 계획표) - Placed Below Today's Goal */}
       <CircularClock schedule={schedule} onSelectSlot={handleEdit} />
 
-      {/* 2. Header Banner (나만의 여름방학 시간표 & 일정 추가하기) - Placed Below Circular Clock */}
+      {/* 3. Header Banner (나만의 여름방학 시간표 & 일정 추가하기) - Placed Below Circular Clock */}
       <div className="card-pastel bg-gradient-to-r from-pastel-pink-light via-white to-pastel-blue-light border-2 border-pink-100 p-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -187,28 +238,6 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
               onClick={handleOpenAddModal}
               className="hidden"
               aria-label="Add Schedule"
-            />
-          </div>
-        </div>
-
-        {/* Completion Progress Bar */}
-        <div className="mt-5 pt-4 border-t border-pink-100/60">
-          <div className="flex items-center justify-between text-xs font-extrabold text-slate-600 mb-1.5">
-            <span className="flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-amber-400" />
-              오늘의 목표 달성률
-            </span>
-            <span className="text-pink-600">
-              {completedCount} / {schedule.length}개 완료 ({schedule.length > 0 ? Math.round((completedCount / schedule.length) * 100) : 0}%)
-            </span>
-          </div>
-          <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-200">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{
-                width: `${schedule.length > 0 ? (completedCount / schedule.length) * 100 : 0}%`,
-              }}
-              className="h-full bg-gradient-to-r from-pink-400 to-emerald-400 rounded-full"
             />
           </div>
         </div>
