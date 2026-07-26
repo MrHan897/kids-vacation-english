@@ -1,4 +1,4 @@
-import { ScheduleItem, RewardState, ProgressState, CharacterItem, StickerItem, UserProfile } from '../types';
+import { ScheduleItem, RewardState, ProgressState, CharacterItem, StickerItem, UserProfile, DailyCompletionRecord } from '../types';
 import { DEFAULT_CHARACTERS } from '../data/characterData';
 
 const STORAGE_KEYS = {
@@ -9,6 +9,7 @@ const STORAGE_KEYS = {
   PROFILE: 'kids_vacation_user_profile',
   MYROOM: 'kids_vacation_myroom',
   QUESTS: 'kids_vacation_daily_quests',
+  DAILY_HISTORY: 'kids_vacation_daily_history',
 };
 
 const INITIAL_REWARD_STATE: RewardState = {
@@ -91,6 +92,83 @@ export function getSchedule(): ScheduleItem[] {
  */
 export function saveSchedule(items: ScheduleItem[]): void {
   safeSet(STORAGE_KEYS.SCHEDULE, items);
+}
+
+/**
+ * Get all daily completion history records
+ */
+export function getDailyHistory(): DailyCompletionRecord[] {
+  return safeParse<DailyCompletionRecord[]>(STORAGE_KEYS.DAILY_HISTORY, []);
+}
+
+/**
+ * Save daily completion history records
+ */
+export function saveDailyHistory(records: DailyCompletionRecord[]): void {
+  safeSet(STORAGE_KEYS.DAILY_HISTORY, records);
+}
+
+/**
+ * Automatically check if date changed, save yesterday's goal history, and reset checkbox completion status for the new day!
+ */
+export function checkAndPerformDailyReset(): { resetPerformed: boolean; updatedSchedule: ScheduleItem[] } {
+  const progress = getLearningProgress();
+  const todayDate = new Date().toISOString().split('T')[0]; // "YYYY-MM-DD"
+  const lastDate = progress.lastActiveDate || todayDate;
+  const currentSchedule = getSchedule();
+
+  if (lastDate !== todayDate) {
+    // 1. Record yesterday's goal completion history before reset
+    const daysKR = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+    const prevDateObj = new Date(lastDate);
+    const dayOfWeek = isNaN(prevDateObj.getTime()) ? '방학날' : daysKR[prevDateObj.getDay()];
+
+    const completedItems = currentSchedule
+      .filter((s) => s.completed)
+      .map((s) => ({
+        id: s.id,
+        title: s.title,
+        category: s.category,
+        icon: s.icon,
+        timeSlot: s.timeSlot || s.time || '09:00 - 10:00',
+      }));
+
+    const totalCount = currentSchedule.length;
+    const completedCount = completedItems.length;
+    const achievementRate = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+    const historyRecord: DailyCompletionRecord = {
+      date: lastDate,
+      dayOfWeek,
+      totalCount,
+      completedCount,
+      achievementRate,
+      completedItems,
+    };
+
+    const existingHistory = getDailyHistory();
+    // Prepend new history record, avoiding duplicates for the same date
+    const filteredHistory = existingHistory.filter((h) => h.date !== lastDate);
+    saveDailyHistory([historyRecord, ...filteredHistory]);
+
+    // 2. Automatically uncheck all schedule items for the new day
+    const resetSchedule = currentSchedule.map((item) => ({
+      ...item,
+      completed: false,
+    }));
+
+    saveSchedule(resetSchedule);
+
+    // 3. Update lastActiveDate in progress state
+    saveLearningProgress({
+      ...progress,
+      lastActiveDate: todayDate,
+    });
+
+    return { resetPerformed: true, updatedSchedule: resetSchedule };
+  }
+
+  return { resetPerformed: false, updatedSchedule: currentSchedule };
 }
 
 /**

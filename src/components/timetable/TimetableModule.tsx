@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ActiveTab, ScheduleItem } from '../../types';
-import { getSchedule, saveSchedule, addSticker } from '../../services/storage';
+import { getSchedule, saveSchedule, addSticker, checkAndPerformDailyReset } from '../../services/storage';
+import { DailyHistoryModal } from './DailyHistoryModal';
 import { playSound } from '../../services/audio';
 import { TimeSlot } from './TimeSlot';
 import { ActivityModal } from './ActivityModal';
@@ -13,15 +14,20 @@ interface TimetableModuleProps {
 }
 
 export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab }) => {
-  const [schedule, setSchedule] = useState<ScheduleItem[]>(() => getSchedule());
+  const [schedule, setSchedule] = useState<ScheduleItem[]>(() => {
+    const { updatedSchedule } = checkAndPerformDailyReset();
+    return updatedSchedule;
+  });
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ScheduleItem | null>(null);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
 
   useEffect(() => {
-    // Keep local state in sync with external changes and auto-sort by time
-    setSchedule(sortScheduleChronologically(getSchedule()));
+    // Keep local state in sync with external changes, perform daily reset check if date changed, and auto-sort by time
+    const { updatedSchedule } = checkAndPerformDailyReset();
+    setSchedule(sortScheduleChronologically(updatedSchedule));
   }, []);
 
   // Helper to convert time string (e.g. "09:30 - 10:50") to start minutes for sorting
@@ -176,7 +182,18 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
             </div>
           </div>
 
-          <div className="text-right">
+          <div className="text-right flex flex-col items-end gap-1">
+            <button
+              type="button"
+              onClick={() => {
+                playSound('click');
+                setIsHistoryOpen(true);
+              }}
+              className="px-3 py-1 bg-amber-400 hover:bg-amber-500 text-white font-extrabold text-[11px] rounded-full shadow-sm flex items-center gap-1 transition-all"
+            >
+              <span>📜 달성 기록 일기장</span>
+            </button>
+
             <span className="text-lg sm:text-2xl font-black text-pink-600 tracking-tight">
               {completedCount} <span className="text-xs text-slate-400 font-bold">/ {schedule.length}개 완료</span>
             </span>
@@ -321,6 +338,12 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveItem}
         initialData={editingItem}
+      />
+
+      {/* Date-based Goal Completion History Diary Modal */}
+      <DailyHistoryModal
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
       />
     </div>
   );

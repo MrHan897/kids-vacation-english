@@ -165,3 +165,20 @@ export interface AnalyticsSummary {
   logs: AnalyticsLog[];
 }
 
+export interface DailyCompletionRecord {
+  date: string; // e.g. "2026-07-26"
+  dayOfWeek: string; // e.g. "일요일"
+  totalCount: number;
+  completedCount: number;
+  achievementRate: number; // 0 to 100
+  completedItems: {
+    id: string;
+    title: string;
+    category: ActivityCategory;
+    icon: string;
+    timeSlot: string;
+  }[];
+}
+
+
+
