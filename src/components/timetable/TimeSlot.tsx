@@ -48,6 +48,30 @@ const CATEGORY_STYLES = {
     badge: 'bg-purple-100 text-purple-700',
     label: '휴식',
   },
+  music: {
+    bg: 'bg-emerald-50',
+    border: 'border-emerald-200',
+    hoverBorder: 'hover:border-emerald-400',
+    iconBg: 'bg-emerald-200 text-emerald-800',
+    badge: 'bg-emerald-100 text-emerald-700',
+    label: '음악',
+  },
+  academy: {
+    bg: 'bg-indigo-50',
+    border: 'border-indigo-200',
+    hoverBorder: 'hover:border-indigo-400',
+    iconBg: 'bg-indigo-200 text-indigo-800',
+    badge: 'bg-indigo-100 text-indigo-700',
+    label: '학원',
+  },
+  neulbom: {
+    bg: 'bg-orange-50',
+    border: 'border-orange-200',
+    hoverBorder: 'hover:border-orange-400',
+    iconBg: 'bg-orange-200 text-orange-800',
+    badge: 'bg-orange-100 text-orange-700',
+    label: '늘봄',
+  },
 };
 
 export const TimeSlot: React.FC<TimeSlotProps> = ({

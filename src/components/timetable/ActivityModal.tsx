@@ -16,6 +16,9 @@ const CATEGORY_COLORS: Record<ActivityCategory, { bg: string; border: string; te
   play: { bg: 'bg-pink-100', border: 'border-pink-300', text: 'text-pink-800', hex: '#FFB6C1' },
   meal: { bg: 'bg-amber-100', border: 'border-amber-300', text: 'text-amber-800', hex: '#FDE047' },
   rest: { bg: 'bg-purple-100', border: 'border-purple-300', text: 'text-purple-800', hex: '#D8B4F8' },
+  music: { bg: 'bg-emerald-100', border: 'border-emerald-300', text: 'text-emerald-800', hex: '#6EE7B7' },
+  academy: { bg: 'bg-indigo-100', border: 'border-indigo-300', text: 'text-indigo-800', hex: '#A5B4FC' },
+  neulbom: { bg: 'bg-orange-100', border: 'border-orange-300', text: 'text-orange-800', hex: '#FDBA74' },
 };
 
 const ICON_OPTIONS = [
@@ -177,6 +180,9 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                 <option value="play">🎮 놀이 (자유 시간 & 바깥 활동)</option>
                 <option value="meal">🍎 식사 (아침/점심/저녁 밥먹기)</option>
                 <option value="rest">🛌 휴식 (간식 타임 & 취침)</option>
+                <option value="music">🎵 음악 (피아노 & 악기 레슨)</option>
+                <option value="academy">🏫 학원 (영어/수학/예체능 학원)</option>
+                <option value="neulbom">🌱 늘봄 (초등 늘봄 방과후 교실)</option>
               </select>
             </div>
 
