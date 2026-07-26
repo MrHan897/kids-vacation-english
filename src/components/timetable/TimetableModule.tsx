@@ -148,7 +148,10 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
 
   return (
     <div data-testid="timetable-container" className="space-y-6">
-      {/* 1. Stand-alone Gamified '오늘의 목표' (Today's Goal) Block - Placed Top above CircularClock */}
+      {/* 1. 24-Hour Interactive Circular Clock View (여름방학 일일 계획표) - Placed Top */}
+      <CircularClock schedule={schedule} onSelectSlot={handleEdit} />
+
+      {/* 2. Stand-alone Gamified '오늘의 목표' (Today's Goal) Block - Placed Below CircularClock */}
       <motion.div
         layout
         className="card-pastel bg-gradient-to-r from-amber-50 via-pink-50 to-emerald-50 border-4 border-pink-300 p-5 shadow-lg relative overflow-hidden"
@@ -198,9 +201,6 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
           </motion.div>
         </div>
       </motion.div>
-
-      {/* 2. 24-Hour Interactive Circular Clock View (여름방학 일일 계획표) - Placed Below Today's Goal */}
-      <CircularClock schedule={schedule} onSelectSlot={handleEdit} />
 
       {/* 3. Header Banner (나만의 여름방학 시간표 & 일정 추가하기) - Placed Below Circular Clock */}
       <div className="card-pastel bg-gradient-to-r from-pastel-pink-light via-white to-pastel-blue-light border-2 border-pink-100 p-6">
