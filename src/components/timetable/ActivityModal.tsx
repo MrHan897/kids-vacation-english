@@ -23,16 +23,16 @@ const CATEGORY_COLORS: Record<ActivityCategory, { bg: string; border: string; te
 };
 
 const ICON_OPTIONS = [
-  { id: 'pencil', icon: Pencil, emoji: '✏️' },
-  { id: 'book', icon: Book, emoji: '📖' },
-  { id: 'game', icon: Gamepad2, emoji: '🎮' },
-  { id: 'apple', icon: Apple, emoji: '🍎' },
-  { id: 'bed', icon: Bed, emoji: '🛌' },
-  { id: 'sparkles', icon: Sparkles, emoji: '✨' },
-  { id: 'music', icon: Music, emoji: '🎵' },
-  { id: 'bike', icon: Bike, emoji: '🚲' },
-  { id: 'dumbbell', icon: Dumbbell, emoji: '⚽' },
-  { id: 'palette', icon: Palette, emoji: '🎨' },
+  { id: 'pencil', icon: Pencil, emoji: '✏️', color: 'text-sky-500', bg: 'bg-sky-100', border: 'border-sky-300' },
+  { id: 'book', icon: Book, emoji: '📖', color: 'text-indigo-500', bg: 'bg-indigo-100', border: 'border-indigo-300' },
+  { id: 'game', icon: Gamepad2, emoji: '🎮', color: 'text-purple-500', bg: 'bg-purple-100', border: 'border-purple-300' },
+  { id: 'apple', icon: Apple, emoji: '🍎', color: 'text-rose-500', bg: 'bg-rose-100', border: 'border-rose-300' },
+  { id: 'bed', icon: Bed, emoji: '🛌', color: 'text-amber-500', bg: 'bg-amber-100', border: 'border-amber-300' },
+  { id: 'sparkles', icon: Sparkles, emoji: '✨', color: 'text-yellow-500', bg: 'bg-yellow-100', border: 'border-yellow-300' },
+  { id: 'music', icon: Music, emoji: '🎵', color: 'text-emerald-500', bg: 'bg-emerald-100', border: 'border-emerald-300' },
+  { id: 'bike', icon: Bike, emoji: '🚲', color: 'text-cyan-500', bg: 'bg-cyan-100', border: 'border-cyan-300' },
+  { id: 'dumbbell', icon: Dumbbell, emoji: '⚽', color: 'text-teal-500', bg: 'bg-teal-100', border: 'border-teal-300' },
+  { id: 'palette', icon: Palette, emoji: '🎨', color: 'text-pink-500', bg: 'bg-pink-100', border: 'border-pink-300' },
 ];
 
 // Helper function to safely format and sanitize time string from native pickers or direct keyboard input
@@ -188,19 +188,22 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
               </select>
             </div>
 
-            {/* Icon Picker (Clean Label & 5-Column 2-Row Neat Grid) */}
+            {/* Icon Picker (Vibrant Color Palette + Game Bounce Sound FX) */}
             <div>
-              <label className="block text-xs font-extrabold text-slate-600 mb-1">
-                아이콘 선택
+              <label className="block text-xs font-extrabold text-slate-600 mb-1 flex items-center justify-between">
+                <span>아이콘 선택</span>
+                <span className="text-[10px] text-pink-500 font-bold">✨ 터치하여 톡톡 재미있게 선택해요!</span>
               </label>
               <div className="grid grid-cols-5 gap-2 pt-1">
                 {ICON_OPTIONS.map((item) => {
                   const IconComp = item.icon;
                   const isSelected = icon === item.id;
                   return (
-                    <button
+                    <motion.button
                       key={item.id}
                       type="button"
+                      whileHover={{ scale: 1.15, rotate: 3 }}
+                      whileTap={{ scale: 0.85, rotate: -6 }}
                       data-testid={`activity-icon-${item.id}`}
                       onClick={() => {
                         playSound('click');
@@ -208,12 +211,12 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                       }}
                       className={`w-full aspect-square rounded-2xl border-2 flex items-center justify-center transition-all ${
                         isSelected
-                          ? 'border-pink-500 bg-pink-100 text-pink-700 shadow-md scale-105 ring-2 ring-pink-300'
-                          : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100 opacity-70'
+                          ? `${item.bg} ${item.border} ${item.color} shadow-lg scale-110 ring-4 ring-pink-200 border-pink-400`
+                          : `bg-slate-50 border-slate-200 ${item.color} hover:bg-white hover:shadow-md opacity-80`
                       }`}
                     >
-                      <IconComp className="w-5 h-5" />
-                    </button>
+                      <IconComp className="w-6 h-6 stroke-[2.5]" />
+                    </motion.button>
                   );
                 })}
               </div>
