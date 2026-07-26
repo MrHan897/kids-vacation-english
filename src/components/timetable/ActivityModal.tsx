@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScheduleItem, ActivityCategory } from '../../types';
 import { playSound } from '../../services/audio';
-import { X, Check, Pencil, Book, Gamepad2, Apple, Bed } from 'lucide-react';
+import { X, Check, Pencil, Book, Gamepad2, Apple, Bed, Sparkles, Music, Bike, Dumbbell, Palette } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface ActivityModalProps {
@@ -19,11 +19,16 @@ const CATEGORY_COLORS: Record<ActivityCategory, { bg: string; border: string; te
 };
 
 const ICON_OPTIONS = [
-  { id: 'pencil', label: '연필', icon: Pencil, emoji: '✏️' },
-  { id: 'book', label: '책', icon: Book, emoji: '📖' },
-  { id: 'game', label: '게임', icon: Gamepad2, emoji: '🎮' },
-  { id: 'apple', label: '사과', icon: Apple, emoji: '🍎' },
-  { id: 'bed', label: '침대', icon: Bed, emoji: '🛌' },
+  { id: 'pencil', icon: Pencil, emoji: '✏️' },
+  { id: 'book', icon: Book, emoji: '📖' },
+  { id: 'game', icon: Gamepad2, emoji: '🎮' },
+  { id: 'apple', icon: Apple, emoji: '🍎' },
+  { id: 'bed', icon: Bed, emoji: '🛌' },
+  { id: 'sparkles', icon: Sparkles, emoji: '✨' },
+  { id: 'music', icon: Music, emoji: '🎵' },
+  { id: 'bike', icon: Bike, emoji: '🚲' },
+  { id: 'dumbbell', icon: Dumbbell, emoji: '⚽' },
+  { id: 'palette', icon: Palette, emoji: '🎨' },
 ];
 
 // Helper function to safely format and sanitize time string from native pickers or direct keyboard input
@@ -175,12 +180,12 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
               </select>
             </div>
 
-            {/* Icon Picker */}
+            {/* Icon Picker (Pure Icons Only, 10 Items Variety) */}
             <div>
               <label className="block text-xs font-extrabold text-slate-600 mb-1">
-                아이콘 선택
+                아이콘 선택 (10가지 아이콘)
               </label>
-              <div className="flex items-center justify-between gap-2 pt-1">
+              <div className="flex flex-wrap items-center justify-between gap-1.5 pt-1">
                 {ICON_OPTIONS.map((item) => {
                   const IconComp = item.icon;
                   const isSelected = icon === item.id;
@@ -193,14 +198,13 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                         playSound('click');
                         setIcon(item.id);
                       }}
-                      className={`flex-1 py-2 px-1 rounded-2xl border-2 flex flex-col items-center gap-1 transition-all ${
+                      className={`w-10 h-10 rounded-2xl border-2 flex items-center justify-center transition-all ${
                         isSelected
-                          ? 'border-pink-400 bg-pink-50 shadow-sm scale-105'
-                          : 'border-slate-100 bg-slate-50 hover:bg-slate-100 opacity-70'
+                          ? 'border-pink-500 bg-pink-100 text-pink-700 shadow-md scale-110 ring-2 ring-pink-300'
+                          : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100 opacity-70'
                       }`}
                     >
-                      <IconComp className={`w-5 h-5 ${isSelected ? 'text-pink-600' : 'text-slate-500'}`} />
-                      <span className="text-[10px] font-bold text-slate-600">{item.label}</span>
+                      <IconComp className="w-5 h-5" />
                     </button>
                   );
                 })}
