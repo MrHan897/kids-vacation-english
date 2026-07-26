@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ScheduleItem } from '../../types';
 import { motion } from 'framer-motion';
+import { getScheduleEmoji } from '../../utils/iconHelper';
 
 interface CircularClockProps {
   schedule: ScheduleItem[];
@@ -272,7 +273,7 @@ export const CircularClock: React.FC<CircularClockProps> = ({ schedule, onSelect
           {schedule.flatMap((item) => {
             const segments = parseHoursSegments(item);
             const { categoryText, detailText } = getKoreanLabel(item);
-            const emoji = categoryEmojiMap[item.category] || '✨';
+            const emoji = getScheduleEmoji(item);
 
             return segments.map((seg, idx) => {
               const duration = seg.endHour - seg.startHour;

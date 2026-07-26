@@ -1,8 +1,9 @@
 import React from 'react';
 import { ScheduleItem } from '../../types';
 import { playSound } from '../../services/audio';
-import { CheckCircle2, Circle, Clock, Trash2, Edit3, GripVertical, Pencil, Book, Gamepad2, Apple, Bed } from 'lucide-react';
+import { CheckCircle2, Circle, Clock, Trash2, Edit3, GripVertical } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { renderScheduleIcon } from '../../utils/iconHelper';
 
 interface TimeSlotProps {
   item: ScheduleItem;
@@ -95,28 +96,7 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
   const style = CATEGORY_STYLES[item.category] || CATEGORY_STYLES.study;
 
   const renderIcon = () => {
-    switch (item.icon) {
-      case 'pencil':
-        return <Pencil className="w-5 h-5" />;
-      case 'book':
-        return <Book className="w-5 h-5" />;
-      case 'game':
-        return <Gamepad2 className="w-5 h-5" />;
-      case 'apple':
-        return <Apple className="w-5 h-5" />;
-      case 'bed':
-        return <Bed className="w-5 h-5" />;
-      default:
-        return item.category === 'study' ? (
-          <Book className="w-5 h-5" />
-        ) : item.category === 'play' ? (
-          <Gamepad2 className="w-5 h-5" />
-        ) : item.category === 'meal' ? (
-          <Apple className="w-5 h-5" />
-        ) : (
-          <Bed className="w-5 h-5" />
-        );
-    }
+    return renderScheduleIcon(item.icon, item.category);
   };
 
   const displayTime = item.timeSlot || item.time || '09:00 - 10:00';
