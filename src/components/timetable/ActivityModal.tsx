@@ -26,6 +26,38 @@ const ICON_OPTIONS = [
   { id: 'bed', label: '침대', icon: Bed, emoji: '🛌' },
 ];
 
+// Helper function to safely format and sanitize time string from native pickers or direct keyboard input
+function normalizeTimeString(rawTime: string, fallback: string): string {
+  if (!rawTime) return fallback;
+  const trimmed = rawTime.trim();
+
+  // Pattern 1: HH:MM or H:MM (e.g., "09:00", "9:30")
+  const match24 = trimmed.match(/^(\d{1,2}):(\d{2})/);
+  if (match24) {
+    const hours = parseInt(match24[1], 10);
+    const minutes = parseInt(match24[2], 10);
+    if (!isNaN(hours) && !isNaN(minutes) && hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
+      const hh = hours.toString().padStart(2, '0');
+      const mm = minutes.toString().padStart(2, '0');
+      return `${hh}:${mm}`;
+    }
+  }
+
+  // Pattern 2: 4-digit numeric string entered via keyboard without colon (e.g., "0900", "1430")
+  const match4Digit = trimmed.match(/^(\d{2})(\d{2})$/);
+  if (match4Digit) {
+    const hours = parseInt(match4Digit[1], 10);
+    const minutes = parseInt(match4Digit[2], 10);
+    if (!isNaN(hours) && !isNaN(minutes) && hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
+      const hh = hours.toString().padStart(2, '0');
+      const mm = minutes.toString().padStart(2, '0');
+      return `${hh}:${mm}`;
+    }
+  }
+
+  return fallback;
+}
+
 export const ActivityModal: React.FC<ActivityModalProps> = ({
   isOpen,
   onClose,
@@ -47,8 +79,8 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
       setNotes(initialData.notes || '');
 
       const times = (initialData.timeSlot || initialData.time || '09:00 - 10:00').split(' - ');
-      setStartTime(times[0] || '09:00');
-      setEndTime(times[1] || '10:00');
+      setStartTime(normalizeTimeString(times[0], '09:00'));
+      setEndTime(normalizeTimeString(times[1], '10:00'));
     } else {
       setTitle('');
       setCategory('study');
@@ -66,7 +98,9 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
     if (!title.trim()) return;
 
     playSound('click');
-    const timeSlot = startTime && endTime ? `${startTime} - ${endTime}` : startTime || '09:00 - 10:00';
+    const validStart = normalizeTimeString(startTime, '09:00');
+    const validEnd = normalizeTimeString(endTime, '10:00');
+    const timeSlot = `${validStart} - ${validEnd}`;
     const color = CATEGORY_COLORS[category]?.hex || '#7DD3FC';
 
     onSave({
@@ -75,7 +109,7 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
       category,
       icon,
       timeSlot,
-      time: startTime,
+      time: validStart,
       color,
       notes: notes.trim(),
       completed: initialData?.completed || false,
