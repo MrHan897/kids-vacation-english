@@ -180,12 +180,12 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
               </select>
             </div>
 
-            {/* Icon Picker (Pure Icons Only, 10 Items Variety) */}
+            {/* Icon Picker (Clean Label & 5-Column 2-Row Neat Grid) */}
             <div>
               <label className="block text-xs font-extrabold text-slate-600 mb-1">
-                아이콘 선택 (10가지 아이콘)
+                아이콘 선택
               </label>
-              <div className="flex flex-wrap items-center justify-between gap-1.5 pt-1">
+              <div className="grid grid-cols-5 gap-2 pt-1">
                 {ICON_OPTIONS.map((item) => {
                   const IconComp = item.icon;
                   const isSelected = icon === item.id;
@@ -198,9 +198,9 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                         playSound('click');
                         setIcon(item.id);
                       }}
-                      className={`w-10 h-10 rounded-2xl border-2 flex items-center justify-center transition-all ${
+                      className={`w-full aspect-square rounded-2xl border-2 flex items-center justify-center transition-all ${
                         isSelected
-                          ? 'border-pink-500 bg-pink-100 text-pink-700 shadow-md scale-110 ring-2 ring-pink-300'
+                          ? 'border-pink-500 bg-pink-100 text-pink-700 shadow-md scale-105 ring-2 ring-pink-300'
                           : 'border-slate-200 bg-slate-50 text-slate-500 hover:bg-slate-100 opacity-70'
                       }`}
                     >
