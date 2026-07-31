@@ -191,39 +191,44 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
               </div>
             </div>
 
-            {/* [요청 사항 2] 카테고리 드롭다운 -> 9개 카테고리 둥근 뱃지 버튼 리스트 (Flex wrap) */}
+            {/* [요청 사항 1 & 2 & 3] 카테고리 선택 - 텍스트 삭제 & 64x64px 정사각형 이모지 격자 버튼 (data-category 속성 포함) */}
             <div>
-              <label className="block text-xs font-extrabold text-slate-600 mb-1.5">
-                카테고리 선택
+              <label className="block text-xs font-extrabold text-slate-600 mb-1.5 flex items-center justify-between">
+                <span>카테고리 선택</span>
+                <span className="text-[10px] text-orange-500 font-bold">✨ 이모지를 터치하여 간편하게 선택해요!</span>
               </label>
-              <div data-testid="activity-category-select" className="flex flex-wrap gap-1.5">
+              <div data-testid="activity-category-select" className="grid grid-cols-4 sm:grid-cols-8 gap-2">
                 {[
-                  { id: 'study', label: '📖 공부', bg: 'bg-sky-500 text-white' },
-                  { id: 'play', label: '🎮 놀이', bg: 'bg-pink-500 text-white' },
-                  { id: 'meal', label: '🍎 식사', bg: 'bg-amber-500 text-white' },
-                  { id: 'rest', label: '🛌 휴식', bg: 'bg-purple-500 text-white' },
-                  { id: 'neulbom', label: '🧹 집안일', bg: 'bg-teal-500 text-white' },
-                  { id: 'music', label: '🎵 음악', bg: 'bg-emerald-500 text-white' },
-                  { id: 'academy', label: '🏫 학원', bg: 'bg-indigo-500 text-white' },
-                  { id: 'exercise', label: '⚽ 운동', bg: 'bg-rose-500 text-white' },
+                  { id: 'study', label: '공부', emoji: '📖', bg: 'bg-sky-100 border-sky-400 text-sky-700' },
+                  { id: 'play', label: '놀이', emoji: '🎮', bg: 'bg-pink-100 border-pink-400 text-pink-700' },
+                  { id: 'meal', label: '식사', emoji: '🍎', bg: 'bg-amber-100 border-amber-400 text-amber-700' },
+                  { id: 'rest', label: '휴식', emoji: '🛌', bg: 'bg-purple-100 border-purple-400 text-purple-700' },
+                  { id: 'neulbom', label: '집안일', emoji: '🧹', bg: 'bg-teal-100 border-teal-400 text-teal-700' },
+                  { id: 'music', label: '음악', emoji: '🎵', bg: 'bg-emerald-100 border-emerald-400 text-emerald-700' },
+                  { id: 'academy', label: '학원', emoji: '🏫', bg: 'bg-indigo-100 border-indigo-400 text-indigo-700' },
+                  { id: 'exercise', label: '운동', emoji: '⚽', bg: 'bg-rose-100 border-rose-400 text-rose-700' },
                 ].map((catItem) => {
                   const isSelected = category === catItem.id;
                   return (
-                    <button
+                    <motion.button
                       key={catItem.id}
                       type="button"
+                      data-category={catItem.label}
+                      whileHover={{ scale: 1.1, rotate: 2 }}
+                      whileTap={{ scale: 0.9, rotate: -4 }}
                       onClick={() => {
                         playSound('click');
                         setCategory(catItem.id as ActivityCategory);
                       }}
-                      className={`px-3 py-1.5 rounded-full font-extrabold text-xs border transition-all active:scale-95 ${
+                      title={catItem.label}
+                      className={`w-14 h-14 sm:w-16 sm:h-16 rounded-[16px] border-2 flex items-center justify-center text-2xl sm:text-3xl transition-all active:scale-95 shadow-2xs ${
                         isSelected
-                          ? `${catItem.bg} border-transparent shadow-md scale-105 ring-2 ring-orange-200`
-                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                          ? `${catItem.bg} shadow-md scale-110 ring-4 ring-orange-200 font-black`
+                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white hover:shadow-xs opacity-75'
                       }`}
                     >
-                      {catItem.label}
-                    </button>
+                      <span>{catItem.emoji}</span>
+                    </motion.button>
                   );
                 })}
               </div>
