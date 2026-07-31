@@ -64,9 +64,9 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
         </div>
       </nav>
 
-      {/* Mobile Sticky Bottom Navigation Bar (Thumb-Friendly 64px Touch Target) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-seed-hairline shadow-[0_-2px_10px_rgba(0,0,0,0.05)] px-2 py-1.5 pb-safe">
-        <div className="flex items-center justify-around gap-1">
+      {/* Mobile Sticky Bottom Navigation Bar (Icon-Centric Mobile Native App Style) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-t border-seed-hairline shadow-[0_-4px_20px_rgba(0,0,0,0.06)] px-1 py-1 pb-safe">
+        <div className="flex items-center justify-between gap-0.5 overflow-x-auto scrollbar-none">
           {tabs
             .filter((tab) => tab.id !== 'outdoor')
             .map((tab) => {
@@ -89,14 +89,29 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
                   key={tab.id}
                   data-testid={testIdMap[tab.id]}
                   onClick={() => handleSelect(tab.id)}
-                  className={`flex-1 min-h-[58px] flex flex-col items-center justify-center gap-1 py-1.5 px-1 rounded-2xl transition-all duration-150 active:scale-95 select-none ${
+                  className={`flex-1 min-w-[50px] min-h-[58px] flex flex-col items-center justify-center py-1 px-0.5 rounded-2xl transition-all duration-200 active:scale-90 select-none ${
                     isActive
-                      ? 'bg-seed-brand-tint text-seed-primary font-black border border-orange-200'
-                      : 'text-seed-muted font-bold hover:text-seed-foreground'
+                      ? 'bg-[#fff5f0] text-[#ff6f0f] font-black'
+                      : 'text-[#868b94] hover:text-[#212124]'
                   }`}
                 >
-                  <Icon className={`w-5 h-5 ${isActive ? 'text-seed-primary scale-110' : 'text-slate-400'}`} />
-                  <span className="text-[11px] font-extrabold tracking-tight">{tab.shortLabel}</span>
+                  {/* Icon Container with Active Scale & Glow */}
+                  <div
+                    className={`p-1.5 rounded-full transition-all duration-200 flex items-center justify-center ${
+                      isActive ? 'bg-[#ff6f0f] text-white shadow-xs scale-110 -translate-y-0.5' : 'text-slate-400'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5 stroke-[2.5]" />
+                  </div>
+
+                  {/* Microcopy Subtitle */}
+                  <span
+                    className={`text-[10px] tracking-tighter mt-0.5 whitespace-nowrap transition-all duration-200 ${
+                      isActive ? 'font-black text-[#ff6f0f]' : 'font-semibold text-[#868b94]'
+                    }`}
+                  >
+                    {tab.shortLabel}
+                  </span>
                 </button>
               );
             })}
