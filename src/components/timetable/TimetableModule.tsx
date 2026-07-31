@@ -6,7 +6,14 @@ import { playSound } from '../../services/audio';
 import { TimeSlot } from './TimeSlot';
 import { ActivityModal } from './ActivityModal';
 import { CircularClock } from './CircularClock';
-import { Calendar, Plus, Sparkles, Trophy, RefreshCw, PlayCircle, BookOpen, Clock } from 'lucide-react';
+import {
+  isAlarmEnabled,
+  setAlarmEnabled,
+  requestNotificationPermission,
+  isNotificationSupported,
+  checkScheduleAlarms,
+} from '../../services/alarmService';
+import { Bell, BellOff, Calendar, Plus, Sparkles, Trophy, RefreshCw, PlayCircle, BookOpen, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface TimetableModuleProps {
@@ -23,12 +30,46 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
   const [editingItem, setEditingItem] = useState<ScheduleItem | null>(null);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [alarmActive, setAlarmActive] = useState<boolean>(() => isAlarmEnabled());
 
   useEffect(() => {
     // Keep local state in sync with external changes, perform daily reset check if date changed, and auto-sort by time
     const { updatedSchedule } = checkAndPerformDailyReset();
     setSchedule(sortScheduleChronologically(updatedSchedule));
   }, []);
+
+  // Background interval check for schedule alarms every 10 seconds
+  useEffect(() => {
+    checkScheduleAlarms(schedule);
+    const interval = setInterval(() => {
+      checkScheduleAlarms(schedule);
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [schedule, alarmActive]);
+
+  const handleToggleAlarm = async () => {
+    playSound('click');
+    if (!alarmActive) {
+      if (isNotificationSupported()) {
+        const granted = await requestNotificationPermission();
+        if (granted) {
+          setAlarmActive(true);
+          alert('🔔 스마트폰 일정 알림이 켜졌어요! 시간표 시작 시간에 알림음과 음성으로 알려드려요.');
+        } else {
+          setAlarmEnabled(true);
+          setAlarmActive(true);
+          alert('🔔 앱 내 소리 알림이 켜졌어요! (브라우저 푸시 권한이 차단된 경우 앱 내부 소리로 알려드립니다)');
+        }
+      } else {
+        setAlarmEnabled(true);
+        setAlarmActive(true);
+        alert('🔔 스마트폰 알림 소리가 켜졌어요!');
+      }
+    } else {
+      setAlarmEnabled(false);
+      setAlarmActive(false);
+    }
+  };
 
   // Helper to convert time string (e.g. "09:30 - 10:50") to start minutes for sorting
   const getStartMinutes = (item: ScheduleItem): number => {
@@ -284,6 +325,21 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
           </div>
 
           <div className="flex items-center gap-2 self-stretch sm:self-auto">
+            {/* Alarm Toggle Button */}
+            <button
+              type="button"
+              onClick={handleToggleAlarm}
+              className={`px-3 py-2.5 rounded-2xl font-extrabold text-xs transition-all flex items-center gap-1.5 border shadow-sm ${
+                alarmActive
+                  ? 'bg-amber-400 text-slate-900 border-amber-500 hover:bg-amber-500'
+                  : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
+              }`}
+              title={alarmActive ? '스마트폰 알람 켜짐' : '스마트폰 알람 켜기'}
+            >
+              {alarmActive ? <Bell className="w-4 h-4 text-slate-900 animate-bounce" /> : <BellOff className="w-4 h-4 text-slate-400" />}
+              <span>{alarmActive ? '알람 켜짐 🔔' : '알람 켜기'}</span>
+            </button>
+
             {/* Add Activity Button (Main Test IDs) */}
             <button
               type="button"
