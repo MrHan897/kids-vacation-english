@@ -297,20 +297,20 @@ export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, on
               </p>
             </div>
 
-            {/* [요청 사항 3] 원클릭 동선: 상단 카드로 끌어올린 꿀렁거리는 펄스 보물상자 버튼 */}
-            <div className="pt-2">
+            {/* [요청 사항 3] 시선 집중! 유일한 단일 보상 버튼 (메가 CTA) - 황금빛 후광 Glow & Pulse 이펙트 */}
+            <div className="pt-3">
               <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
                 onClick={() => {
                   playSound('reward');
                   if (onOpenParentPinModal) onOpenParentPinModal();
                 }}
-                className="w-full py-4 sm:py-5 px-6 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 text-white font-black text-base sm:text-xl shadow-2xl border-4 border-yellow-300 flex items-center justify-center gap-3 animate-pulse cursor-pointer ring-4 ring-yellow-200"
+                className="w-full py-5 px-6 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 text-white font-black text-lg sm:text-2xl shadow-[0_0_35px_rgba(255,215,0,0.85)] border-4 border-yellow-300 flex items-center justify-center gap-3 animate-pulse cursor-pointer ring-4 ring-yellow-300/90 transition-transform"
               >
-                <span className="text-2xl sm:text-3xl animate-bounce">🎁</span>
-                <span>🔒 부모님 확인받고 특별 보상 열기</span>
-                <Sparkles className="w-6 h-6 text-yellow-300 fill-yellow-300" />
+                <span className="text-3xl sm:text-4xl animate-bounce drop-shadow-md">🎁</span>
+                <span className="tracking-tight drop-shadow-md">🔒 부모님 확인받고 특별 보상 열기</span>
+                <Sparkles className="w-7 h-7 text-yellow-300 fill-yellow-300 shrink-0" />
               </motion.button>
             </div>
           </motion.div>
@@ -435,9 +435,9 @@ export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, on
         </div>
       )}
 
-      {/* [요청 사항 1, 2, 3] 100% 달성 완료 팝업 모달 [우와! 미션 완벽 성공! 👑] */}
+      {/* [요청 사항 1] 100% ALL CLEAR 시 하단 중복 팝업 모달 완전히 숨김 (Focus Mode) */}
       <AnimatePresence>
-        {showSuccessModal && (
+        {!isAllClear && showSuccessModal && (
           <div className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
             <motion.div
               initial={{ scale: 0.8, opacity: 0, y: 20 }}

@@ -389,32 +389,6 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
             <div className="absolute top-0 left-0 right-0 h-1/2 bg-white/40 rounded-t-full" />
           </motion.div>
         </div>
-
-        {/* [요청 사항 1] 100% 달성 시 등장하는 커다란 [🔒 부모님 확인받고 특별 보상 열기] 비밀 보물상자 버튼 */}
-        {isAllCompleted && (
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="mt-4 pt-3 border-t border-pink-200 text-center"
-          >
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              onClick={() => {
-                playSound('reward');
-                setIsParentPinModalOpen(true);
-                setPinInput('');
-                setPinError(false);
-                setIsPinApproved(false);
-              }}
-              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 text-white font-black text-sm sm:text-base shadow-xl border-2 border-yellow-300 flex items-center justify-center gap-2.5 animate-pulse cursor-pointer ring-4 ring-pink-200"
-            >
-              <span className="text-2xl animate-bounce">🎁</span>
-              <span>🔒 부모님 확인받고 특별 보상 열기 (비밀 도장)</span>
-              <Sparkles className="w-5 h-5 text-yellow-300 fill-yellow-300" />
-            </motion.button>
-          </motion.div>
-        )}
       </motion.div>
 
       {/* [3위] ⏰ 시작 시간 자동 정렬 알록달록 일정 카드 리스트 */}
