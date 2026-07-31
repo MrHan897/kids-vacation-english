@@ -230,9 +230,9 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
                 playSound('click');
                 setIsHistoryOpen(true);
               }}
-              className="px-3 py-1 bg-amber-400 hover:bg-amber-500 text-white font-extrabold text-[11px] rounded-full shadow-sm flex items-center gap-1 transition-all"
+              className="px-4 py-2 bg-[#ffb300] hover:bg-[#ffa000] text-slate-900 font-black text-xs sm:text-sm rounded-full shadow-md flex items-center gap-1.5 transition-all transform active:scale-95 animate-pulse border-2 border-amber-300"
             >
-              <span>📜 달성 기록 일기장</span>
+              <span>🏆 오늘의 칭찬 일기장 📜</span>
             </button>
 
             <span className="text-lg sm:text-2xl font-black text-pink-600 tracking-tight">
