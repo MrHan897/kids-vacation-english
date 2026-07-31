@@ -78,7 +78,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* User Badges & Action Buttons */}
-        <div className="flex items-center gap-2 sm:gap-2.5">
+        <div className="header-status-bar flex flex-wrap sm:flex-nowrap items-center gap-1.5 sm:gap-2.5">
           {/* Online Tutorial Guide Button */}
           {onOpenTutorial && (
             <button
@@ -86,28 +86,33 @@ export const Header: React.FC<HeaderProps> = ({
                 playSound('click');
                 onOpenTutorial();
               }}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-seed-surface border border-seed-hairline text-seed-foreground hover:bg-slate-100 rounded-full text-xs sm:text-sm font-bold shadow-2xs transition-all active:scale-98"
+              className="flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 bg-seed-surface border border-seed-hairline text-seed-foreground hover:bg-slate-100 rounded-full text-xs sm:text-sm font-bold shadow-2xs transition-all active:scale-98"
               title="이용 안내 보기"
             >
               <span className="text-base">📖</span>
-              <span>이용 안내</span>
+              <span className="hide-on-mobile">이용 안내</span>
             </button>
           )}
 
           {/* Active Character Badge (Magic Bunny) */}
-          <div className="flex items-center gap-1.5 bg-purple-50 border border-purple-200 text-purple-900 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-bold shadow-2xs">
+          <div className="flex items-center gap-1 px-2.5 sm:px-3.5 py-1.5 bg-purple-50 border border-purple-200 text-purple-900 rounded-full text-xs sm:text-sm font-bold shadow-2xs">
             <span className="text-base">{activeCharacterAvatar}</span>
-            <span>{activeCharacterName ? activeCharacterName.split('(')[0].trim() : '마법 토끼'}</span>
+            <span className="hide-on-mobile">{activeCharacterName ? activeCharacterName.split('(')[0].trim() : '마법 토끼'}</span>
           </div>
 
           {/* Sticker Count & Points Badge (보상: 60 코인) */}
-          <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-900 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-bold shadow-2xs">
-            <Sparkles className="w-4 h-4 text-amber-500 fill-amber-300 animate-pulse" />
-            <span data-testid="sticker-count">스티커 {stickersCount}개</span>
+          <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-900 px-2.5 sm:px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-bold shadow-2xs">
+            <Sparkles className="w-4 h-4 text-amber-500 fill-amber-300 animate-pulse shrink-0" />
+            <span className="hide-on-mobile">스티커 </span>
+            <span data-testid="sticker-count" className="font-black">{stickersCount}</span>
+            <span className="hide-on-mobile">개</span>
             <span className="text-amber-300">|</span>
             <div className="flex items-center gap-1 text-amber-700 font-extrabold">
-              <Coins className="w-4 h-4 text-amber-500 fill-amber-300 animate-bounce" />
-              <span>보상: {stickersCount * 10} 코인 🪙</span>
+              <Coins className="w-4 h-4 text-amber-500 fill-amber-300 animate-bounce shrink-0" />
+              <span className="hide-on-mobile">보상: </span>
+              <span className="font-black">{stickersCount * 10}</span>
+              <span className="hide-on-mobile"> 코인</span>
+              <span>🪙</span>
             </div>
           </div>
 
@@ -118,7 +123,7 @@ export const Header: React.FC<HeaderProps> = ({
               setIsProfileModalOpen(true);
             }}
             title="이름/학년 변경하기"
-            className="p-2 bg-seed-surface hover:bg-slate-100 border border-seed-hairline text-seed-foreground rounded-full transition-all active:scale-98 shadow-2xs"
+            className="p-1.5 sm:p-2 bg-seed-surface hover:bg-slate-100 border border-seed-hairline text-seed-foreground rounded-full transition-all active:scale-98 shadow-2xs"
           >
             <User className="w-4 h-4" />
           </button>
@@ -127,7 +132,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button
             onClick={handleTTSDemo}
             title="영어 인사 듣기"
-            className="p-2 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 rounded-full transition-all active:scale-98 shadow-2xs"
+            className="p-1.5 sm:p-2 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 rounded-full transition-all active:scale-98 shadow-2xs"
           >
             <Volume2 className="w-4 h-4" />
           </button>
@@ -137,7 +142,7 @@ export const Header: React.FC<HeaderProps> = ({
             data-testid="reset-data-btn"
             onClick={onReset}
             title="전체 데이터 초기화"
-            className="p-2 bg-seed-surface hover:bg-rose-50 border border-seed-hairline text-slate-400 hover:text-rose-600 rounded-full transition-all active:scale-98 shadow-2xs"
+            className="p-1.5 sm:p-2 bg-seed-surface hover:bg-rose-50 border border-seed-hairline text-slate-400 hover:text-rose-600 rounded-full transition-all active:scale-98 shadow-2xs"
           >
             <RotateCcw className="w-4 h-4" />
           </button>

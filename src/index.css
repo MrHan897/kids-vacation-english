@@ -183,6 +183,15 @@
 
 /* [요청 사항 2] 반응형 CSS 미디어 쿼리 (화면 너비 768px 이하 모바일 화면) */
 @media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important; /* 좁은 모바일 화면에서는 불필요한 보조 글자 완전히 숨김 */
+  }
+
+  .header-status-bar {
+    gap: 4px !important;
+    padding: 4px 6px !important;
+  }
+
   .nav-btn {
     display: flex;
     justify-content: center;
