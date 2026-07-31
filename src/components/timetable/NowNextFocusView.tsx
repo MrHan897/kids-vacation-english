@@ -10,9 +10,10 @@ interface NowNextFocusViewProps {
   schedule: ScheduleItem[];
   onSelectSlot?: (item: ScheduleItem) => void;
   onCompleteSlot?: (item: ScheduleItem) => void;
+  onOpenParentPinModal?: () => void;
 }
 
-export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, onSelectSlot, onCompleteSlot }) => {
+export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, onSelectSlot, onCompleteSlot, onOpenParentPinModal }) => {
   const userProfile = getUserProfile();
   const [elapsedPercent, setElapsedPercent] = useState<number>(10);
   const [elapsedMinutes, setElapsedMinutes] = useState<number>(6);
@@ -264,52 +265,53 @@ export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, on
         </div>
       )}
 
-      {/* 1. [NOW] 현재 진행 중인 미션 카드 vs [요청 사항 1 & 2] 100% ALL CLEAR 대성공 축하 카드 */}
+      {/* 1. [NOW] 현재 진행 중인 미션 카드 vs [요청 사항 1, 2, 3] 100% ALL CLEAR 메가 보상 모드 카드 */}
       <AnimatePresence mode="wait">
         {isAllClear ? (
           <motion.div
             key="all-clear-hero"
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            initial={{ opacity: 0, scale: 0.9, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            exit={{ opacity: 0, scale: 0.9, y: 15 }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="card-pastel bg-gradient-to-br from-amber-100 via-orange-100/80 to-yellow-100 border-4 border-amber-400 rounded-[28px] p-6 sm:p-8 shadow-[0_16px_40px_rgba(255,160,0,0.25)] text-center space-y-5 relative overflow-hidden break-keep"
+            className="card-pastel bg-gradient-to-br from-amber-100 via-orange-100/90 to-yellow-100 border-4 border-amber-400 rounded-[32px] p-6 sm:p-10 shadow-[0_20px_50px_rgba(255,160,0,0.3)] text-center space-y-6 relative overflow-hidden break-keep"
           >
-            {/* Background Star Glitter Animation */}
-            <div className="absolute top-3 left-4 text-2xl animate-pulse">✨</div>
-            <div className="absolute bottom-3 right-4 text-2xl animate-bounce">⭐</div>
+            {/* Background Glitter Star Sparkles */}
+            <div className="absolute top-4 left-5 text-3xl animate-pulse">✨</div>
+            <div className="absolute bottom-4 right-5 text-3xl animate-bounce">⭐</div>
 
-            {/* ALL CLEAR Header Badge */}
-            <div className="flex items-center justify-center">
-              <span className="px-4 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-xs sm:text-sm rounded-full shadow-md flex items-center gap-1.5 ring-4 ring-amber-200 animate-pulse">
-                <Trophy className="w-4 h-4 fill-white" /> 👑 100% ALL CLEAR 👑
-              </span>
+            {/* [요청 사항 2] 거대한 이모티콘 앙상블 */}
+            <div className="py-2 flex items-center justify-center gap-4">
+              <span className="text-5xl sm:text-7xl animate-bounce drop-shadow-md">🎉</span>
+              <span className="text-6xl sm:text-8xl animate-pulse drop-shadow-xl">👑</span>
+              <span className="text-5xl sm:text-7xl animate-bounce drop-shadow-md">✨</span>
             </div>
 
-            {/* [요청 사항 2] 큼직하고 화려하게 반짝이는 🏆 트로피 / 👑 100% 왕관 애니메이션 이모지 */}
-            <div className="py-2 flex items-center justify-center gap-3">
-              <span className="text-6xl sm:text-7xl animate-bounce drop-shadow-lg">🏆</span>
-              <span className="text-6xl sm:text-7xl animate-pulse drop-shadow-lg">👑</span>
-            </div>
-
-            {/* [요청 사항 2] 축하 텍스트 */}
-            <div className="space-y-2">
-              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
-                🎉 우와! 오늘 하루 미션을 완벽하게 해냈어요!
+            {/* [요청 사항 2] 압도적 크기의 텍스트 다이어트 타이틀 ("🏆 미션 올클리어! 🏆") */}
+            <div className="space-y-1">
+              <h2 className="text-3xl sm:text-5xl font-black text-slate-950 tracking-tight leading-none drop-shadow-sm">
+                🏆 미션 올클리어! 🏆
               </h2>
-              <p className="text-xs sm:text-sm font-black text-orange-700 bg-orange-200/90 px-4 py-1.5 rounded-full inline-block border border-orange-300 shadow-2xs">
-                모든 방학 시간표 일정을 달성하여 [집중왕 뱃지]가 수여되었습니다! 🏆
+              <p className="text-xs sm:text-base font-black text-orange-700 pt-2">
+                모든 퀘스트 완성! 아래 보상 버튼을 누르세요! 🚀
               </p>
             </div>
 
-            {/* [요청 사항 2] 행동 유도 (CTA) 안내 문구 */}
-            <div className="p-4 bg-white/90 rounded-2xl border-2 border-amber-300 shadow-sm text-slate-800 font-extrabold text-sm sm:text-base space-y-1">
-              <p className="text-orange-600 font-black">
-                ⬇️ 아래의 보상 상자를 열어 아빠/엄마에게 확인을 받으세요! 🎁
-              </p>
-              <p className="text-xs text-slate-500 font-bold">
-                칭찬 도장을 받고 칭찬 코인을 적립해보세요!
-              </p>
+            {/* [요청 사항 3] 원클릭 동선: 상단 카드로 끌어올린 꿀렁거리는 펄스 보물상자 버튼 */}
+            <div className="pt-2">
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => {
+                  playSound('reward');
+                  if (onOpenParentPinModal) onOpenParentPinModal();
+                }}
+                className="w-full py-4 sm:py-5 px-6 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 text-white font-black text-base sm:text-xl shadow-2xl border-4 border-yellow-300 flex items-center justify-center gap-3 animate-pulse cursor-pointer ring-4 ring-yellow-200"
+              >
+                <span className="text-2xl sm:text-3xl animate-bounce">🎁</span>
+                <span>🔒 부모님 확인받고 특별 보상 열기</span>
+                <Sparkles className="w-6 h-6 text-yellow-300 fill-yellow-300" />
+              </motion.button>
             </div>
           </motion.div>
         ) : (
@@ -416,8 +418,8 @@ export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, on
         )}
       </AnimatePresence>
 
-      {/* 2. [NEXT] 다음 일정 예고 바 */}
-      {nextItem && (
+      {/* 2. [요청 사항 1] ALL CLEAR 시 NEXT 일정 미션 카드 완전히 숨김 (Focus Mode) */}
+      {!isAllClear && nextItem && (
         <div className="p-3.5 bg-white rounded-2xl border border-[#eaebee] shadow-2xs flex items-center justify-between gap-3 transition-all hover:border-orange-300">
           <div className="flex items-center gap-2 min-w-0">
             <span className="px-2.5 py-0.5 bg-slate-100 text-slate-600 font-extrabold text-[11px] rounded-full shrink-0 flex items-center gap-1">

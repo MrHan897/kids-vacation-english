@@ -316,8 +316,18 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
 
   return (
     <div data-testid="timetable-container" className="space-y-6">
-      {/* [1위 최상단] 🚀 Tiimo & Routinery 스타일 Now & Next 포커스 뷰 */}
-      <NowNextFocusView schedule={schedule} onSelectSlot={handleEdit} />
+      {/* [1위 최상단] 🚀 Tiimo & Routinery 스타일 Now & Next 포커스 뷰 ([메가 보상 모드] 원클릭 동선 연동) */}
+      <NowNextFocusView
+        schedule={schedule}
+        onSelectSlot={handleEdit}
+        onOpenParentPinModal={() => {
+          playSound('reward');
+          setIsParentPinModalOpen(true);
+          setPinInput('');
+          setPinError(false);
+          setIsPinApproved(false);
+        }}
+      />
 
       {/* [2위] 🎯 오늘의 목표 (독립 퀘스트 달성률 게이밍 카드) */}
       <motion.div
