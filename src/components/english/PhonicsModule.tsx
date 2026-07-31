@@ -110,35 +110,37 @@ export const PhonicsModule: React.FC<PhonicsModuleProps> = ({ grade = 'grade1' }
 
   return (
     <div data-testid="phonics-module" className="space-y-6">
-      {/* Sub-Tab Switcher */}
-      <div className="flex justify-center gap-3">
+      {/* [요청 사항 1] 50:50 비율 상단 배너 버튼 통일감 적용 (DESIGN.md 기준) */}
+      <div className="flex items-center gap-3 sm:gap-4 w-full">
         <button
+          type="button"
           onClick={() => setActiveSubTab('program')}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-200 border-2 ${
+          className={`flex-1 h-14 min-h-[56px] rounded-[20px] font-black text-xs sm:text-base flex items-center justify-center gap-2 border-2 transition-all duration-200 active:scale-95 shadow-md ${
             activeSubTab === 'program'
-              ? 'bg-purple-600 text-white border-purple-700 shadow-cute scale-105'
-              : 'bg-white text-slate-600 border-slate-100 hover:bg-purple-50 hover:border-purple-200'
+              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-700 shadow-purple-200'
+              : 'bg-white text-slate-700 border-slate-200 hover:bg-purple-50 hover:border-purple-300'
           }`}
         >
-          <BookOpen className="w-4 h-4" />
-          <span>{gradeTitle}</span>
+          <BookOpen className="w-5 h-5 shrink-0" />
+          <span className="truncate">💬 실생활 영어 회화</span>
         </button>
 
         <button
+          type="button"
           onClick={() => setActiveSubTab('game')}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-200 border-2 ${
+          className={`flex-1 h-14 min-h-[56px] rounded-[20px] font-black text-xs sm:text-base flex items-center justify-center gap-2 border-2 transition-all duration-200 active:scale-95 shadow-md ${
             activeSubTab === 'game'
-              ? 'bg-purple-600 text-white border-purple-700 shadow-cute scale-105'
-              : 'bg-white text-slate-600 border-slate-100 hover:bg-purple-50 hover:border-purple-200'
+              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-purple-700 shadow-purple-200'
+              : 'bg-white text-slate-700 border-slate-200 hover:bg-purple-50 hover:border-purple-300'
           }`}
         >
-          <Gamepad2 className="w-4 h-4" />
-          <span>파닉스 짝맞추기 게임</span>
+          <Gamepad2 className="w-5 h-5 shrink-0" />
+          <span className="truncate">🎮 파닉스 짝맞추기</span>
         </button>
       </div>
 
       {activeSubTab === 'game' ? (
-        <PhonicsCardGame />
+        <PhonicsCardGame grade={grade} />
       ) : (
         <div className="space-y-6">
           {showStarDust && <StarDustFX />}
