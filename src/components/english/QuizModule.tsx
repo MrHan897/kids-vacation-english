@@ -5,7 +5,7 @@ import { playSound, speakText } from '../../services/audio';
 import { addSticker, getLearningProgress, saveLearningProgress } from '../../services/storage';
 import { CategorySelector } from './CategorySelector';
 import { QuizCard } from './QuizCard';
-import { Award, Sparkles, RotateCcw } from 'lucide-react';
+import { Award, Sparkles, RotateCcw, MessageSquare } from 'lucide-react';
 
 export const QuizModule: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<QuizCategory>('feelings');
@@ -13,6 +13,7 @@ export const QuizModule: React.FC = () => {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [score, setScore] = useState<number>(0);
+  const [userCoins, setUserCoins] = useState<number>(120);
   const [isCategoryCompleted, setIsCategoryCompleted] = useState<boolean>(false);
   const [progress, setProgress] = useState<ProgressState>(() => getLearningProgress());
 
@@ -33,12 +34,10 @@ export const QuizModule: React.FC = () => {
 
   const handleOptionSelect = (idx: number) => {
     if (isSubmitted) return;
-    playSound('click');
     setSelectedOption(idx);
   };
 
   const [comboStreak, setComboStreak] = useState<number>(0);
-  const [showRewardToast, setShowRewardToast] = useState<string | null>(null);
 
   const handleCheckAnswer = () => {
     if (selectedOption === null || !currentQuiz || isSubmitted) return;
@@ -47,24 +46,22 @@ export const QuizModule: React.FC = () => {
     if (selectedOption === currentQuiz.correctAnswer) {
       playSound('success');
       setScore((prev) => prev + 1);
+      setUserCoins((prev) => prev + 10);
 
       // Increase Combo Streak
       const nextCombo = comboStreak + 1;
       setComboStreak(nextCombo);
 
-      // Check 3-Combo Streak Bonus Mission Reward
       if (nextCombo === 3) {
         playSound('reward');
         addSticker({
           id: `stk-combo-${Date.now()}`,
-          name: '🔥 3연속 퍼펙트 콤보',
+          name: '🔥 3연속 회화 콤보',
           icon: '🔥',
-          description: '3문제를 연속으로 올바르게 맞혔어요!',
+          description: '영어 회화 대화 3문제를 연속으로 완벽하게 맞혔어요!',
           category: 'crown',
           unlockedAt: new Date().toISOString(),
         });
-        setShowRewardToast('🔥 3연속 퍼펙트 콤보 달성! [퍼펙트 스티커] 획득!');
-        setTimeout(() => setShowRewardToast(null), 4000);
       }
 
       if (currentQuiz.audioPrompt) {
@@ -72,7 +69,7 @@ export const QuizModule: React.FC = () => {
       }
     } else {
       playSound('click');
-      setComboStreak(0); // Reset combo streak on incorrect answer
+      setComboStreak(0);
     }
   };
 
@@ -83,29 +80,26 @@ export const QuizModule: React.FC = () => {
       setSelectedOption(null);
       setIsSubmitted(false);
     } else {
-      // Completed category 5-quiz round set mission
       setIsCategoryCompleted(true);
       playSound('reward');
 
-      // 1. Award Set Mission Completion Sticker (Only given upon set completion, not per single question)
       const categoryNames: Record<QuizCategory, string> = {
-        feelings: '기분 표현',
-        greetings: '영어 인사',
-        animals: '동물 단어',
-        colors: '색상 표현',
+        feelings: '기분과 안부',
+        greetings: '일상 인사',
+        animals: '동물 이름',
+        colors: '색상과 느낌',
       };
       const catName = categoryNames[activeCategory] || activeCategory;
 
       addSticker({
         id: `stk-quiz-${activeCategory}-${Date.now()}`,
-        name: `🎯 ${catName} 5문제 완주`,
+        name: `💬 ${catName} 완주`,
         icon: '💯',
-        description: `${catName} 퀴즈 5문제 완주 미션을 성공했어요!`,
+        description: `${catName} 회화 대화 퀴즈 완주 성공!`,
         category: 'trophy',
         unlockedAt: new Date().toISOString(),
       });
 
-      // 2. Save Learning Progress
       const currentProgress = getLearningProgress();
       const updatedProgress: ProgressState = {
         ...currentProgress,
@@ -130,23 +124,30 @@ export const QuizModule: React.FC = () => {
   };
 
   return (
-    <div data-testid="quiz-module" className="space-y-6">
-      {/* Top Banner & Total Score Header */}
-      <div className="card-pastel bg-gradient-to-r from-emerald-100 via-teal-50 to-cyan-100 p-5 rounded-3xl border-2 border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-emerald-600 animate-spin-slow" />
-            <h2 className="text-xl font-bold text-slate-800">초등 1학년 맞춤 영어 놀이 퀴즈</h2>
+    <div data-testid="quiz-module" className="space-y-6 max-w-2xl mx-auto">
+      {/* Top Messenger Title Header */}
+      <div className="card-pastel bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-700 text-white p-5 rounded-3xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 border-2 border-purple-400">
+        <div className="flex items-center gap-3">
+          <div className="p-3 bg-white/20 rounded-2xl backdrop-blur-md shrink-0">
+            <MessageSquare className="w-6 h-6 text-yellow-300" />
           </div>
-          <p className="text-xs text-slate-600 mt-1">원하는 카테고리를 선택하고 신나게 영어 문제를 풀어보세요!</p>
+          <div>
+            <h2 className="text-lg sm:text-xl font-black tracking-tight text-white flex items-center gap-2">
+              <span>💬 3학년 전용: 필수 실생활 영어 회화</span>
+            </h2>
+            <p className="text-xs text-purple-100 font-bold mt-0.5">
+              상대방 캐릭터의 질문을 듣고 알맞은 회화 답변을 주고받아보세요!
+            </p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div data-testid="quiz-score" className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl border border-emerald-200 shadow-sm">
-            <Award className="w-5 h-5 text-amber-500" />
-            <div className="text-xs font-bold text-slate-700">
-              맞힌 점수: <span className="text-emerald-600 text-sm font-extrabold">{score}</span> 점
-            </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <div data-testid="quiz-score" className="flex items-center gap-2 bg-white/90 text-slate-800 px-4 py-2 rounded-2xl font-black text-xs shadow-md border border-white">
+            <Award className="w-4 h-4 text-amber-500" />
+            <span>점수: <strong className="text-purple-700 text-sm font-black">{score}</strong></span>
+          </div>
+          <div className="flex items-center gap-1 bg-amber-400 text-slate-900 px-3 py-2 rounded-2xl font-black text-xs shadow-md border border-amber-300 animate-pulse">
+            <span>🪙 {userCoins}P</span>
           </div>
         </div>
       </div>
@@ -156,21 +157,21 @@ export const QuizModule: React.FC = () => {
 
       {/* Quiz Display or Completion Card */}
       {isCategoryCompleted ? (
-        <div className="card-pastel max-w-xl mx-auto text-center p-8 bg-gradient-to-b from-emerald-50 via-white to-teal-50 border-2 border-emerald-300 rounded-3xl shadow-lg space-y-4">
-          <div className="text-6xl animate-bounce">🏆</div>
-          <h3 className="text-2xl font-extrabold text-emerald-900">축하합니다! 퀴즈 완주!</h3>
-          <p className="text-sm text-slate-600 font-medium">
-            {activeCategory.toUpperCase()} 카테고리 퀴즈를 모두 풀었습니다!
+        <div className="card-pastel max-w-xl mx-auto text-center p-8 bg-gradient-to-b from-purple-50 via-white to-indigo-50 border-4 border-purple-300 rounded-3xl shadow-xl space-y-4">
+          <div className="text-6xl animate-bounce">💬 🏆 🐰</div>
+          <h3 className="text-2xl font-black text-purple-950">대단해요! 회화 대화방 완주!</h3>
+          <p className="text-xs sm:text-sm text-slate-600 font-bold">
+            {activeCategory.toUpperCase()} 카테고리 실생활 영어 대화를 성공적으로 끝마쳤어요!
             <br />
-            칭찬 스티커가 수놓아졌어요 🌟
+            칭찬 스티커와 코인이 적립되었습니다! 🌟
           </p>
           <div className="flex justify-center gap-3 pt-2">
             <button
               onClick={handleRestartQuiz}
-              className="btn-cute bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 font-bold text-sm flex items-center gap-2 shadow-md"
+              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-black text-xs rounded-full shadow-lg flex items-center gap-2 transition-all active:scale-95"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>다시 풀기</span>
+              <span>다시 대화하기</span>
             </button>
           </div>
         </div>
@@ -194,3 +195,4 @@ export const QuizModule: React.FC = () => {
 };
 
 export default QuizModule;
+
