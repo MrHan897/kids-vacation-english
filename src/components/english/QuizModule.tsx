@@ -3,6 +3,7 @@ import { QUIZ_DATA } from '../../data/quizData';
 import { QuizCategory, QuizQuestion, ProgressState } from '../../types';
 import { playSound, speakText } from '../../services/audio';
 import { addSticker, getLearningProgress, saveLearningProgress } from '../../services/storage';
+import { generateDynamicQuizQuestion } from '../../services/pcgEngine';
 import { CategorySelector } from './CategorySelector';
 import { QuizCard } from './QuizCard';
 import { Award, Sparkles, RotateCcw, MessageSquare } from 'lucide-react';
@@ -17,8 +18,11 @@ export const QuizModule: React.FC = () => {
   const [isCategoryCompleted, setIsCategoryCompleted] = useState<boolean>(false);
   const [progress, setProgress] = useState<ProgressState>(() => getLearningProgress());
 
-  const categoryQuizzes = QUIZ_DATA.filter((q) => q.category === activeCategory);
-  const currentQuiz: QuizQuestion | undefined = categoryQuizzes[currentIndex] || categoryQuizzes[0];
+  // [요청 사항 2 & 3] 학년 맞춤형 동적 무한 문제 생성기 (Dynamic PCG Engine) 바인딩
+  const [currentQuiz, setCurrentQuiz] = useState<QuizQuestion>(() => {
+    const categoryQuizzes = QUIZ_DATA.filter((q) => q.category === 'feelings');
+    return generateDynamicQuizQuestion(categoryQuizzes, QUIZ_DATA);
+  });
 
   useEffect(() => {
     setProgress(getLearningProgress());
@@ -30,6 +34,10 @@ export const QuizModule: React.FC = () => {
     setSelectedOption(null);
     setIsSubmitted(false);
     setIsCategoryCompleted(false);
+
+    // 새 카테고리의 동적 퀴즈 및 스마트 오답 셔플 생성
+    const categoryQuizzes = QUIZ_DATA.filter((q) => q.category === cat);
+    setCurrentQuiz(generateDynamicQuizQuestion(categoryQuizzes, QUIZ_DATA));
   };
 
   const handleOptionSelect = (idx: number) => {
@@ -64,8 +72,8 @@ export const QuizModule: React.FC = () => {
         });
       }
 
-      if (currentQuiz.audioPrompt) {
-        speakText(currentQuiz.audioPrompt, 'en-US');
+      if (currentQuiz.englishText) {
+        speakText(currentQuiz.englishText, 'en-US');
       }
     } else {
       playSound('click');
@@ -73,12 +81,17 @@ export const QuizModule: React.FC = () => {
     }
   };
 
+  const categoryQuizzes = QUIZ_DATA.filter((q) => q.category === activeCategory);
+
   const handleNextQuestion = () => {
     playSound('click');
     if (currentIndex < categoryQuizzes.length - 1) {
       setCurrentIndex((prev) => prev + 1);
       setSelectedOption(null);
       setIsSubmitted(false);
+
+      // [요청 사항 3] 무작위 다음 문제 및 스마트 셔플 갱신
+      setCurrentQuiz(generateDynamicQuizQuestion(categoryQuizzes, QUIZ_DATA));
     } else {
       setIsCategoryCompleted(true);
       playSound('reward');
@@ -121,6 +134,7 @@ export const QuizModule: React.FC = () => {
     setSelectedOption(null);
     setIsSubmitted(false);
     setIsCategoryCompleted(false);
+    setCurrentQuiz(generateDynamicQuizQuestion(categoryQuizzes, QUIZ_DATA));
   };
 
   return (
