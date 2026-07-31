@@ -85,7 +85,7 @@ export const MATH_QUESTIONS: MathQuestion[] = [
     icon: '💡',
   },
 
-  // 초등 3학년 (구구단 응용, 도형의 변과 꼭짓점, 분수 개념)
+  // 초등 3학년 (나눗셈, 분수 개념, 3자리 수 연산, 구구단 응용)
   {
     id: 'm3-1',
     grade: 'grade3',
@@ -126,4 +126,45 @@ export const MATH_QUESTIONS: MathQuestion[] = [
     explanation: '25를 4번 더하면 100이 됩니다! 명품 연산 왕! 💯',
     icon: '💯',
   },
+  {
+    id: 'm3-5',
+    grade: 'grade3',
+    category: 'subtraction',
+    question: '나눗셈 챌린지! 12 ÷ 3 은 얼마일까요?',
+    options: ['3', '4', '5', '6'],
+    correctAnswer: 1,
+    explanation: '12를 3으로 나누면 4가 됩니다! (3 × 4 = 12) ⚡',
+    icon: '⚡',
+  },
+  {
+    id: 'm3-6',
+    grade: 'grade3',
+    category: 'addition',
+    question: '3자리 수 덧셈! 125 + 235 는 얼마일까요?',
+    options: ['350', '360', '370', '380'],
+    correctAnswer: 1,
+    explanation: '125 + 235 = 360 입니다! 암산력 최고! 🌟',
+    icon: '🌟',
+  },
+  {
+    id: 'm3-7',
+    grade: 'grade3',
+    category: 'addition',
+    question: '분수 덧셈! 1/4 과 2/4 를 더하면 얼마일까요?',
+    options: ['1/4', '2/4', '3/4', '4/4 (1)'],
+    correctAnswer: 2,
+    explanation: '분모가 같을 땐 분자끼리 더해요! 1 + 2 = 3 이므로 3/4 입니다! 🍰',
+    icon: '🍰',
+  },
+  {
+    id: 'm3-8',
+    grade: 'grade3',
+    category: 'subtraction',
+    question: '나눗셈 챌린지! 18 ÷ 2 는 얼마일까요?',
+    options: ['7', '8', '9', '10'],
+    correctAnswer: 2,
+    explanation: '18을 2로 나누면 9가 됩니다! (2 × 9 = 18) 🎯',
+    icon: '🎯',
+  },
 ];
+
