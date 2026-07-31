@@ -2,14 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  /* 1. Typography */
+  --font-family-base: -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, "Segoe UI", Roboto, sans-serif;
+  --font-size-h1: 2rem;       /* 32px */
+  --font-size-h2: 1.5rem;     /* 24px */
+  --font-size-h3: 1.25rem;    /* 20px */
+  --font-size-body: 1rem;     /* 16px */
+  --font-size-caption: 0.875rem; /* 14px */
+  --font-size-micro: 0.75rem;  /* 12px */
+
+  /* 2. Color Palette (Karrot SEED Design System) */
+  --color-primary: #ff6f0f;         /* 당근 대표 오렌지 */
+  --color-primary-hover: #ff9e66;
+  --color-primary-pressed: #e55e00;
+  --color-[#ff6600]: #ff6600;       /* 마케팅 CTA */
+  --color-brand-tint: #fff5f0;      /* 따뜻한 틴트 배경 */
+  
+  --color-background: #f2f3f6;      /* 앱 차분한 배경색 */
+  --color-surface: #f7f8fa;         /* 카드/입력창 배경 */
+  --color-canvas: #ffffff;          /* 카드 캔버스 */
+  
+  --color-foreground: #212124;       /* 고대비 본문 텍스트 */
+  --color-muted: #868b94;            /* 보조/설명 텍스트 */
+  --color-hairline: #eaebee;         /* 정밀 구분선 */
+
+  --color-success: #1aa174;         /* 성공/완료 */
+  --color-warning: #f59e0b;         /* 경고/주의 */
+  --color-error: #fa2314;           /* 위험/에러 */
+  --color-info: #009ceb;            /* 정보 */
+
+  /* 3. Component Geometry & Shadows */
+  --radius-sm: 8px;
+  --radius-md: 16px;                 /* 당근 둥근 모서리 카드 */
+  --radius-lg: 24px;
+  --radius-pill: 9999px;             /* 알약 버튼 */
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.06);
+  --shadow-orange: 0 4px 14px rgba(255, 111, 15, 0.25);
+
+  /* 4. Spacing (8px Grid System) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+}
+
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
     touch-action: manipulation;
   }
   body {
-    @apply bg-seed-background text-seed-foreground font-sans antialiased text-base leading-relaxed;
-    background-size: 24px 24px;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-body);
+    line-height: 1.5;
     word-break: keep-all;
     overflow-x: hidden;
     padding-bottom: env(safe-area-inset-bottom, 16px);
@@ -18,20 +71,55 @@
 
 /* Custom 64px Finger Touch Button Utility for Kids Mobile (SEED Box Button standard) */
 .btn-finger-64 {
-  @apply min-h-[56px] sm:min-h-[64px] min-w-[56px] sm:min-w-[64px] px-5 sm:px-6 py-3.5 sm:py-4 rounded-full font-bold text-sm sm:text-base
-         flex items-center justify-center gap-2.5 sm:gap-3 select-none
-         transition-all duration-150 active:scale-[0.98] hover:opacity-95
-         shadow-sm hover:shadow-md cursor-pointer border border-transparent;
+  min-height: 64px;
+  min-width: 64px;
+  padding: 14px 24px;
+  border-radius: var(--radius-pill);
+  font-weight: 800;
+  font-size: var(--font-size-body);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  user-select: none;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border: 1px solid transparent;
+  background-color: var(--color-primary);
+  color: var(--color-canvas);
+  box-shadow: var(--shadow-orange);
+}
+
+.btn-finger-64:active {
+  transform: scale(0.98);
 }
 
 /* Custom child-friendly button styling helper (SEED Pill geometry: radius 9999px) */
 .btn-cute {
-  @apply transition-all transform active:scale-[0.98] hover:opacity-95 rounded-full font-bold text-xs sm:text-sm px-4 py-2.5 shadow-sm;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: var(--radius-pill);
+  font-weight: 800;
+  font-size: var(--font-size-caption);
+  padding: 10px 18px;
+  box-shadow: var(--shadow-sm);
 }
 
-/* SEED Card container with clean 8px/12px/16px padding & hairline border */
+.btn-cute:active {
+  transform: scale(0.98);
+}
+
+/* SEED Card container with clean 16px padding & hairline border */
 .card-pastel {
-  @apply bg-white rounded-3xl border border-seed-hairline shadow-sm p-4 sm:p-6 transition-all hover:shadow-md;
+  background-color: var(--color-canvas);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-hairline);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-4);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-pastel:hover {
+  box-shadow: var(--shadow-md);
 }
 
 /* Mobile Scrollbar Hide */
