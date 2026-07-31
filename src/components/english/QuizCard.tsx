@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { QuizQuestion } from '../../types';
 import { speakText, playSound } from '../../services/audio';
-import { Volume2, Mic, MicOff, CheckCircle2, XCircle, Sparkles, VolumeX } from 'lucide-react';
+import { Volume2, Mic, MicOff, CheckCircle2, XCircle, Sparkles, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface QuizCardProps {
@@ -34,6 +34,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
   const [showFlyingCoin, setShowFlyingCoin] = useState<boolean>(false);
   const [userChatBubble, setUserChatBubble] = useState<string | null>(null);
+  const [rabbitReplyBubble, setRabbitReplyBubble] = useState<string | null>(null);
 
   // [요청 사항 1] 브라우저 지원 여부 사전 체크
   useEffect(() => {
@@ -46,18 +47,17 @@ export const QuizCard: React.FC<QuizCardProps> = ({
       speakText(question.englishText, 'en-US');
     }
     setUserChatBubble(null);
+    setRabbitReplyBubble(null);
     setShowConfetti(false);
     setShowFlyingCoin(false);
   }, [question]);
 
-  const handleSpeakPrompt = () => {
+  const handleSpeakPrompt = (text: string) => {
     playSound('click');
-    if (question.englishText) {
-      speakText(question.englishText, 'en-US');
-    }
+    speakText(text, 'en-US');
   };
 
-  // [요청 사항 2] Web Speech API STT 마이크 음성 인식 & 에러 핸들링
+  // [요청 사항 4] Web Speech API STT 마이크 음성 인식
   const startSpeechRecognition = () => {
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -97,10 +97,9 @@ export const QuizCard: React.FC<QuizCardProps> = ({
       }
     };
 
-    // [요청 사항 2] 권한 거부 및 에러 발생 시 친절한 안내 및 뱃지 즉시 제거
     recognition.onerror = (event: any) => {
       setIsListening(false);
-      setSpeechText(''); // '듣고 있어요...' 뱃지 즉시 제거
+      setSpeechText('');
 
       if (event.error === 'not-allowed') {
         alert('마이크 사용 권한이 필요해요! 브라우저 설정에서 마이크를 허용해 주세요. 🔒');
@@ -122,6 +121,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
     }
   };
 
+  // [요청 사항 2] 선택지 클릭 시 multi-turn 연속 대화 0.5초 스르륵(Fade-in) 렌더링
   const handleOptionClick = (idx: number) => {
     if (isSubmitted) return;
     onSelectOption(idx);
@@ -133,6 +133,14 @@ export const QuizCard: React.FC<QuizCardProps> = ({
       setShowConfetti(true);
       setShowFlyingCoin(true);
       playSound('success');
+
+      // [요청 사항 2] 0.5초 뒤 토끼의 이어지는 대사 스르륵(Fade-in) 나타나며 대화 완결!
+      if (question.replyFromRabbit) {
+        setTimeout(() => {
+          setRabbitReplyBubble(question.replyFromRabbit || null);
+          speakText(question.replyFromRabbit || '', 'en-US');
+        }, 500);
+      }
     } else {
       setShake(true);
       playSound('click');
@@ -142,7 +150,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
 
   return (
     <div className="relative max-w-xl mx-auto">
-      {/* Flying Coin Trajectory Animation */}
+      {/* 🪙 Flying Coin Trajectory Animation */}
       <AnimatePresence>
         {showFlyingCoin && (
           <motion.div
@@ -193,20 +201,30 @@ export const QuizCard: React.FC<QuizCardProps> = ({
       <motion.div
         animate={shake ? { x: [-12, 12, -10, 10, -5, 5, 0] } : { x: 0 }}
         transition={{ duration: 0.5 }}
-        className="card-pastel bg-[#f7f8fa] p-5 sm:p-6 rounded-[32px] border-4 border-purple-200 shadow-xl space-y-4"
+        className="card-pastel bg-[#f7f8fa] p-5 sm:p-6 rounded-[32px] border-4 border-purple-200 shadow-xl space-y-3.5"
       >
         {/* Header Indicator */}
-        <div className="flex items-center justify-between text-xs font-black text-slate-500 border-b border-purple-100 pb-3">
+        <div className="flex items-center justify-between text-xs font-black text-slate-500 border-b border-purple-100 pb-2.5">
           <span className="bg-purple-100 text-purple-900 px-3 py-1 rounded-full border border-purple-300">
             💬 회화 대화방 ({currentIndex + 1} / {totalQuestions})
           </span>
           <span className="text-purple-600 font-extrabold flex items-center gap-1">
-            <Sparkles className="w-3.5 h-3.5" /> 3학년 전용 실생활 영어
+            <Sparkles className="w-3.5 h-3.5" /> 3학년 실생활 역할극 (Role-play)
           </span>
         </div>
 
-        {/* [요청 사항 1] 카카오톡 / 듀오링고 모바일 메신저 Chat Room */}
-        <div className="bg-white p-4 rounded-3xl border-2 border-purple-100 min-h-[220px] flex flex-col justify-between space-y-4 shadow-inner">
+        {/* [요청 사항 1] 상황(Context) 부여 귀여운 알림창 Card */}
+        <div className="bg-gradient-to-r from-amber-100 via-yellow-100 to-amber-200 border-2 border-amber-300 text-amber-950 px-4 py-2.5 rounded-2xl shadow-xs flex items-center justify-between gap-2">
+          <div className="text-xs sm:text-sm font-black flex items-center gap-2">
+            <span>{question.scenarioContext || '🏫 상황: 방과 후 친구와 헤어질 때'}</span>
+          </div>
+          <span className="text-[11px] bg-amber-400/90 text-amber-950 px-2 py-0.5 rounded-md font-extrabold shrink-0">
+            상황극
+          </span>
+        </div>
+
+        {/* 카카오톡 / 듀오링고 모바일 메신저 Chat Room */}
+        <div className="bg-white p-4 rounded-3xl border-2 border-purple-100 min-h-[240px] flex flex-col justify-between space-y-4 shadow-inner">
           
           {/* Left Chat Bubble: Rabbit Character Speaker */}
           <div className="flex items-start gap-3">
@@ -214,7 +232,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
               🐰
             </div>
             <div className="space-y-1 max-w-[80%]">
-              <div className="text-[11px] font-black text-purple-700">마법 토끼 (기분과 안부 묻기)</div>
+              <div className="text-[11px] font-black text-purple-700">마법 토끼 (대화 상대)</div>
               <div className="bg-purple-50 text-slate-800 font-extrabold text-sm sm:text-base p-3.5 rounded-2xl rounded-tl-none border-2 border-purple-200 shadow-2xs flex items-center justify-between gap-3">
                 <div>
                   <div className="text-base sm:text-lg text-purple-950 font-black">
@@ -226,7 +244,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
                 </div>
                 <button
                   type="button"
-                  onClick={handleSpeakPrompt}
+                  onClick={() => handleSpeakPrompt(question.englishText || '')}
                   className="p-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-full shadow-md active:scale-90 transition-all shrink-0"
                   title="영어로 듣기 (TTS)"
                 >
@@ -255,10 +273,36 @@ export const QuizCard: React.FC<QuizCardProps> = ({
               </motion.div>
             )}
           </AnimatePresence>
+
+          {/* [요청 사항 2] Multi-turn 연속 대화 0.5초 뒤 스르륵(Fade-in) 토끼 리플라이 말풍선 */}
+          <AnimatePresence>
+            {rabbitReplyBubble && (
+              <motion.div
+                initial={{ y: 20, opacity: 0, scale: 0.9 }}
+                animate={{ y: 0, opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                className="flex items-start gap-3 pt-1"
+              >
+                <div className="w-9 h-9 rounded-xl bg-purple-200 border border-purple-400 flex items-center justify-center text-lg shrink-0">
+                  🐰
+                </div>
+                <div className="bg-purple-100 text-purple-950 font-black text-xs sm:text-sm p-3 rounded-2xl rounded-tl-none border-2 border-purple-300 shadow-sm flex items-center justify-between gap-2 max-w-[85%]">
+                  <span>"{rabbitReplyBubble}"</span>
+                  <button
+                    type="button"
+                    onClick={() => handleSpeakPrompt(rabbitReplyBubble)}
+                    className="p-1.5 bg-purple-600 text-white rounded-full shrink-0"
+                  >
+                    <Volume2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        {/* [요청 사항 1 & 2] Web Speech API STT 마이크 음성 인식 버튼 및 미지원 브라우저 렌더링 */}
-        <div className="flex flex-col items-center justify-center py-2 space-y-2">
+        {/* [요청 사항 4] Web Speech API STT 마이크 음성 인식 파동 & 이퀄라이저 애니메이션 */}
+        <div className="flex flex-col items-center justify-center py-1 space-y-2">
           {isSupported ? (
             <button
               type="button"
@@ -266,12 +310,21 @@ export const QuizCard: React.FC<QuizCardProps> = ({
               disabled={isSubmitted}
               className={`px-6 py-3 rounded-full font-black text-xs sm:text-sm flex items-center gap-2.5 shadow-md transition-all active:scale-95 border-2 ${
                 isListening
-                  ? 'bg-rose-500 text-white border-rose-600 animate-pulse ring-4 ring-rose-200'
+                  ? 'bg-rose-500 text-white border-rose-600 ring-4 ring-rose-200'
                   : 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-purple-600 hover:from-purple-600 hover:to-indigo-600'
               }`}
             >
-              {isListening ? <Mic className="w-5 h-5 animate-spin" /> : <Mic className="w-5 h-5" />}
-              <span>{isListening ? '듣고 있어요... 영어로 말해보세요!' : '🎤 마이크로 영어 직접 말하기'}</span>
+              <Mic className={`w-5 h-5 ${isListening ? 'animate-bounce' : ''}`} />
+              <span>{isListening ? '듣고 있어요...' : '🎤 마이크로 영어 직접 말하기'}</span>
+
+              {/* [요청 사항 4] 통통 튀는 3개 점(...)과 Sound wave 파동 이퀄라이저 */}
+              {isListening && (
+                <div className="flex items-center gap-1 ml-1">
+                  <span className="w-1.5 h-4 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.1s' }} />
+                  <span className="w-1.5 h-6 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.25s' }} />
+                  <span className="w-1.5 h-3 bg-white rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+                </div>
+              )}
             </button>
           ) : (
             <button
@@ -280,9 +333,10 @@ export const QuizCard: React.FC<QuizCardProps> = ({
               className="px-6 py-3 rounded-full font-black text-xs sm:text-sm flex items-center gap-2.5 bg-slate-200 text-slate-500 border-2 border-slate-300 shadow-none cursor-not-allowed select-none"
             >
               <MicOff className="w-5 h-5 text-slate-400" />
-              <span>📱 아래의 정답 버튼을 눌러주세요!</span>
+              <span>📱 아래의 대사 말풍선을 눌러주세요!</span>
             </button>
           )}
+
           {isListening && speechText && (
             <span className="text-xs font-black text-purple-700 bg-purple-50 px-3 py-1 rounded-full border border-purple-200">
               {speechText}
@@ -290,22 +344,28 @@ export const QuizCard: React.FC<QuizCardProps> = ({
           )}
         </div>
 
-        {/* [요청 사항 1] 3개 답변 칩(Chips) 버튼 선택 영역 */}
+        {/* [요청 사항 3] 숫자(1,2,3,4) 완전 제거 & 우측 말풍선(My Dialogue) 형태 선택지 Buttons */}
         <div className="space-y-2">
-          <div className="text-xs font-black text-slate-500 mb-1 flex items-center gap-1">
-            💬 알맞은 회화 대사 선택하기:
+          <div className="text-xs font-black text-purple-800 mb-1 flex items-center gap-1">
+            💬 내가 말할 대사 선택하기:
           </div>
           <div className="grid grid-cols-1 gap-2.5">
             {question.options.map((option, idx) => {
               const isSelected = selectedOption === idx;
               const isCorrect = idx === question.correctAnswer;
 
-              let chipStyle = 'bg-white border-slate-200 text-slate-800 hover:border-purple-300 hover:bg-purple-50/40';
+              // [요청 사항 3] 숫자 제거 및 우측 내 말풍선(Speech Bubble) 디자인 적용
+              let chipStyle =
+                'bg-white border-slate-200 text-slate-800 hover:border-amber-400 hover:bg-amber-50/50';
               if (isSubmitted) {
-                if (isCorrect) chipStyle = 'bg-emerald-100 border-emerald-500 text-emerald-950 font-black shadow-md scale-102';
-                else if (isSelected) chipStyle = 'bg-rose-100 border-rose-400 text-rose-950 font-black';
+                if (isCorrect)
+                  chipStyle =
+                    'bg-emerald-100 border-emerald-500 text-emerald-950 font-black shadow-md scale-102';
+                else if (isSelected)
+                  chipStyle = 'bg-rose-100 border-rose-400 text-rose-950 font-black';
               } else if (isSelected) {
-                chipStyle = 'bg-amber-100 border-amber-400 text-amber-950 font-black shadow-md scale-102';
+                chipStyle =
+                  'bg-amber-300 border-amber-500 text-amber-950 font-black shadow-md scale-102';
               }
 
               return (
@@ -315,16 +375,23 @@ export const QuizCard: React.FC<QuizCardProps> = ({
                   data-testid="quiz-option"
                   onClick={() => handleOptionClick(idx)}
                   disabled={isSubmitted}
-                  className={`p-3.5 rounded-2xl border-2 text-left transition-all duration-200 flex items-center justify-between font-bold text-sm sm:text-base active:scale-98 ${chipStyle}`}
+                  className={`p-3.5 rounded-2xl rounded-tr-none border-2 text-right transition-all duration-200 flex items-center justify-between font-extrabold text-sm sm:text-base active:scale-98 shadow-xs ${chipStyle}`}
                 >
                   <span className="flex items-center gap-2">
-                    <span className="w-7 h-7 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-mono font-black shrink-0 border border-slate-200">
-                      {idx + 1}
-                    </span>
+                    <Send className="w-4 h-4 text-amber-600 shrink-0" />
                     <span>{option}</span>
                   </span>
-                  {isSubmitted && isCorrect && <CheckCircle2 className="w-6 h-6 text-emerald-600 shrink-0" />}
-                  {isSubmitted && isSelected && !isCorrect && <XCircle className="w-6 h-6 text-rose-500 shrink-0" />}
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="text-[11px] bg-amber-400 text-slate-900 px-2 py-0.5 rounded-full font-black border border-amber-500">
+                      나
+                    </span>
+                    {isSubmitted && isCorrect && (
+                      <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                    )}
+                    {isSubmitted && isSelected && !isCorrect && (
+                      <XCircle className="w-5 h-5 text-rose-500" />
+                    )}
+                  </div>
                 </button>
               );
             })}
@@ -332,11 +399,17 @@ export const QuizCard: React.FC<QuizCardProps> = ({
         </div>
 
         {/* Footer Next & Check Action Controls */}
-        <div className="pt-3 border-t border-purple-100 flex items-center justify-between">
+        <div className="pt-2 border-t border-purple-100 flex items-center justify-between">
           <div className="text-xs text-slate-500 font-bold">
-            {shake && <span className="text-rose-500 animate-bounce block">😅 다시 한번 생각해보세요!</span>}
+            {shake && (
+              <span className="text-rose-500 animate-bounce block">
+                😅 알맞은 회화 대사를 다시 선택해보세요!
+              </span>
+            )}
             {isSubmitted && selectedOption === question.correctAnswer && (
-              <span className="text-emerald-600 font-black block">🎉 정답입니다! 10코인을 획득했어요!</span>
+              <span className="text-emerald-600 font-black block">
+                🎉 대화 완벽 성공! 10코인을 획득했어요!
+              </span>
             )}
           </div>
 
@@ -352,7 +425,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
                     : 'bg-slate-300 cursor-not-allowed'
                 }`}
               >
-                정답 확인! ✨
+                대화 전송하기 ✨
               </button>
             ) : isLastQuestion ? (
               <button
@@ -361,7 +434,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
                 onClick={onNextQuestion}
                 className="px-6 py-2.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-md animate-pulse active:scale-95"
               >
-                회화 대화 완주 🏆
+                상황극 완주하기 🏆
               </button>
             ) : (
               <button
@@ -370,7 +443,7 @@ export const QuizCard: React.FC<QuizCardProps> = ({
                 onClick={onNextQuestion}
                 className="px-6 py-2.5 rounded-full bg-purple-600 hover:bg-purple-700 text-white font-black text-xs shadow-md active:scale-95"
               >
-                다음 대화 ➡️
+                다음 상황극 ➡️
               </button>
             )}
           </div>

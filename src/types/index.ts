@@ -53,6 +53,8 @@ export interface QuizQuestion {
   audioPrompt?: string;
   hint?: string;
   icon?: string;
+  scenarioContext?: string;
+  replyFromRabbit?: string;
 }
 
 export interface StickerItem {
