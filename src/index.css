@@ -8,32 +8,30 @@
     touch-action: manipulation;
   }
   body {
-    @apply bg-[#FFFBF5] text-slate-900 font-sans antialiased text-base leading-relaxed;
-    background-image: radial-gradient(#FDE047 0.85px, transparent 0.85px), radial-gradient(#FFB6C1 0.85px, #FFFBF5 0.85px);
-    background-size: 28px 28px;
-    background-position: 0 0, 14px 14px;
+    @apply bg-seed-background text-seed-foreground font-sans antialiased text-base leading-relaxed;
+    background-size: 24px 24px;
     word-break: keep-all;
     overflow-x: hidden;
     padding-bottom: env(safe-area-inset-bottom, 16px);
   }
 }
 
-/* Custom 64px Finger Touch Button Utility for Grade 1 Kids Mobile */
+/* Custom 64px Finger Touch Button Utility for Kids Mobile (SEED Box Button standard) */
 .btn-finger-64 {
-  @apply min-h-[56px] sm:min-h-[64px] min-w-[56px] sm:min-w-[64px] px-5 sm:px-6 py-3.5 sm:py-4 rounded-3xl font-black text-sm sm:text-base
+  @apply min-h-[56px] sm:min-h-[64px] min-w-[56px] sm:min-w-[64px] px-5 sm:px-6 py-3.5 sm:py-4 rounded-full font-bold text-sm sm:text-base
          flex items-center justify-center gap-2.5 sm:gap-3 select-none
-         transition-all duration-150 active:scale-95 hover:scale-105
-         shadow-md hover:shadow-lg cursor-pointer border-2;
+         transition-all duration-150 active:scale-[0.98] hover:opacity-95
+         shadow-sm hover:shadow-md cursor-pointer border border-transparent;
 }
 
-/* Custom child-friendly button styling helper */
+/* Custom child-friendly button styling helper (SEED Pill geometry: radius 9999px) */
 .btn-cute {
-  @apply transition-transform transform active:scale-95 hover:scale-105 shadow-cute hover:shadow-cute-lg rounded-2xl font-black text-xs sm:text-sm;
+  @apply transition-all transform active:scale-[0.98] hover:opacity-95 rounded-full font-bold text-xs sm:text-sm px-4 py-2.5 shadow-sm;
 }
 
-/* Glass card container with high contrast border */
+/* SEED Card container with clean 8px/12px/16px padding & hairline border */
 .card-pastel {
-  @apply bg-white/95 backdrop-blur-md rounded-3xl border-2 border-pink-200 shadow-pastel p-4 sm:p-6;
+  @apply bg-white rounded-3xl border border-seed-hairline shadow-sm p-4 sm:p-6 transition-all hover:shadow-md;
 }
 
 /* Mobile Scrollbar Hide */

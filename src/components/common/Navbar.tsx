@@ -28,8 +28,8 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
   return (
     <>
       {/* Desktop / Tablet Navbar (Top) */}
-      <nav className="hidden md:block w-full max-w-5xl mx-auto px-4 my-4">
-        <div className="bg-white/90 backdrop-blur-md rounded-3xl p-2 shadow-pastel border-2 border-pink-100 flex items-center justify-around gap-2">
+      <nav className="hidden md:block w-full max-w-6xl mx-auto px-4 my-4">
+        <div className="bg-white/95 backdrop-blur-md rounded-full p-1.5 shadow-xs border border-seed-hairline flex items-center justify-around gap-1.5">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -50,14 +50,14 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
                 key={tab.id}
                 data-testid={testIdMap[tab.id]}
                 onClick={() => handleSelect(tab.id)}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl font-bold transition-all duration-200 ${
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-full font-bold transition-all duration-150 ${
                   isActive
-                    ? `${tab.color} shadow-cute scale-105 border-2`
-                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+                    ? 'bg-seed-primary text-white shadow-xs font-extrabold scale-[1.02]'
+                    : 'text-seed-muted hover:bg-seed-surface hover:text-seed-foreground'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'animate-bounce-slow' : ''}`} />
-                <span className="text-sm font-extrabold whitespace-nowrap">{tab.label}</span>
+                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                <span className="text-xs sm:text-sm font-extrabold whitespace-nowrap">{tab.label}</span>
               </button>
             );
           })}
@@ -65,7 +65,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
       </nav>
 
       {/* Mobile Sticky Bottom Navigation Bar (Thumb-Friendly 64px Touch Target) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t-2 border-pink-100 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-2 py-1.5 pb-safe">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-seed-hairline shadow-[0_-2px_10px_rgba(0,0,0,0.05)] px-2 py-1.5 pb-safe">
         <div className="flex items-center justify-around gap-1">
           {tabs
             .filter((tab) => tab.id !== 'outdoor')
@@ -89,13 +89,13 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
                   key={tab.id}
                   data-testid={testIdMap[tab.id]}
                   onClick={() => handleSelect(tab.id)}
-                  className={`flex-1 min-h-[60px] flex flex-col items-center justify-center gap-1 py-2 px-1 rounded-2xl transition-all duration-150 active:scale-90 select-none ${
+                  className={`flex-1 min-h-[58px] flex flex-col items-center justify-center gap-1 py-1.5 px-1 rounded-2xl transition-all duration-150 active:scale-95 select-none ${
                     isActive
-                      ? `${tab.color} font-black scale-105 shadow-md border-2`
-                      : 'text-slate-500 font-bold hover:text-slate-700'
+                      ? 'bg-seed-brand-tint text-seed-primary font-black border border-orange-200'
+                      : 'text-seed-muted font-bold hover:text-seed-foreground'
                   }`}
                 >
-                  <Icon className={`w-5 h-5 ${isActive ? 'scale-110' : ''}`} />
+                  <Icon className={`w-5 h-5 ${isActive ? 'text-seed-primary scale-110' : 'text-slate-400'}`} />
                   <span className="text-[11px] font-extrabold tracking-tight">{tab.shortLabel}</span>
                 </button>
               );

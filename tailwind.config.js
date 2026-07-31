@@ -7,6 +7,22 @@ export default {
   theme: {
     extend: {
       colors: {
+        seed: {
+          primary: '#ff6f0f',
+          'primary-hover': '#ff9e66',
+          'primary-pressed': '#ff9e66',
+          marketing: '#ff6600',
+          canvas: '#ffffff',
+          background: '#f2f3f6',
+          surface: '#f7f8fa',
+          foreground: '#212124',
+          muted: '#868b94',
+          hairline: '#eaebee',
+          'brand-tint': '#fff5f0',
+          error: '#fa2314',
+          info: '#009ceb',
+          success: '#1aa174',
+        },
         pastel: {
           bg: '#FFFBF5',
           card: '#FFFFFF',
@@ -37,9 +53,9 @@ export default {
             dark: '#FACC15',
           },
           orange: {
-            light: '#FFF7ED',
-            DEFAULT: '#FDBA74',
-            dark: '#FB923C',
+            light: '#fff5f0',
+            DEFAULT: '#ff6f0f',
+            dark: '#ff6600',
           },
           peach: {
             light: '#FFF5F0',
