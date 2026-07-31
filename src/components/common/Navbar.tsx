@@ -49,14 +49,16 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
                 key={tab.id}
                 data-testid={testIdMap[tab.id]}
                 onClick={() => handleSelect(tab.id)}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-full font-bold transition-all duration-150 ${
+                className={`nav-btn flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-full font-bold transition-all duration-150 ${
                   isActive
                     ? 'bg-seed-primary text-white shadow-xs font-extrabold scale-[1.02]'
                     : 'text-seed-muted hover:bg-seed-surface hover:text-seed-foreground'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
-                <span className="text-xs sm:text-sm font-extrabold whitespace-nowrap">{tab.label}</span>
+                <span className="menu-icon flex items-center justify-center">
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                </span>
+                <span className="menu-text text-xs sm:text-sm font-extrabold whitespace-nowrap">{tab.label}</span>
               </button>
             );
           })}
