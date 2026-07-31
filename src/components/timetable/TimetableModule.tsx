@@ -329,15 +329,15 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
             <button
               type="button"
               onClick={handleToggleAlarm}
-              className={`px-3 py-2.5 rounded-2xl font-extrabold text-xs transition-all flex items-center gap-1.5 border shadow-sm ${
+              className={`px-3 py-2.5 rounded-full font-extrabold text-xs transition-all flex items-center gap-1.5 border shadow-2xs ${
                 alarmActive
                   ? 'bg-amber-400 text-slate-900 border-amber-500 hover:bg-amber-500'
-                  : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50'
+                  : 'bg-white text-seed-muted border-seed-hairline hover:bg-slate-50'
               }`}
-              title={alarmActive ? '스마트폰 알람 켜짐' : '스마트폰 알람 켜기'}
+              title={alarmActive ? 'Alarm On' : 'Alarm Off'}
             >
               {alarmActive ? <Bell className="w-4 h-4 text-slate-900 animate-bounce" /> : <BellOff className="w-4 h-4 text-slate-400" />}
-              <span>{alarmActive ? '알람 켜짐 🔔' : '알람 켜기'}</span>
+              <span>{alarmActive ? 'Alarm On 🔔' : 'Alarm Off'}</span>
             </button>
 
             {/* Add Activity Button (Main Test IDs) */}
@@ -345,10 +345,10 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
               type="button"
               data-testid="add-activity-btn"
               onClick={handleOpenAddModal}
-              className="flex-1 sm:flex-initial btn-cute bg-pastel-pink-dark hover:bg-pink-500 text-white px-4 py-2.5 rounded-2xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2"
+              className="flex-1 sm:flex-initial btn-cute bg-seed-primary hover:bg-orange-600 text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2"
             >
               <Plus className="w-4 h-4" />
-              <span>일정 추가하기</span>
+              <span>+ Add Schedule</span>
             </button>
 
             {/* Duplicate Add Schedule Button to fulfill exact data-testid="add-schedule-btn" contract */}

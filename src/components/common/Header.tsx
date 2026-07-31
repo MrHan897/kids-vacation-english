@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { UserProfile } from '../../types';
-import { Volume2, RotateCcw, User, Sparkles } from 'lucide-react';
+import { Volume2, RotateCcw, User, Sparkles, Coins } from 'lucide-react';
 import { playSound, speakText } from '../../services/audio';
 import { ProfileModal } from './ProfileModal';
 
@@ -100,10 +100,10 @@ export const Header: React.FC<HeaderProps> = ({
             <span>{activeCharacterName ? activeCharacterName.split('(')[0].trim() : '마법 토끼'}</span>
           </div>
 
-          {/* Sticker Count Badge */}
+          {/* Reward Point & Sticker Count Badge */}
           <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-900 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-bold shadow-2xs">
-            <Sparkles className="w-4 h-4 text-amber-500 fill-amber-300 animate-pulse" />
-            <span data-testid="sticker-count">스티커 {stickersCount}개</span>
+            <Coins className="w-4 h-4 text-amber-500 fill-amber-300 animate-bounce" />
+            <span data-testid="sticker-count">Reward: {stickersCount * 10} Coins 🪙 ({stickersCount}⭐)</span>
           </div>
 
           {/* Edit Profile Button */}

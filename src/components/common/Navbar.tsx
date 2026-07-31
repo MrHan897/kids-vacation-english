@@ -10,14 +10,14 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
   const tabs: { id: ActiveTab; label: string; shortLabel: string; icon: React.FC<{ className?: string }>; color: string }[] = [
-    { id: 'timetable', label: '방학 시간표', shortLabel: '시간표', icon: Calendar, color: 'bg-pastel-pink text-pink-900 border-pink-300' },
-    { id: 'timer', label: '뽀모도로 타이머', shortLabel: '타이머', icon: Timer, color: 'bg-pastel-blue text-sky-900 border-sky-300' },
-    { id: 'phonics', label: '파닉스 알파벳', shortLabel: '파닉스', icon: BookOpen, color: 'bg-pastel-purple text-purple-900 border-purple-300' },
-    { id: 'quiz', label: '기초 영어 퀴즈', shortLabel: '영어퀴즈', icon: HelpCircle, color: 'bg-pastel-mint text-emerald-900 border-emerald-300' },
-    { id: 'math', label: '어린이 수학 놀이', shortLabel: '수학놀이', icon: Calculator, color: 'bg-amber-100 text-amber-900 border-amber-300' },
-    { id: 'outdoor', label: '야외활동 체험관', shortLabel: '야외체험', icon: Compass, color: 'bg-emerald-100 text-emerald-900 border-emerald-300' },
-    { id: 'myroom', label: '마이룸 아지트', shortLabel: '마이룸', icon: Home, color: 'bg-purple-100 text-purple-900 border-purple-300' },
-    { id: 'rewards', label: '칭찬 스티커 & 캐릭터', shortLabel: '보상함', icon: Trophy, color: 'bg-pastel-yellow text-amber-900 border-amber-300' },
+    { id: 'timetable', label: 'Daily Quest 🗓️', shortLabel: 'Daily Quest', icon: Calendar, color: 'bg-pastel-pink text-pink-900 border-pink-300' },
+    { id: 'timer', label: 'Study Timer ⏱️', shortLabel: 'Timer', icon: Timer, color: 'bg-pastel-blue text-sky-900 border-sky-300' },
+    { id: 'phonics', label: 'Phonics 🔤', shortLabel: 'Phonics', icon: BookOpen, color: 'bg-pastel-purple text-purple-900 border-purple-300' },
+    { id: 'quiz', label: 'English Quiz ❓', shortLabel: 'Quiz', icon: HelpCircle, color: 'bg-pastel-mint text-emerald-900 border-emerald-300' },
+    { id: 'math', label: 'Math Play 🔢', shortLabel: 'Math', icon: Calculator, color: 'bg-amber-100 text-amber-900 border-amber-300' },
+    { id: 'outdoor', label: 'Outdoor 🚲', shortLabel: 'Outdoor', icon: Compass, color: 'bg-emerald-100 text-emerald-900 border-emerald-300' },
+    { id: 'myroom', label: 'My Room 🏠', shortLabel: 'My Room', icon: Home, color: 'bg-purple-100 text-purple-900 border-purple-300' },
+    { id: 'rewards', label: 'Reward & Store 🎁', shortLabel: 'Reward', icon: Trophy, color: 'bg-pastel-yellow text-amber-900 border-amber-300' },
   ];
 
   const handleSelect = (tab: ActiveTab) => {
