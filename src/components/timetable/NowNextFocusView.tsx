@@ -184,70 +184,73 @@ export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, on
         </div>
       )}
 
-      {/* 1. [NOW] 현재 진행 중인 미션 히어로 카드 (증가형 에너지 게이지) */}
+      {/* 1. [NOW] 현재 진행 중인 미션 게이미피케이션 퀘스트 카드 (28px 둥근 모서리 & 입체 펄스 효과) */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="card-pastel bg-gradient-to-br from-orange-50 via-white to-amber-50 border-4 border-orange-300 p-6 shadow-md relative overflow-hidden"
+        className="card-pastel bg-gradient-to-br from-amber-50 via-orange-50/50 to-pink-50 border-4 border-amber-300 rounded-[28px] p-6 sm:p-8 shadow-[0_12px_36px_rgba(255,111,15,0.18)] relative overflow-hidden space-y-6 break-keep"
       >
-        {/* NOW Header Badge & Demo Button */}
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 bg-[#ff6f0f] text-white font-black text-xs rounded-full shadow-2xs flex items-center gap-1 animate-pulse">
-              <Play className="w-3 h-3 fill-white" /> NOW (지금 할 일)
+        {/* NOW Header Badge & 10s Demo Button (Touch Friendly 1.5x Spacing) */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className="px-3.5 py-1.5 bg-[#ff6f0f] text-white font-black text-xs sm:text-sm rounded-full shadow-md flex items-center gap-1.5 animate-pulse">
+              <Play className="w-3.5 h-3.5 fill-white" /> NOW (지금 할 일)
             </span>
-            <span className="text-xs font-bold text-slate-500 flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-slate-400" /> {activeItem.timeSlot || activeItem.time}
+            <span className="text-xs sm:text-sm font-extrabold text-slate-500 flex items-center gap-1">
+              <Clock className="w-4 h-4 text-slate-400" /> {activeItem.timeSlot || activeItem.time}
             </span>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <button
               type="button"
               onClick={handleStart10sDemo}
               disabled={isDemoActive}
-              className={`px-3 py-1 text-xs font-black rounded-full border shadow-2xs flex items-center gap-1 transition-all active:scale-95 ${
+              className={`px-3.5 py-1.5 text-xs sm:text-sm font-black rounded-full border-2 shadow-sm flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer ${
                 isDemoActive
-                  ? 'bg-amber-400 text-slate-950 border-amber-500 animate-pulse'
+                  ? 'bg-amber-400 text-slate-950 border-amber-500 animate-pulse ring-2 ring-amber-200'
                   : 'bg-white text-orange-600 border-orange-300 hover:bg-orange-50'
               }`}
               title="10초 만에 100% 에너지 달성 팝업 체험해보기"
             >
-              <Zap className="w-3.5 h-3.5 fill-current text-amber-500" />
+              <Zap className="w-4 h-4 fill-current text-amber-500" />
               <span>{isDemoActive ? '⚡ 10초 체험 중...' : '⚡ 10초 체험 모드'}</span>
             </button>
 
-            <span className="text-xs font-extrabold text-[#ff6f0f] bg-orange-100 px-2.5 py-0.5 rounded-full">
+            <span className="text-xs sm:text-sm font-black text-[#ff6f0f] bg-orange-100/90 px-3 py-1 rounded-full border border-orange-200">
               남은 시간 약 {remainingMinutes}분
             </span>
           </div>
         </div>
 
-        {/* Hero Card Center Content & Increasing SVG Energy Gauge */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 my-2">
-          {/* Item Details */}
-          <div className="flex items-center gap-4 text-center sm:text-left flex-1 min-w-0">
+        {/* Hero Quest Center Content & Increasing SVG Energy Gauge (1.5x Spacing & Touch Chunking) */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-8 my-2">
+          {/* Item Details with "🔥 현재 미션:" Badge Header */}
+          <div className="flex items-center gap-4 sm:gap-6 text-center sm:text-left flex-1 min-w-0">
             <div
-              className={`w-16 h-16 rounded-3xl flex items-center justify-center text-2xl font-black shrink-0 ${iconStyle.bg} ${iconStyle.color} ${iconStyle.border} border-2 shadow-xs`}
+              className={`w-18 h-18 sm:w-20 sm:h-20 rounded-[24px] flex items-center justify-center text-3xl font-black shrink-0 ${iconStyle.bg} ${iconStyle.color} ${iconStyle.border} border-3 shadow-md`}
             >
-              {renderScheduleIcon(activeItem.icon, activeItem.category, 'w-8 h-8')}
+              {renderScheduleIcon(activeItem.icon, activeItem.category, 'w-10 h-10')}
             </div>
-            <div className="min-w-0">
-              <h2 className="text-xl sm:text-2xl font-black text-[#212124] tracking-tight leading-tight truncate">
+            <div className="min-w-0 space-y-1">
+              <span className="inline-block text-xs sm:text-sm font-black text-orange-600 bg-orange-100 px-3 py-0.5 rounded-full border border-orange-200">
+                🔥 현재 미션
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-black text-[#212124] tracking-tight leading-tight truncate">
                 {activeItem.title}
               </h2>
               {activeItem.notes ? (
-                <p className="text-xs sm:text-sm text-slate-500 font-semibold mt-1 truncate">
+                <p className="text-xs sm:text-sm text-slate-500 font-bold truncate">
                   {activeItem.notes}
                 </p>
               ) : (
-                <p className="text-xs text-[#868b94] font-semibold mt-1">에너지를 모아 미션을 완수해보세요! 🚀</p>
+                <p className="text-xs sm:text-sm text-[#868b94] font-bold">집중해서 퀘스트를 완성해보세요! 🚀</p>
               )}
             </div>
           </div>
 
-          {/* [요청 사항 1] 0% -> 100% 차오르는 증가형 에너지 게이지 SVG */}
-          <div className="relative w-36 h-36 flex items-center justify-center shrink-0">
+          {/* [요청 사항 1 & 2] 0% -> 100% 차오르는 퀘스트 에너지 게이지 SVG & Glow Pulse */}
+          <div className="relative w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center shrink-0">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
               {/* Background Track Circle */}
               <circle cx="60" cy="60" r={radius} className="text-orange-100 stroke-current" strokeWidth="12" fill="none" />
@@ -271,8 +274,8 @@ export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, on
 
             {/* Inner Center Text */}
             <div className="absolute flex flex-col items-center justify-center text-center">
-              <span className="text-2xl font-black text-[#212124] tracking-tight">{elapsedPercent}%</span>
-              <span className="text-[11px] font-extrabold text-orange-600 bg-orange-100 px-2 py-0.5 rounded-full mt-0.5">
+              <span className="text-2xl sm:text-3xl font-black text-[#212124] tracking-tight">{elapsedPercent}%</span>
+              <span className="text-xs font-black text-orange-600 bg-orange-100 px-2.5 py-0.5 rounded-full mt-0.5 border border-orange-200">
                 에너지 달성!
               </span>
             </div>
