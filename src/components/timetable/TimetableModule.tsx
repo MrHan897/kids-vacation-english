@@ -32,11 +32,87 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
   const [showCelebration, setShowCelebration] = useState(false);
   const [alarmActive, setAlarmActive] = useState<boolean>(() => isAlarmEnabled());
 
+  // [요청 사항 1, 2, 3] 부모님 비밀 확인 도장 (PIN) State & Constant
+  const PARENT_PIN = '0000';
+  const [isParentPinModalOpen, setIsParentPinModalOpen] = useState<boolean>(false);
+  const [pinInput, setPinInput] = useState<string>('');
+  const [pinError, setPinError] = useState<boolean>(false);
+  const [isPinApproved, setIsPinApproved] = useState<boolean>(false);
+
   useEffect(() => {
     // Keep local state in sync with external changes, perform daily reset check if date changed, and auto-sort by time
     const { updatedSchedule } = checkAndPerformDailyReset();
     setSchedule(sortScheduleChronologically(updatedSchedule));
   }, []);
+
+  // [요청 사항 2] 키보드 입력 대응 (부모님 PIN 입력 모달 오픈 시)
+  useEffect(() => {
+    if (!isParentPinModalOpen || isPinApproved) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key >= '0' && e.key <= '9') {
+        handlePinKey(e.key);
+      } else if (e.key === 'Backspace') {
+        handlePinBackspace();
+      } else if (e.key === 'Escape') {
+        setIsParentPinModalOpen(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isParentPinModalOpen, pinInput, isPinApproved]);
+
+  const handlePinKey = (digit: string) => {
+    if (pinInput.length >= 4 || isPinApproved) return;
+    playSound('click');
+    const nextPin = pinInput + digit;
+    setPinInput(nextPin);
+
+    // 4자리 모두 입력 시 자동 비밀번호 검증
+    if (nextPin.length === 4) {
+      verifyPinCode(nextPin);
+    }
+  };
+
+  const handlePinBackspace = () => {
+    if (pinInput.length === 0 || isPinApproved) return;
+    playSound('click');
+    setPinInput((prev) => prev.slice(0, -1));
+    setPinError(false);
+  };
+
+  const handlePinClear = () => {
+    playSound('click');
+    setPinInput('');
+    setPinError(false);
+  };
+
+  // [요청 사항 3] 비밀번호 검증 및 승인 애니메이션 로직
+  const verifyPinCode = (input: string) => {
+    if (input === PARENT_PIN) {
+      // 정답 비밀번호 "0000"
+      playSound('reward');
+      setShowCelebration(true); // 화려한 폭죽 Confetti 이펙트 발동!
+      setIsPinApproved(true);
+      setPinError(false);
+
+      addSticker({
+        id: `stk-parent-approve-${Date.now()}`,
+        name: '부모님 칭찬 도장 💮',
+        icon: '💮',
+        description: '부모님께 비밀번호 승인을 받았어요! 칭찬 코인 +50P 획득!',
+      });
+    } else {
+      // 오답 비밀번호
+      playSound('click');
+      setPinError(true); // 좌우 흔들리는(Shake) 효과 발동!
+      setTimeout(() => {
+        setPinInput('');
+        setPinError(false);
+      }, 700);
+    }
+  };
 
   // Background interval check for schedule alarms every 10 seconds
   useEffect(() => {
@@ -192,6 +268,7 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
   };
 
   const completedCount = schedule.filter((s) => s.completed).length;
+  const isAllCompleted = schedule.length > 0 && completedCount === schedule.length;
 
   return (
     <div data-testid="timetable-container" className="space-y-6">
@@ -214,7 +291,7 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
               <h3 className="text-base sm:text-lg font-black text-slate-800 tracking-tight flex items-center gap-1.5">
                 오늘의 목표
                 <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-pink-500 text-white shadow-sm">
-                  {schedule.length > 0 && completedCount === schedule.length ? '👑 ALL CLEAR' : 'LV.1 퀘스트'}
+                  {isAllCompleted ? '👑 ALL CLEAR' : 'LV.1 퀘스트'}
                 </span>
               </h3>
               <p className="text-[11px] font-bold text-slate-500">
@@ -258,6 +335,32 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
             <div className="absolute top-0 left-0 right-0 h-1/2 bg-white/40 rounded-t-full" />
           </motion.div>
         </div>
+
+        {/* [요청 사항 1] 100% 달성 시 등장하는 커다란 [🔒 부모님 확인받고 특별 보상 열기] 비밀 보물상자 버튼 */}
+        {isAllCompleted && (
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="mt-4 pt-3 border-t border-pink-200 text-center"
+          >
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => {
+                playSound('reward');
+                setIsParentPinModalOpen(true);
+                setPinInput('');
+                setPinError(false);
+                setIsPinApproved(false);
+              }}
+              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 text-white font-black text-sm sm:text-base shadow-xl border-2 border-yellow-300 flex items-center justify-center gap-2.5 animate-pulse cursor-pointer ring-4 ring-pink-200"
+            >
+              <span className="text-2xl animate-bounce">🎁</span>
+              <span>🔒 부모님 확인받고 특별 보상 열기 (비밀 도장)</span>
+              <Sparkles className="w-5 h-5 text-yellow-300 fill-yellow-300" />
+            </motion.button>
+          </motion.div>
+        )}
       </motion.div>
 
       {/* [3위] ⏰ 시작 시간 자동 정렬 알록달록 일정 카드 리스트 */}
@@ -401,6 +504,127 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
         isOpen={isHistoryOpen}
         onClose={() => setIsHistoryOpen(false)}
       />
+
+      {/* [요청 사항 2 & 3] 부모님 비밀 확인 도장 (PIN) 모달 창 */}
+      <AnimatePresence>
+        {isParentPinModalOpen && (
+          <div className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className={`card-pastel bg-gradient-to-b from-purple-900 via-indigo-950 to-slate-950 p-6 rounded-3xl border-4 border-amber-400 max-w-sm w-full text-center space-y-4 text-white shadow-2xl ${
+                pinError ? 'animate-shake border-rose-500' : ''
+              }`}
+            >
+              {!isPinApproved ? (
+                <>
+                  <div className="flex items-center justify-between border-b border-indigo-800 pb-3">
+                    <h3 className="text-base sm:text-lg font-black text-yellow-300 flex items-center gap-1.5">
+                      <span>🔒 부모님 비밀 확인 도장</span>
+                    </h3>
+                    <button
+                      onClick={() => setIsParentPinModalOpen(false)}
+                      className="text-slate-400 hover:text-white font-bold text-xs"
+                    >
+                      ✕ 닫기
+                    </button>
+                  </div>
+
+                  <p className="text-xs text-indigo-200 font-bold leading-relaxed">
+                    아이가 오늘 일정을 100% 완료했어요! 🎉<br />
+                    부모님 확인 비밀번호 4자리를 입력해주세요.
+                  </p>
+
+                  {/* [요청 사항 2] 4자리 PIN 입력 박스 UI (예: [ _ ] [ _ ] [ _ ] [ _ ]) */}
+                  <div className="flex justify-center gap-3 my-2">
+                    {[0, 1, 2, 3].map((idx) => {
+                      const hasVal = pinInput.length > idx;
+                      const isCurrent = pinInput.length === idx;
+                      return (
+                        <div
+                          key={idx}
+                          className={`w-12 h-14 rounded-2xl border-3 flex items-center justify-center text-2xl font-black transition-all ${
+                            hasVal
+                              ? 'border-amber-400 bg-amber-400/20 text-yellow-300 shadow-md scale-105'
+                              : isCurrent
+                              ? 'border-pink-400 bg-pink-900/40 text-pink-300 animate-pulse'
+                              : 'border-indigo-700 bg-indigo-950/80 text-indigo-500'
+                          }`}
+                        >
+                          {hasVal ? '●' : '_'}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* 피드백 에러 안내 */}
+                  {pinError ? (
+                    <p className="text-xs font-black text-rose-400 animate-pulse">
+                      ❌ 비밀번호가 올바르지 않습니다! 다시 입력해주세요. (기본: 0000)
+                    </p>
+                  ) : (
+                    <p className="text-[11px] font-bold text-indigo-300">
+                      💡 4자리 숫자를 직접 클릭하거나 키보드로 입력하세요 (기본: 0000)
+                    </p>
+                  )}
+
+                  {/* [요청 사항 2] 3x4 키패드 UI */}
+                  <div className="grid grid-cols-3 gap-2 pt-2">
+                    {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
+                      <button
+                        key={digit}
+                        onClick={() => handlePinKey(digit)}
+                        className="py-3 rounded-2xl border-2 border-indigo-700 bg-indigo-900/80 hover:bg-indigo-800 text-white font-black text-lg shadow-md active:scale-95 transition-all cursor-pointer"
+                      >
+                        {digit}
+                      </button>
+                    ))}
+                    <button
+                      onClick={handlePinClear}
+                      className="py-3 rounded-2xl border-2 border-slate-700 bg-slate-900 text-slate-400 font-black text-sm shadow-md active:scale-95 transition-all cursor-pointer"
+                    >
+                      C
+                    </button>
+                    <button
+                      onClick={() => handlePinKey('0')}
+                      className="py-3 rounded-2xl border-2 border-indigo-700 bg-indigo-900/80 hover:bg-indigo-800 text-white font-black text-lg shadow-md active:scale-95 transition-all cursor-pointer"
+                    >
+                      0
+                    </button>
+                    <button
+                      onClick={handlePinBackspace}
+                      className="py-3 rounded-2xl border-2 border-slate-700 bg-slate-900 text-slate-400 font-black text-sm shadow-md active:scale-95 transition-all cursor-pointer"
+                    >
+                      ⌫
+                    </button>
+                  </div>
+                </>
+              ) : (
+                /* [요청 사항 3] 비밀번호 맞았을 때 축하 화면 연동 */
+                <div className="py-6 space-y-4">
+                  <div className="text-6xl animate-bounce">💮 🪙</div>
+                  <h3 className="text-xl sm:text-2xl font-black text-yellow-300">
+                    ✨ 참 잘했어요!
+                  </h3>
+                  <p className="text-sm font-black text-white leading-relaxed">
+                    아빠/엄마의 칭찬 코인 50 🪙 획득! 🎉
+                  </p>
+                  <p className="text-xs font-bold text-indigo-200">
+                    부모님 칭찬 도장 스티커가 수여되었습니다. 수고했어요! 💕
+                  </p>
+                  <button
+                    onClick={() => setIsParentPinModalOpen(false)}
+                    className="w-full py-3 bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 font-black text-sm rounded-full shadow-lg border border-amber-300 active:scale-95 cursor-pointer mt-2"
+                  >
+                    자랑스러운 승인 완료 🚀
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
