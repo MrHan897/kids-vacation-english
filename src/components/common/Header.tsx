@@ -100,14 +100,14 @@ export const Header: React.FC<HeaderProps> = ({
             <span>{activeCharacterName ? activeCharacterName.split('(')[0].trim() : '마법 토끼'}</span>
           </div>
 
-          {/* Sticker Count & Points Badge (120P) */}
+          {/* Sticker Count & Points Badge (보상: 60 코인) */}
           <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-900 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-bold shadow-2xs">
             <Sparkles className="w-4 h-4 text-amber-500 fill-amber-300 animate-pulse" />
             <span data-testid="sticker-count">스티커 {stickersCount}개</span>
             <span className="text-amber-300">|</span>
             <div className="flex items-center gap-1 text-amber-700 font-extrabold">
               <Coins className="w-4 h-4 text-amber-500 fill-amber-300 animate-bounce" />
-              <span>포인트 {stickersCount * 20}P</span>
+              <span>보상: {stickersCount * 10} 코인 🪙</span>
             </div>
           </div>
 

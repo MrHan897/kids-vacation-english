@@ -329,15 +329,15 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
             <button
               type="button"
               onClick={handleToggleAlarm}
-              className={`px-3 py-2.5 rounded-full font-extrabold text-xs transition-all flex items-center gap-1.5 border shadow-2xs ${
+              className={`px-3.5 py-2.5 rounded-full font-extrabold text-xs transition-all flex items-center gap-1.5 border shadow-2xs ${
                 alarmActive
                   ? 'bg-amber-400 text-slate-900 border-amber-500 hover:bg-amber-500'
                   : 'bg-white text-seed-muted border-seed-hairline hover:bg-slate-50'
               }`}
-              title={alarmActive ? 'Alarm On' : 'Alarm Off'}
+              title={alarmActive ? '스마트폰 알람 켜짐' : '스마트폰 알람 켜기'}
             >
               {alarmActive ? <Bell className="w-4 h-4 text-slate-900 animate-bounce" /> : <BellOff className="w-4 h-4 text-slate-400" />}
-              <span>{alarmActive ? 'Alarm On 🔔' : 'Alarm Off'}</span>
+              <span>{alarmActive ? '알람 켜짐 🔔' : '알람 끄기'}</span>
             </button>
 
             {/* Add Activity Button (Main Test IDs) */}
@@ -348,7 +348,7 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
               className="flex-1 sm:flex-initial btn-cute bg-seed-primary hover:bg-orange-600 text-white px-5 py-2.5 rounded-full font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2"
             >
               <Plus className="w-4 h-4" />
-              <span>+ Add Schedule</span>
+              <span>+ 일정 추가하기</span>
             </button>
 
             {/* Duplicate Add Schedule Button to fulfill exact data-testid="add-schedule-btn" contract */}
