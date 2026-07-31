@@ -191,22 +191,22 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
               </div>
             </div>
 
-            {/* [요청 사항 1 & 2 & 3] 카테고리 선택 - 텍스트 삭제 & 64x64px 정사각형 이모지 격자 버튼 (data-category 속성 포함) */}
+            {/* [요청 사항] 카테고리 선택 - 아이콘 선택 정렬과 100% 동일하게 grid-cols-5 gap-2 pt-1 & w-full aspect-square rounded-2xl 적용 */}
             <div>
-              <label className="block text-xs font-extrabold text-slate-600 mb-1.5 flex items-center justify-between">
+              <label className="block text-xs font-extrabold text-slate-600 mb-1 flex items-center justify-between">
                 <span>카테고리 선택</span>
-                <span className="text-[10px] text-orange-500 font-bold">✨ 이모지를 터치하여 간편하게 선택해요!</span>
+                <span className="text-[10px] text-pink-500 font-bold">✨ 이모지를 터치하여 간편하게 선택해요!</span>
               </label>
-              <div data-testid="activity-category-select" className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+              <div data-testid="activity-category-select" className="grid grid-cols-5 gap-2 pt-1">
                 {[
-                  { id: 'study', label: '공부', emoji: '📖', bg: 'bg-sky-100 border-sky-400 text-sky-700' },
-                  { id: 'play', label: '놀이', emoji: '🎮', bg: 'bg-pink-100 border-pink-400 text-pink-700' },
-                  { id: 'meal', label: '식사', emoji: '🍎', bg: 'bg-amber-100 border-amber-400 text-amber-700' },
-                  { id: 'rest', label: '휴식', emoji: '🛌', bg: 'bg-purple-100 border-purple-400 text-purple-700' },
-                  { id: 'neulbom', label: '집안일', emoji: '🧹', bg: 'bg-teal-100 border-teal-400 text-teal-700' },
-                  { id: 'music', label: '음악', emoji: '🎵', bg: 'bg-emerald-100 border-emerald-400 text-emerald-700' },
-                  { id: 'academy', label: '학원', emoji: '🏫', bg: 'bg-indigo-100 border-indigo-400 text-indigo-700' },
-                  { id: 'exercise', label: '운동', emoji: '⚽', bg: 'bg-rose-100 border-rose-400 text-rose-700' },
+                  { id: 'study', label: '공부', emoji: '📖', bg: 'bg-sky-100', border: 'border-sky-300', color: 'text-sky-600' },
+                  { id: 'play', label: '놀이', emoji: '🎮', bg: 'bg-pink-100', border: 'border-pink-300', color: 'text-pink-600' },
+                  { id: 'meal', label: '식사', emoji: '🍎', bg: 'bg-amber-100', border: 'border-amber-300', color: 'text-amber-600' },
+                  { id: 'rest', label: '휴식', emoji: '🛌', bg: 'bg-purple-100', border: 'border-purple-300', color: 'text-purple-600' },
+                  { id: 'neulbom', label: '집안일', emoji: '🧹', bg: 'bg-teal-100', border: 'border-teal-300', color: 'text-teal-600' },
+                  { id: 'music', label: '음악', emoji: '🎵', bg: 'bg-emerald-100', border: 'border-emerald-300', color: 'text-emerald-600' },
+                  { id: 'academy', label: '학원', emoji: '🏫', bg: 'bg-indigo-100', border: 'border-indigo-300', color: 'text-indigo-600' },
+                  { id: 'exercise', label: '운동', emoji: '⚽', bg: 'bg-rose-100', border: 'border-rose-300', color: 'text-rose-600' },
                 ].map((catItem) => {
                   const isSelected = category === catItem.id;
                   return (
@@ -214,17 +214,17 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                       key={catItem.id}
                       type="button"
                       data-category={catItem.label}
-                      whileHover={{ scale: 1.1, rotate: 2 }}
-                      whileTap={{ scale: 0.9, rotate: -4 }}
+                      whileHover={{ scale: 1.15, rotate: 3 }}
+                      whileTap={{ scale: 0.85, rotate: -6 }}
                       onClick={() => {
                         playSound('click');
                         setCategory(catItem.id as ActivityCategory);
                       }}
                       title={catItem.label}
-                      className={`w-14 h-14 sm:w-16 sm:h-16 rounded-[16px] border-2 flex items-center justify-center text-2xl sm:text-3xl transition-all active:scale-95 shadow-2xs ${
+                      className={`w-full aspect-square rounded-2xl border-2 flex items-center justify-center text-xl sm:text-2xl transition-all ${
                         isSelected
-                          ? `${catItem.bg} shadow-md scale-110 ring-4 ring-orange-200 font-black`
-                          : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-white hover:shadow-xs opacity-75'
+                          ? `${catItem.bg} ${catItem.border} ${catItem.color} shadow-lg scale-110 ring-4 ring-pink-200 border-pink-400 font-black`
+                          : `bg-slate-50 border-slate-200 ${catItem.color} hover:bg-white hover:shadow-md opacity-80`
                       }`}
                     >
                       <span>{catItem.emoji}</span>
