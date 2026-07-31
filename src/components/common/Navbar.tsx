@@ -17,7 +17,7 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, onTabChange }) => {
     { id: 'math', label: 'Math Play 🔢', shortLabel: 'Math', icon: Calculator, color: 'bg-amber-100 text-amber-900 border-amber-300' },
     { id: 'outdoor', label: 'Outdoor 🚲', shortLabel: 'Outdoor', icon: Compass, color: 'bg-emerald-100 text-emerald-900 border-emerald-300' },
     { id: 'myroom', label: 'My Room 🏠', shortLabel: 'My Room', icon: Home, color: 'bg-purple-100 text-purple-900 border-purple-300' },
-    { id: 'rewards', label: 'Reward & Store 🎁', shortLabel: 'Reward', icon: Trophy, color: 'bg-pastel-yellow text-amber-900 border-amber-300' },
+    { id: 'rewards', label: '보상 상점 (Reward Shop) 🛍️', shortLabel: 'Reward Shop', icon: Trophy, color: 'bg-pastel-yellow text-amber-900 border-amber-300' },
   ];
 
   const handleSelect = (tab: ActiveTab) => {

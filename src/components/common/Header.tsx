@@ -94,16 +94,21 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           )}
 
-          {/* Active Character Badge */}
+          {/* Active Character Badge (Magic Bunny) */}
           <div className="flex items-center gap-1.5 bg-purple-50 border border-purple-200 text-purple-900 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-bold shadow-2xs">
             <span className="text-base">{activeCharacterAvatar}</span>
             <span>{activeCharacterName ? activeCharacterName.split('(')[0].trim() : '마법 토끼'}</span>
           </div>
 
-          {/* Reward Point & Sticker Count Badge */}
-          <div className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-900 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-bold shadow-2xs">
-            <Coins className="w-4 h-4 text-amber-500 fill-amber-300 animate-bounce" />
-            <span data-testid="sticker-count">Reward: {stickersCount * 10} Coins 🪙 ({stickersCount}⭐)</span>
+          {/* Sticker Count & Points Badge (120P) */}
+          <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-900 px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-bold shadow-2xs">
+            <Sparkles className="w-4 h-4 text-amber-500 fill-amber-300 animate-pulse" />
+            <span data-testid="sticker-count">스티커 {stickersCount}개</span>
+            <span className="text-amber-300">|</span>
+            <div className="flex items-center gap-1 text-amber-700 font-extrabold">
+              <Coins className="w-4 h-4 text-amber-500 fill-amber-300 animate-bounce" />
+              <span>포인트 {stickersCount * 20}P</span>
+            </div>
           </div>
 
           {/* Edit Profile Button */}
