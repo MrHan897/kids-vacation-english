@@ -6,6 +6,7 @@ import { playSound } from '../../services/audio';
 import { TimeSlot } from './TimeSlot';
 import { ActivityModal } from './ActivityModal';
 import { NowNextFocusView } from './NowNextFocusView';
+import { renderScheduleIcon } from '../../utils/iconHelper';
 import {
   isAlarmEnabled,
   setAlarmEnabled,
@@ -13,7 +14,7 @@ import {
   isNotificationSupported,
   checkScheduleAlarms,
 } from '../../services/alarmService';
-import { Bell, BellOff, Calendar, Plus, Sparkles, Trophy, RefreshCw, PlayCircle, BookOpen, Clock } from 'lucide-react';
+import { Bell, BellOff, Calendar, Plus, Sparkles, Trophy, RefreshCw, PlayCircle, BookOpen, Clock, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface TimetableModuleProps {
@@ -31,6 +32,12 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [showCelebration, setShowCelebration] = useState(false);
   const [alarmActive, setAlarmActive] = useState<boolean>(() => isAlarmEnabled());
+
+  // [요청 사항 1, 2, 3] 조기 달성 완료 및 다음 미션 유도 모달 (Modal) State
+  const [completedModalData, setCompletedModalData] = useState<{
+    completedItem: ScheduleItem;
+    nextItem: ScheduleItem | null;
+  } | null>(null);
 
   // [요청 사항 1, 2, 3] 부모님 비밀 확인 도장 (PIN) State & 로컬 스토리지 연동
   const [currentPin, setCurrentPin] = useState<string>(() => getParentPin());
@@ -227,6 +234,25 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
 
     setSchedule(updated);
     saveSchedule(updated);
+
+    // [요청 사항 1 & 2] 미션 완료(체크) 시 상단 타이머 정지 및 다음 일정 안내 모달 팝업 발동!
+    if (newCompleted && target) {
+      const currentIdx = updated.findIndex((s) => s.id === id);
+      const nextMission = updated.slice(currentIdx + 1).find((s) => !s.completed) || updated.find((s) => !s.completed) || null;
+
+      setCompletedModalData({
+        completedItem: target,
+        nextItem: nextMission,
+      });
+
+      addSticker({
+        id: `stk-complete-${Date.now()}`,
+        name: `${target.title} 달성!`,
+        icon: '⭐',
+        description: '일정을 완수하고 다음 미션 도전 준비 완료!',
+        category: 'star',
+      });
+    }
 
     // Check if all slots are completed to show celebration
     if (newCompleted && updated.length > 0 && updated.every((s) => s.completed)) {
@@ -651,6 +677,81 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
                   </button>
                 </div>
               )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* [요청 사항 2 & 3] 조기 달성 완료 및 다음 미션 안내 모달 (Modal) 팝업 */}
+      <AnimatePresence>
+        {completedModalData && (
+          <div className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+            <motion.div
+              initial={{ scale: 0.85, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.85, opacity: 0, y: 20 }}
+              className="relative w-full max-w-md bg-gradient-to-b from-amber-50 via-white to-orange-50 rounded-[32px] border-4 border-amber-400 p-6 sm:p-8 shadow-2xl text-center space-y-5 overflow-hidden break-keep"
+            >
+              {/* Close Button */}
+              <button
+                onClick={() => {
+                  playSound('click');
+                  setCompletedModalData(null);
+                }}
+                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center font-bold transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* Confetti Animation Emoji Header */}
+              <div className="space-y-2 pt-2">
+                <div className="text-6xl animate-bounce">🎉</div>
+                <h3 className="text-2xl sm:text-3xl font-black text-slate-800 tracking-tight flex items-center justify-center gap-2">
+                  <span>훌륭해요! 미션을 완료했어요!</span>
+                  <Sparkles className="w-6 h-6 text-amber-500 fill-amber-400 animate-pulse" />
+                </h3>
+                <p className="text-xs sm:text-sm font-black text-orange-600">
+                  [{completedModalData.completedItem.title}] 활동을 성공적으로 마쳤어요! 👏
+                </p>
+              </div>
+
+              {/* [요청 사항 2] 다음 일정 안내 카운터 카드 */}
+              {completedModalData.nextItem ? (
+                <div className="p-4 bg-gradient-to-r from-orange-100 via-amber-100 to-yellow-100 rounded-2xl border-2 border-orange-300 text-left space-y-2 shadow-sm">
+                  <span className="text-xs font-black text-orange-700 bg-white/80 px-2.5 py-0.5 rounded-full border border-orange-200 inline-block">
+                    👀 다음 미션 안내
+                  </span>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-2xl shadow-xs border border-orange-200 shrink-0">
+                      {renderScheduleIcon(completedModalData.nextItem.icon, completedModalData.nextItem.category, 'w-7 h-7')}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-slate-500">
+                        {completedModalData.nextItem.timeSlot || completedModalData.nextItem.time}
+                      </div>
+                      <div className="text-base sm:text-lg font-black text-slate-900 truncate">
+                        {completedModalData.nextItem.title}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 bg-emerald-100/80 rounded-2xl border border-emerald-300 text-emerald-900 font-extrabold text-sm">
+                  👑 오늘 남은 모든 미션을 클리어했어요! 멋져요! 🏆
+                </div>
+              )}
+
+              {/* [요청 사항 3] 다음 미션 하러 가기 버튼 */}
+              <button
+                type="button"
+                onClick={() => {
+                  playSound('click');
+                  setCompletedModalData(null);
+                }}
+                className="w-full py-4 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-base rounded-2xl shadow-xl border-2 border-yellow-300 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer ring-4 ring-orange-200"
+              >
+                <span>💪 다음 미션 하러 가기! 🎯</span>
+              </button>
             </motion.div>
           </div>
         )}
