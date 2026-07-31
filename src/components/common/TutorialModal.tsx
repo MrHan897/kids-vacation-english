@@ -6,7 +6,7 @@ import { playSound } from '../../services/audio';
 interface TutorialModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onNavigateTab?: (tab: 'timetable' | 'timer' | 'phonics' | 'quiz' | 'math' | 'outdoor' | 'myroom' | 'rewards') => void;
+  onNavigateTab?: (tab: 'timetable' | 'timer' | 'phonics' | 'quiz' | 'math' | 'myroom' | 'rewards') => void;
 }
 
 const MENU_GUIDES = [
@@ -46,22 +46,15 @@ const MENU_GUIDES = [
     description: '1학년(10 이하 덧/뺄셈), 2학년(구구단 & 두 자리), 3학년(세 자리 & 분수/도형)! 프로필 학년에 따라 가장 적합한 난이도 문제가 자동 출제됩니다.',
   },
   {
-    id: 'outdoor',
-    name: '🌳 6. 야외활동 체험관 (2026 방학 이벤트)',
-    icon: '📡',
-    color: 'from-emerald-600 to-green-700',
-    description: '여름방학 기간 아이와 함께 가기 좋은 자연 숲 체험, 과학관 밤탐험, 박물관 유물 발굴 이벤트를 실시간 모니터링! 날씨/자외선 꿀팁과 하트 찜 기능 지원.',
-  },
-  {
     id: 'myroom',
-    name: '🏠 7. 마이룸 아지트 (나만의 가구 커스텀)',
+    name: '🏠 6. 마이룸 아지트 (나만의 가구 커스텀)',
     icon: '✨',
     color: 'from-purple-600 to-pink-600',
     description: '원하는 가구를 손가락 터치 드래그로 자유 배치! [✨ 나만의 상상 3D 가구] 커스텀 버튼으로 아이가 상상하는 우주선, 공룡, 로봇 가구를 직접 새로 만들어 배치하세요.',
   },
   {
     id: 'rewards',
-    name: '🏆 8. 칭찬 스티커 & 캐릭터 보상함',
+    name: '🏆 7. 칭찬 스티커 & 캐릭터 보상함',
     icon: '⭐',
     color: 'from-yellow-500 to-amber-600',
     description: '공부와 퀴즈로 모은 칭찬 스티커 개수를 확인하고, 마법 토끼/사막여우 등 귀여운 방학 동반자 캐릭터를 해금할 수 있습니다.',

@@ -121,7 +121,7 @@ export interface MathQuestion {
   icon: string;
 }
 
-export type ActiveTab = 'timetable' | 'timer' | 'phonics' | 'quiz' | 'math' | 'rewards' | 'myroom' | 'outdoor';
+export type ActiveTab = 'timetable' | 'timer' | 'phonics' | 'quiz' | 'math' | 'rewards' | 'myroom';
 
 export interface UserProfile {
   name: string;

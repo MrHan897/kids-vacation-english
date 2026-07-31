@@ -12,6 +12,39 @@ const STORAGE_KEYS = {
   DAILY_HISTORY: 'kids_vacation_daily_history',
 };
 
+const DEFAULT_PROFILE: UserProfile = {
+  name: '지우',
+  grade: '초등 1학년',
+  avatar: '🐰',
+  createdAt: new Date().toISOString(),
+};
+
+/**
+ * [요청 사항 2] 사용자 데이터 격리 (Data Isolation Namespace) 헬퍼
+ * 현재 활성화된 프로필 이름(또는 고유 유저 아이디)을 가져와 `${userName}_${baseKey}` 형태로 키를 생성하여 믹싱 방지!
+ */
+export function getUserPrefix(profileName?: string): string {
+  try {
+    let name = profileName;
+    if (!name) {
+      const rawProfile = localStorage.getItem(STORAGE_KEYS.PROFILE);
+      if (rawProfile) {
+        const parsed = JSON.parse(rawProfile);
+        name = parsed?.name;
+      }
+    }
+    const cleanName = (name || 'jiwoo').trim().toLowerCase().replace(/[^a-z0-9_가-힣]/g, '_');
+    return cleanName || 'jiwoo';
+  } catch {
+    return 'jiwoo';
+  }
+}
+
+export function getUserKey(baseKey: string, userName?: string): string {
+  const prefix = getUserPrefix(userName);
+  return `${prefix}_${baseKey}`;
+}
+
 const INITIAL_REWARD_STATE: RewardState = {
   stickersCount: 1,
   earnedStickers: [
@@ -42,10 +75,19 @@ const INITIAL_PROGRESS_STATE: ProgressState = {
   lastActiveDate: new Date().toISOString().split('T')[0],
 };
 
-// Safe JSON parse wrapper
+// Safe JSON parse wrapper with fallback and legacy non-prefixed key fallback migration
 function safeParse<T>(key: string, fallback: T): T {
   try {
-    const raw = localStorage.getItem(key);
+    let raw = localStorage.getItem(key);
+    // Legacy migration: if user-prefixed key not found, attempt reading global un-prefixed key
+    if (!raw && key.includes('_kids_vacation_')) {
+      const baseKey = key.substring(key.indexOf('_kids_vacation_') + 1);
+      raw = localStorage.getItem(baseKey);
+      if (raw) {
+        // Automatically migrate un-prefixed data to user-isolated namespace
+        localStorage.setItem(key, raw);
+      }
+    }
     if (!raw) return fallback;
     const parsed = JSON.parse(raw);
     return parsed !== null && parsed !== undefined ? parsed : fallback;
@@ -69,43 +111,41 @@ import { GRADE1_SCHEDULE, GRADE2_SCHEDULE, GRADE3_SCHEDULE, DEFAULT_SCHEDULE } f
 /**
  * Reset and load default timetable schedule according to grade selection
  */
-export function resetScheduleByGrade(grade: string): ScheduleItem[] {
+export function resetScheduleByGrade(grade: string, userName?: string): ScheduleItem[] {
   let selectedSchedule: ScheduleItem[] = GRADE1_SCHEDULE;
   if (grade === '초등 2학년' || grade === 'grade2') {
     selectedSchedule = GRADE2_SCHEDULE;
   } else if (grade === '초등 3학년' || grade === '초등 4학년 이상' || grade === 'grade3') {
     selectedSchedule = GRADE3_SCHEDULE;
   }
-  saveSchedule(selectedSchedule);
+  saveSchedule(selectedSchedule, userName);
   return selectedSchedule;
 }
 
 /**
- * Get current timetable schedule items
+ * [요청 사항 2] 유저 격리 샌드박스에서 일일 시간표 로드 & 저장
  */
-export function getSchedule(): ScheduleItem[] {
-  return safeParse<ScheduleItem[]>(STORAGE_KEYS.SCHEDULE, DEFAULT_SCHEDULE);
+export function getSchedule(userName?: string): ScheduleItem[] {
+  const userKey = getUserKey(STORAGE_KEYS.SCHEDULE, userName);
+  return safeParse<ScheduleItem[]>(userKey, DEFAULT_SCHEDULE);
+}
+
+export function saveSchedule(items: ScheduleItem[], userName?: string): void {
+  const userKey = getUserKey(STORAGE_KEYS.SCHEDULE, userName);
+  safeSet(userKey, items);
 }
 
 /**
- * Save timetable schedule items
+ * Get all daily completion history records (Isolated per user)
  */
-export function saveSchedule(items: ScheduleItem[]): void {
-  safeSet(STORAGE_KEYS.SCHEDULE, items);
+export function getDailyHistory(userName?: string): DailyCompletionRecord[] {
+  const userKey = getUserKey(STORAGE_KEYS.DAILY_HISTORY, userName);
+  return safeParse<DailyCompletionRecord[]>(userKey, []);
 }
 
-/**
- * Get all daily completion history records
- */
-export function getDailyHistory(): DailyCompletionRecord[] {
-  return safeParse<DailyCompletionRecord[]>(STORAGE_KEYS.DAILY_HISTORY, []);
-}
-
-/**
- * Save daily completion history records
- */
-export function saveDailyHistory(records: DailyCompletionRecord[]): void {
-  safeSet(STORAGE_KEYS.DAILY_HISTORY, records);
+export function saveDailyHistory(records: DailyCompletionRecord[], userName?: string): void {
+  const userKey = getUserKey(STORAGE_KEYS.DAILY_HISTORY, userName);
+  safeSet(userKey, records);
 }
 
 /**
@@ -172,10 +212,11 @@ export function checkAndPerformDailyReset(): { resetPerformed: boolean; updatedS
 }
 
 /**
- * Get reward state (stickers, praise, character unlock status)
+ * Get reward state (stickers, praise, character unlock status) - User Isolated
  */
-export function getRewards(): RewardState {
-  const parsed = safeParse<any>(STORAGE_KEYS.REWARDS, INITIAL_REWARD_STATE);
+export function getRewards(userName?: string): RewardState {
+  const userKey = getUserKey(STORAGE_KEYS.REWARDS, userName);
+  const parsed = safeParse<any>(userKey, INITIAL_REWARD_STATE);
   if (!parsed || typeof parsed !== 'object') return INITIAL_REWARD_STATE;
 
   const stickersCount = typeof parsed.stickersCount === 'number'
@@ -223,9 +264,10 @@ export function getRewards(): RewardState {
 }
 
 /**
- * Save reward state
+ * Save reward state - User Isolated
  */
-export function saveRewards(rewards: RewardState): void {
+export function saveRewards(rewards: RewardState, userName?: string): void {
+  const userKey = getUserKey(STORAGE_KEYS.REWARDS, userName);
   const unlocked = rewards.unlockedCharacterIds || rewards.unlockedCharacters || ['char-bunny'];
   const payload = {
     ...rewards,
@@ -234,42 +276,45 @@ export function saveRewards(rewards: RewardState): void {
     unlockedCharacterIds: unlocked,
     unlockedCharacters: unlocked,
   };
-  safeSet(STORAGE_KEYS.REWARDS, payload);
+  safeSet(userKey, payload);
 }
 
 /**
  * Clear recent reward trigger
  */
-export function clearRecentReward(): RewardState {
-  const rewards = getRewards();
+export function clearRecentReward(userName?: string): RewardState {
+  const rewards = getRewards(userName);
   const updated: RewardState = {
     ...rewards,
     recentReward: null,
   };
-  saveRewards(updated);
+  saveRewards(updated, userName);
   return updated;
 }
 
 /**
- * Get learning progress state
+ * Get learning progress state - User Isolated
  */
-export function getLearningProgress(): ProgressState {
-  return safeParse<ProgressState>(STORAGE_KEYS.PROGRESS, INITIAL_PROGRESS_STATE);
+export function getLearningProgress(userName?: string): ProgressState {
+  const userKey = getUserKey(STORAGE_KEYS.PROGRESS, userName);
+  return safeParse<ProgressState>(userKey, INITIAL_PROGRESS_STATE);
 }
 
 /**
- * Save learning progress state
+ * Save learning progress state - User Isolated
  */
-export function saveLearningProgress(progress: ProgressState): void {
-  safeSet(STORAGE_KEYS.PROGRESS, progress);
+export function saveLearningProgress(progress: ProgressState, userName?: string): void {
+  const userKey = getUserKey(STORAGE_KEYS.PROGRESS, userName);
+  safeSet(userKey, progress);
 }
 
 /**
- * Get all character items with updated unlocked state from rewards
+ * Get all character items with updated unlocked state from rewards - User Isolated
  */
-export function getCharacters(): CharacterItem[] {
-  const savedCharacters = safeParse<CharacterItem[]>(STORAGE_KEYS.CHARACTERS, DEFAULT_CHARACTERS);
-  const rewards = getRewards();
+export function getCharacters(userName?: string): CharacterItem[] {
+  const userKey = getUserKey(STORAGE_KEYS.CHARACTERS, userName);
+  const savedCharacters = safeParse<CharacterItem[]>(userKey, DEFAULT_CHARACTERS);
+  const rewards = getRewards(userName);
   const unlocked = rewards.unlockedCharacterIds || rewards.unlockedCharacters || [];
 
   return savedCharacters.map((char) => {
@@ -290,19 +335,19 @@ export function getCharacters(): CharacterItem[] {
 }
 
 /**
- * Save custom character list
+ * Save custom character list - User Isolated
  */
-export function saveCharacters(characters: CharacterItem[]): void {
-  safeSet(STORAGE_KEYS.CHARACTERS, characters);
+export function saveCharacters(characters: CharacterItem[], userName?: string): void {
+  const userKey = getUserKey(STORAGE_KEYS.CHARACTERS, userName);
+  safeSet(userKey, characters);
 }
 
 /**
- * Award a new praise sticker to the user
+ * Award a new praise sticker to the user - User Isolated
  */
-export function addSticker(sticker: StickerItem): RewardState {
-  const rewards = getRewards();
+export function addSticker(sticker: StickerItem, userName?: string): RewardState {
+  const rewards = getRewards(userName);
 
-  // Prevent duplicate sticker IDs if already awarded
   const existingIdx = rewards.earnedStickers.findIndex((s) => s.id === sticker.id);
   const updatedStickers = [...rewards.earnedStickers];
 
@@ -331,7 +376,6 @@ export function addSticker(sticker: StickerItem): RewardState {
     },
   };
 
-  // Check if new characters can be auto-unlocked by total stickers
   const characters = DEFAULT_CHARACTERS;
   const newlyUnlocked = characters
     .filter((c) => c.requiredStickers <= updatedRewards.stickersCount)
@@ -341,15 +385,15 @@ export function addSticker(sticker: StickerItem): RewardState {
   updatedRewards.unlockedCharacterIds = combinedUnlocked;
   updatedRewards.unlockedCharacters = combinedUnlocked;
 
-  saveRewards(updatedRewards);
+  saveRewards(updatedRewards, userName);
   return updatedRewards;
 }
 
 /**
- * Unlock a specific character by ID
+ * Unlock a specific character by ID - User Isolated
  */
-export function unlockCharacter(characterId: string): RewardState {
-  const rewards = getRewards();
+export function unlockCharacter(characterId: string, userName?: string): RewardState {
+  const rewards = getRewards(userName);
   const unlocked = rewards.unlockedCharacterIds || rewards.unlockedCharacters || [];
   if (!unlocked.includes(characterId)) {
     const updatedUnlocked = [...unlocked, characterId];
@@ -366,18 +410,11 @@ export function unlockCharacter(characterId: string): RewardState {
         characterId,
       },
     };
-    saveRewards(updated);
+    saveRewards(updated, userName);
     return updated;
   }
   return rewards;
 }
-
-const DEFAULT_PROFILE: UserProfile = {
-  name: '지우',
-  grade: '초등 1학년',
-  avatar: '🐰',
-  createdAt: new Date().toISOString(),
-};
 
 /**
  * Get user profile (child's name, grade, avatar)
@@ -396,20 +433,24 @@ export function saveUserProfile(profile: UserProfile): void {
 import { DEFAULT_MYROOM_ITEMS, DEFAULT_DAILY_QUESTS } from '../data/myRoomData';
 import { MyRoomItem, DailyQuest } from '../types';
 
-export function getMyRoomItems(): MyRoomItem[] {
-  return safeParse<MyRoomItem[]>(STORAGE_KEYS.MYROOM, DEFAULT_MYROOM_ITEMS);
+export function getMyRoomItems(userName?: string): MyRoomItem[] {
+  const userKey = getUserKey(STORAGE_KEYS.MYROOM, userName);
+  return safeParse<MyRoomItem[]>(userKey, DEFAULT_MYROOM_ITEMS);
 }
 
-export function saveMyRoomItems(items: MyRoomItem[]): void {
-  safeSet(STORAGE_KEYS.MYROOM, items);
+export function saveMyRoomItems(items: MyRoomItem[], userName?: string): void {
+  const userKey = getUserKey(STORAGE_KEYS.MYROOM, userName);
+  safeSet(userKey, items);
 }
 
-export function getDailyQuests(): DailyQuest[] {
-  return safeParse<DailyQuest[]>(STORAGE_KEYS.QUESTS, DEFAULT_DAILY_QUESTS);
+export function getDailyQuests(userName?: string): DailyQuest[] {
+  const userKey = getUserKey(STORAGE_KEYS.QUESTS, userName);
+  return safeParse<DailyQuest[]>(userKey, DEFAULT_DAILY_QUESTS);
 }
 
-export function saveDailyQuests(quests: DailyQuest[]): void {
-  safeSet(STORAGE_KEYS.QUESTS, quests);
+export function saveDailyQuests(quests: DailyQuest[], userName?: string): void {
+  const userKey = getUserKey(STORAGE_KEYS.QUESTS, userName);
+  safeSet(userKey, quests);
 }
 
 import { AnalyticsLog, AnalyticsSummary } from '../types';
@@ -495,8 +536,16 @@ export function logAnalyticsEvent(
   }
 }
 
-export function resetAllData(): void {
+export function resetAllData(userName?: string): void {
   try {
+    const prefix = getUserPrefix(userName);
+    localStorage.removeItem(`${prefix}_${STORAGE_KEYS.SCHEDULE}`);
+    localStorage.removeItem(`${prefix}_${STORAGE_KEYS.REWARDS}`);
+    localStorage.removeItem(`${prefix}_${STORAGE_KEYS.PROGRESS}`);
+    localStorage.removeItem(`${prefix}_${STORAGE_KEYS.CHARACTERS}`);
+    localStorage.removeItem(`${prefix}_${STORAGE_KEYS.MYROOM}`);
+    localStorage.removeItem(`${prefix}_${STORAGE_KEYS.QUESTS}`);
+    localStorage.removeItem(`${prefix}_${STORAGE_KEYS.DAILY_HISTORY}`);
     localStorage.removeItem(STORAGE_KEYS.SCHEDULE);
     localStorage.removeItem(STORAGE_KEYS.REWARDS);
     localStorage.removeItem(STORAGE_KEYS.PROGRESS);
@@ -504,6 +553,7 @@ export function resetAllData(): void {
     localStorage.removeItem(STORAGE_KEYS.PROFILE);
     localStorage.removeItem(STORAGE_KEYS.MYROOM);
     localStorage.removeItem(STORAGE_KEYS.QUESTS);
+    localStorage.removeItem(STORAGE_KEYS.DAILY_HISTORY);
     localStorage.removeItem(ANALYTICS_KEY);
   } catch (err) {
     console.error('[storage] Failed to reset storage data:', err);
