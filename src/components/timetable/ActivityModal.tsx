@@ -150,7 +150,7 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
 
           {/* Form Content */}
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
-            {/* Title Input */}
+            {/* Title Input & Recommendation Chips */}
             <div>
               <label className="block text-xs font-extrabold text-slate-600 mb-1">
                 일정 이름
@@ -162,33 +162,74 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="예: 영어 책 읽기, 신나는 자전거 타기"
                 required
-                className="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-200 focus:border-pastel-pink focus:outline-none font-bold text-slate-800 text-sm transition-all"
+                className="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-200 focus:border-pink-400 focus:outline-none font-bold text-slate-800 text-sm transition-all"
               />
+
+              {/* [요청 사항 1] 추천 검색어 칩 (Chips) 가로 스크롤 UI */}
+              <div className="flex items-center gap-1.5 mt-2 overflow-x-auto pb-1 scrollbar-none">
+                <span className="text-[10px] font-black text-slate-400 shrink-0">💡 추천:</span>
+                {[
+                  { text: '📖 영어책 읽기', cat: 'study', icon: 'book' },
+                  { text: '✏️ 수학 숙제', cat: 'study', icon: 'pencil' },
+                  { text: '🧹 내 방 청소', cat: 'rest', icon: 'sparkles' },
+                  { text: '🎮 게임하기', cat: 'play', icon: 'game' },
+                ].map((chip) => (
+                  <button
+                    key={chip.text}
+                    type="button"
+                    onClick={() => {
+                      playSound('click');
+                      setTitle(chip.text);
+                      setCategory(chip.cat as ActivityCategory);
+                      setIcon(chip.icon);
+                    }}
+                    className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 rounded-full font-bold text-xs shrink-0 transition-all active:scale-95 shadow-2xs"
+                  >
+                    {chip.text}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Category Select */}
+            {/* [요청 사항 2] 카테고리 드롭다운 -> 9개 카테고리 둥근 뱃지 버튼 리스트 (Flex wrap) */}
             <div>
-              <label className="block text-xs font-extrabold text-slate-600 mb-1">
+              <label className="block text-xs font-extrabold text-slate-600 mb-1.5">
                 카테고리 선택
               </label>
-              <select
-                data-testid="activity-category-select"
-                value={category}
-                onChange={(e) => setCategory(e.target.value as ActivityCategory)}
-                className="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-200 focus:border-pastel-pink focus:outline-none font-bold text-slate-800 text-sm transition-all bg-white"
-              >
-                <option value="study">📖 공부 (학습 & 방학 숙제)</option>
-                <option value="play">🎮 놀이 (자유 시간 & 바깥 활동)</option>
-                <option value="meal">🍎 식사 (아침/점심/저녁 밥먹기)</option>
-                <option value="rest">🛌 휴식 (간식 타임 & 취침)</option>
-                <option value="music">🎵 음악 (피아노 & 악기 레슨)</option>
-                <option value="academy">🏫 학원 (영어/수학/예체능 학원)</option>
-                <option value="neulbom">🌱 늘봄 (초등 늘봄 방과후 교실)</option>
-                <option value="exercise">⚽ 운동 (체육 & 야외 신체 활동)</option>
-              </select>
+              <div data-testid="activity-category-select" className="flex flex-wrap gap-1.5">
+                {[
+                  { id: 'study', label: '📖 공부', bg: 'bg-sky-500 text-white' },
+                  { id: 'play', label: '🎮 놀이', bg: 'bg-pink-500 text-white' },
+                  { id: 'meal', label: '🍎 식사', bg: 'bg-amber-500 text-white' },
+                  { id: 'rest', label: '🛌 휴식', bg: 'bg-purple-500 text-white' },
+                  { id: 'neulbom', label: '🧹 집안일', bg: 'bg-teal-500 text-white' },
+                  { id: 'music', label: '🎵 음악', bg: 'bg-emerald-500 text-white' },
+                  { id: 'academy', label: '🏫 학원', bg: 'bg-indigo-500 text-white' },
+                  { id: 'exercise', label: '⚽ 운동', bg: 'bg-rose-500 text-white' },
+                ].map((catItem) => {
+                  const isSelected = category === catItem.id;
+                  return (
+                    <button
+                      key={catItem.id}
+                      type="button"
+                      onClick={() => {
+                        playSound('click');
+                        setCategory(catItem.id as ActivityCategory);
+                      }}
+                      className={`px-3 py-1.5 rounded-full font-extrabold text-xs border transition-all active:scale-95 ${
+                        isSelected
+                          ? `${catItem.bg} border-transparent shadow-md scale-105 ring-2 ring-orange-200`
+                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      {catItem.label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
-            {/* Icon Picker (Vibrant Color Palette + Game Bounce Sound FX) */}
+            {/* [요청 사항 3] 아이콘 선택 시인성 강화 (전체 파스텔톤 배경 채움 및 Scale 확대) */}
             <div>
               <label className="block text-xs font-extrabold text-slate-600 mb-1 flex items-center justify-between">
                 <span>아이콘 선택</span>
@@ -211,8 +252,8 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                       }}
                       className={`w-full aspect-square rounded-2xl border-2 flex items-center justify-center transition-all ${
                         isSelected
-                          ? `${item.bg} ${item.border} ${item.color} shadow-lg scale-110 ring-4 ring-pink-200 border-pink-400`
-                          : `bg-slate-50 border-slate-200 ${item.color} hover:bg-white hover:shadow-md opacity-80`
+                          ? `${item.bg} ${item.border} ${item.color} shadow-md scale-110 ring-4 ring-orange-200 border-orange-400 font-black`
+                          : `bg-slate-50 border-slate-200 ${item.color} hover:bg-white hover:shadow-sm opacity-70`
                       }`}
                     >
                       <IconComp className="w-6 h-6 stroke-[2.5]" />
@@ -232,7 +273,7 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                   type="time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="w-full px-3 py-2 rounded-2xl border-2 border-slate-200 focus:border-pastel-pink focus:outline-none font-bold text-slate-800 text-xs text-center"
+                  className="w-full px-3 py-2 rounded-2xl border-2 border-slate-200 focus:border-pink-400 focus:outline-none font-bold text-slate-800 text-xs text-center"
                 />
               </div>
               <div>
@@ -243,26 +284,14 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                   type="time"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  className="w-full px-3 py-2 rounded-2xl border-2 border-slate-200 focus:border-pastel-pink focus:outline-none font-bold text-slate-800 text-xs text-center"
+                  className="w-full px-3 py-2 rounded-2xl border-2 border-slate-200 focus:border-pink-400 focus:outline-none font-bold text-slate-800 text-xs text-center"
                 />
               </div>
             </div>
 
-            {/* Notes Input */}
-            <div>
-              <label className="block text-xs font-extrabold text-slate-600 mb-1">
-                메모 (선택사항)
-              </label>
-              <input
-                type="text"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="예: 30분 집중해서 포모도로 타이머 켜기"
-                className="w-full px-4 py-2 rounded-2xl border-2 border-slate-200 focus:border-pastel-pink focus:outline-none font-medium text-slate-700 text-xs"
-              />
-            </div>
+            {/* [요청 사항 1] 불필요한 메모(선택사항) 입력칸 영역 완전히 삭제 */}
 
-            {/* Submit Action */}
+            {/* [요청 사항 3] 제출 버튼 문구 '✨ 새 일정 만들기' 로 변경 */}
             <div className="pt-2 flex items-center justify-end gap-2">
               <button
                 type="button"
@@ -274,10 +303,10 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
               <button
                 type="submit"
                 data-testid="save-activity-btn"
-                className="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-pink-400 to-pink-500 hover:from-pink-500 hover:to-pink-600 text-white font-extrabold text-xs shadow-md transition-all flex items-center gap-1.5"
+                className="px-6 py-2.5 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-black text-xs shadow-md transition-all flex items-center gap-1.5 active:scale-95"
               >
                 <Check className="w-4 h-4" />
-                <span>저장하기</span>
+                <span>✨ 새 일정 만들기</span>
               </button>
             </div>
           </form>
