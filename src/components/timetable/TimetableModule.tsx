@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ActiveTab, ScheduleItem } from '../../types';
-import { getSchedule, saveSchedule, addSticker, checkAndPerformDailyReset } from '../../services/storage';
+import { getSchedule, saveSchedule, addSticker, checkAndPerformDailyReset, getParentPin, saveParentPin } from '../../services/storage';
 import { DailyHistoryModal } from './DailyHistoryModal';
 import { playSound } from '../../services/audio';
 import { TimeSlot } from './TimeSlot';
@@ -32,8 +32,8 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
   const [showCelebration, setShowCelebration] = useState(false);
   const [alarmActive, setAlarmActive] = useState<boolean>(() => isAlarmEnabled());
 
-  // [요청 사항 1, 2, 3] 부모님 비밀 확인 도장 (PIN) State & Constant
-  const PARENT_PIN = '0000';
+  // [요청 사항 1, 2, 3] 부모님 비밀 확인 도장 (PIN) State & 로컬 스토리지 연동
+  const [currentPin, setCurrentPin] = useState<string>(() => getParentPin());
   const [isParentPinModalOpen, setIsParentPinModalOpen] = useState<boolean>(false);
   const [pinInput, setPinInput] = useState<string>('');
   const [pinError, setPinError] = useState<boolean>(false);
@@ -61,7 +61,7 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isParentPinModalOpen, pinInput, isPinApproved]);
+  }, [isParentPinModalOpen, pinInput, isPinApproved, currentPin]);
 
   const handlePinKey = (digit: string) => {
     if (pinInput.length >= 4 || isPinApproved) return;
@@ -88,10 +88,10 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
     setPinError(false);
   };
 
-  // [요청 사항 3] 비밀번호 검증 및 승인 애니메이션 로직
+  // [요청 사항 1 & 3] 로컬 스토리지에서 불러온 currentPin 기반 검증 및 승인 로직
   const verifyPinCode = (input: string) => {
-    if (input === PARENT_PIN) {
-      // 정답 비밀번호 "0000"
+    if (input === currentPin) {
+      // 정답 비밀번호 일치!
       playSound('reward');
       setShowCelebration(true); // 화려한 폭죽 Confetti 이펙트 발동!
       setIsPinApproved(true);
@@ -112,6 +112,24 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
         setPinError(false);
       }, 700);
     }
+  };
+
+  // [요청 사항 3] 부모님 비밀번호 변경 핸들러
+  const handleChangePin = () => {
+    playSound('click');
+    const newPin = window.prompt(
+      `🔒 새로운 부모님 비밀번호(4자리 숫자)를 입력해 주세요:`,
+      currentPin
+    );
+    if (newPin === null) return; // 취소됨
+    const trimmed = newPin.trim();
+    if (!/^\d{4}$/.test(trimmed)) {
+      alert('⚠️ 비밀번호는 반드시 4자리 숫자여야 합니다! (예: 1234)');
+      return;
+    }
+    saveParentPin(trimmed);
+    setCurrentPin(trimmed);
+    alert('🔒 비밀번호가 성공적으로 변경되었습니다. 다음부터는 새 비밀번호로 열어주세요!');
   };
 
   // Background interval check for schedule alarms every 10 seconds
@@ -561,11 +579,11 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
                   {/* 피드백 에러 안내 */}
                   {pinError ? (
                     <p className="text-xs font-black text-rose-400 animate-pulse">
-                      ❌ 비밀번호가 올바르지 않습니다! 다시 입력해주세요. (기본: 0000)
+                      ❌ 비밀번호가 올바르지 않습니다! 다시 입력해주세요.
                     </p>
                   ) : (
                     <p className="text-[11px] font-bold text-indigo-300">
-                      💡 4자리 숫자를 직접 클릭하거나 키보드로 입력하세요 (기본: 0000)
+                      💡 4자리 숫자를 직접 클릭하거나 키보드로 입력하세요
                     </p>
                   )}
 
@@ -601,9 +619,21 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
                   </div>
                 </>
               ) : (
-                /* [요청 사항 3] 비밀번호 맞았을 때 축하 화면 연동 */
-                <div className="py-6 space-y-4">
-                  <div className="text-6xl animate-bounce">💮 🪙</div>
+                /* [요청 사항 2 & 3] 잠금 해제 성공 축하 화면 & 구석에 노출되는 비밀번호 변경 버튼 */
+                <div className="py-4 space-y-4 relative">
+                  {/* [요청 사항 2] 성공 상태 구석의 [⚙️ 부모님 비밀번호 변경] 버튼 */}
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={handleChangePin}
+                      className="px-3 py-1 bg-indigo-900/90 hover:bg-indigo-800 text-yellow-300 font-bold text-xs rounded-full border border-yellow-400/50 shadow-sm transition-all flex items-center gap-1 cursor-pointer active:scale-95"
+                      title="부모님 비밀번호(PIN) 변경하기"
+                    >
+                      <span>⚙️ 부모님 비밀번호 변경</span>
+                    </button>
+                  </div>
+
+                  <div className="text-6xl animate-bounce pt-1">💮 🪙</div>
                   <h3 className="text-xl sm:text-2xl font-black text-yellow-300">
                     ✨ 참 잘했어요!
                   </h3>

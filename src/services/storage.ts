@@ -10,6 +10,7 @@ const STORAGE_KEYS = {
   MYROOM: 'kids_vacation_myroom',
   QUESTS: 'kids_vacation_daily_quests',
   DAILY_HISTORY: 'kids_vacation_daily_history',
+  PARENT_PIN: 'kids_vacation_parent_pin',
 };
 
 const DEFAULT_PROFILE: UserProfile = {
@@ -43,6 +44,19 @@ export function getUserPrefix(profileName?: string): string {
 export function getUserKey(baseKey: string, userName?: string): string {
   const prefix = getUserPrefix(userName);
   return `${prefix}_${baseKey}`;
+}
+
+/**
+ * [요청 사항 1] 유저 격리 샌드박스에서 부모님 PIN 비밀번호 로드 & 저장
+ */
+export function getParentPin(userName?: string): string {
+  const userKey = getUserKey(STORAGE_KEYS.PARENT_PIN, userName);
+  return safeParse<string>(userKey, '0000');
+}
+
+export function saveParentPin(pin: string, userName?: string): void {
+  const userKey = getUserKey(STORAGE_KEYS.PARENT_PIN, userName);
+  safeSet(userKey, pin);
 }
 
 const INITIAL_REWARD_STATE: RewardState = {
