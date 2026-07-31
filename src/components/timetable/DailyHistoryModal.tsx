@@ -68,7 +68,16 @@ export const DailyHistoryModal: React.FC<DailyHistoryModalProps> = ({ isOpen, on
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm relative overflow-hidden">
+      {/* Overlay Backdrop Layer (Flexbox Center Alignment & high z-index) */}
+      <div
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            playSound('click');
+            onClose();
+          }
+        }}
+        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md overflow-y-auto animate-fadeIn"
+      >
         {/* Confetti Animation Effect */}
         {showConfetti && (
           <div className="absolute inset-0 pointer-events-none z-50 flex justify-around">
@@ -86,11 +95,12 @@ export const DailyHistoryModal: React.FC<DailyHistoryModalProps> = ({ isOpen, on
           </div>
         )}
 
+        {/* Modal Dialog Card (Centered, Max-width 90% / 440px) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
-          className="bg-[#fffdfa] rounded-[32px] border-4 border-amber-300 shadow-2xl max-w-lg w-full overflow-hidden flex flex-col max-h-[85vh] relative"
+          className="bg-[#fffdfa] rounded-[28px] border-4 border-amber-300 shadow-2xl max-w-[440px] w-[90%] overflow-hidden flex flex-col max-h-[85vh] relative my-auto z-10"
         >
           {/* Header */}
           <div className="bg-gradient-to-r from-amber-200 via-amber-100 to-orange-100 p-5 border-b border-amber-200 flex items-center justify-between">
