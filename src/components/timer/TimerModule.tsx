@@ -108,121 +108,103 @@ export const TimerModule: React.FC = () => {
   const presetWorkOptions = [5, 10, 15, 20, 25, 30, 45, 60];
   const presetBreakOptions = [3, 5, 10, 15];
 
+  const [totalSeconds, setTotalSeconds] = useState<number>(20 * 60);
+
+  // Time block options: 10m, 20m, 30m, 60m
+  const timeBlocks = [
+    { mins: 10, label: '🟢 10분', color: 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100', activeColor: 'bg-emerald-500 text-white border-emerald-600 ring-4 ring-emerald-200' },
+    { mins: 20, label: '🟡 20분', color: 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100', activeColor: 'bg-amber-500 text-white border-amber-600 ring-4 ring-amber-200' },
+    { mins: 30, label: '🟠 30분', color: 'bg-orange-50 text-orange-800 border-orange-300 hover:bg-orange-100', activeColor: 'bg-orange-500 text-white border-orange-600 ring-4 ring-orange-200' },
+    { mins: 60, label: '🔴 60분', color: 'bg-rose-50 text-rose-800 border-rose-300 hover:bg-rose-100', activeColor: 'bg-rose-500 text-white border-rose-600 ring-4 ring-rose-200' },
+  ];
+
+  const handleSelectTimeBlock = (mins: number) => {
+    playSound('click');
+    setIsRunning(false);
+    setCustomWorkMinutes(mins);
+    setTotalSeconds(mins * 60);
+    setSeconds(mins * 60);
+  };
+
+  const radius = 80;
+  const circumference = 2 * Math.PI * radius;
+  const progressPercent = totalSeconds > 0 ? (seconds / totalSeconds) * 100 : 0;
+  const strokeDashoffset = circumference - (progressPercent / 100) * circumference;
+
   return (
     <div
       data-testid="pomodoro-timer"
-      className="card-pastel text-center max-w-xl mx-auto bg-gradient-to-b from-pastel-blue-light via-white to-white border-2 border-sky-100 p-6 sm:p-8"
+      className="card-pastel text-center max-w-xl mx-auto bg-gradient-to-b from-orange-50/70 via-white to-amber-50/40 border-4 border-orange-200 p-6 sm:p-8"
     >
-      {/* Timer Module Header */}
-      <div className="flex items-center justify-center gap-2 mb-2">
-        <div className="p-2.5 bg-pastel-blue rounded-2xl text-sky-800 shadow-sm">
-          <TimerIcon className="w-6 h-6" />
+      {/* 1. 요청 사항 1: 친화적 타이틀 및 대화형 문구 */}
+      <div className="flex items-center justify-center gap-2 mb-1">
+        <div className="p-2.5 bg-[#ff6f0f] rounded-2xl text-white shadow-xs animate-bounce">
+          <Sparkles className="w-6 h-6" />
         </div>
-        <h2 className="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">
-          자유시간 설정 포모도로 타이머 ⏱️
+        <h2 className="text-xl sm:text-2xl font-black text-[#212124] tracking-tight">
+          ✨ 토리와 함께하는 집중 타이머 ⏱️
         </h2>
       </div>
-      <p className="text-xs text-slate-500 font-semibold mb-4">
-        원하는 공부 시간과 쉬는 시간을 자유롭게 선택하거나 직접 입력해보세요!
+      <p className="text-xs sm:text-sm text-[#868b94] font-extrabold mb-5">
+        안녕! 시간을 고르고 시작을 누르면 토리가 곁에서 신나게 응원해줄게! 🐰
       </p>
 
-      {/* Mode Selector Buttons */}
-      <div data-testid="timer-mode-toggle" className="flex items-center justify-center gap-2 my-3">
-        <button
-          type="button"
-          onClick={() => handleSwitchMode('work')}
-          className={`px-5 py-2.5 rounded-2xl font-black text-sm transition-all flex items-center gap-1.5 border-2 ${
-            mode === 'work'
-              ? 'bg-pastel-blue text-sky-900 border-sky-400 shadow-md scale-105 ring-2 ring-sky-200'
-              : 'bg-slate-100 text-slate-500 hover:bg-slate-200 border-transparent'
-          }`}
-        >
-          <span>📖 공부 시간 ({customWorkMinutes}분)</span>
-        </button>
-
-        <button
-          type="button"
-          data-testid="timer-mode-break"
-          onClick={() => handleSwitchMode('break')}
-          className={`px-5 py-2.5 rounded-2xl font-black text-sm transition-all flex items-center gap-1.5 border-2 ${
-            mode === 'break'
-              ? 'bg-pastel-mint text-emerald-900 border-emerald-400 shadow-md scale-105 ring-2 ring-emerald-200'
-              : 'bg-slate-100 text-slate-500 hover:bg-slate-200 border-transparent'
-          }`}
-        >
-          <span>🍡 쉬는 시간 ({customBreakMinutes}분)</span>
-        </button>
+      {/* 2. 요청 사항 2: 아주 크고 둥근 4개 시간 블록 버튼 [🟢 10분], [🟡 20분], [🟠 30분], [🔴 60분] */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-4">
+        {timeBlocks.map((block) => {
+          const isSelected = customWorkMinutes === block.mins;
+          return (
+            <button
+              key={block.mins}
+              type="button"
+              onClick={() => handleSelectTimeBlock(block.mins)}
+              className={`py-3.5 px-4 rounded-3xl font-black text-sm sm:text-base border-2 shadow-2xs transition-all duration-200 active:scale-95 flex items-center justify-center gap-1.5 ${
+                isSelected ? `${block.activeColor} scale-105 shadow-md` : block.color
+              }`}
+            >
+              <span>{block.label}</span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* Prominent Custom Duration Minute Preset Selector */}
-      <div className="bg-sky-50/90 p-4 rounded-3xl border-2 border-sky-200 my-4 shadow-sm space-y-3">
-        <div className="flex items-center justify-between px-1">
-          <span className="text-xs font-black text-sky-900 flex items-center gap-1">
-            ⏱️ {mode === 'work' ? '공부 시간' : '쉬는 시간'} 자유 설정:
-          </span>
-          <span className="text-xs font-extrabold text-sky-700 bg-white px-2 py-0.5 rounded-full border border-sky-200">
-            현재: {mode === 'work' ? customWorkMinutes : customBreakMinutes}분
-          </span>
-        </div>
+      {/* 3. 요청 사항 4: 마스커트 캐릭터 애니메이션 & 둥둥 바운스 응원 */}
+      <div className={`my-4 transition-all duration-300 ${isRunning ? 'animate-bounce' : ''}`}>
+        <CharacterAnimation mascot={mascot} mode={mode} isRunning={isRunning} />
+      </div>
 
-        {/* Preset Minute Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          {(mode === 'work' ? presetWorkOptions : presetBreakOptions).map((mins) => {
-            const isCurrent = mode === 'work' ? customWorkMinutes === mins : customBreakMinutes === mins;
-            return (
-              <button
-                key={mins}
-                onClick={() => handleSetCustomMinutes(mins)}
-                className={`px-3.5 py-2 rounded-2xl font-black text-xs transition-all border-2 ${
-                  isCurrent
-                    ? 'bg-sky-600 text-white border-sky-700 shadow-md scale-105'
-                    : 'bg-white text-slate-700 hover:bg-sky-100 border-sky-100 shadow-xs'
-                }`}
-              >
-                {mins}분
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Custom Direct Minute Input */}
-        <div className="flex items-center justify-center gap-2 pt-1 border-t border-sky-100">
-          <span className="text-xs font-extrabold text-slate-600">직접 입력:</span>
-          <input
-            type="number"
-            min="1"
-            max="180"
-            value={mode === 'work' ? customWorkMinutes : customBreakMinutes}
-            onChange={(e) => {
-              const val = parseInt(e.target.value, 10);
-              if (!isNaN(val) && val > 0 && val <= 180) {
-                handleSetCustomMinutes(val);
-              }
-            }}
-            className="w-20 px-3 py-1.5 rounded-xl border-2 border-sky-300 font-mono font-black text-sm text-center bg-white text-slate-800 shadow-inner focus:outline-none focus:ring-2 focus:ring-sky-400"
+      {/* 4. 요청 사항 3: 대형 원형 SVG 프로그레스 게이지 (Time Timer 스타일) & 디지털 카운트다운 */}
+      <div className="relative w-64 h-64 mx-auto my-4 flex items-center justify-center">
+        <svg className="w-full h-full transform -rotate-90" viewBox="0 0 200 200">
+          {/* Background Track */}
+          <circle cx="100" cy="100" r={radius} className="text-slate-100 stroke-current" strokeWidth="14" fill="none" />
+          {/* Active Progress Circle */}
+          <motion.circle
+            cx="100"
+            cy="100"
+            r={radius}
+            className="text-[#ff6f0f] stroke-current"
+            strokeWidth="14"
+            strokeDasharray={circumference}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+            fill="none"
+            initial={{ strokeDashoffset: circumference }}
+            animate={{ strokeDashoffset }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
           />
-          <span className="text-xs font-black text-slate-700">분</span>
-        </div>
-      </div>
+        </svg>
 
-      {/* Mascot Selector */}
-      <MascotSelector selectedMascot={mascot} onSelectMascot={setMascot} />
-
-      {/* Character Mascot Animation Container */}
-      <CharacterAnimation mascot={mascot} mode={mode} isRunning={isRunning} />
-
-      {/* Timer Digital Display */}
-      <div className="my-5">
-        <div
-          data-testid="timer-display"
-          className="text-5xl sm:text-6xl font-black text-slate-800 tracking-wider font-mono my-1 drop-shadow-sm select-none"
-        >
-          {formatTime(seconds)}
-        </div>
-
-        {/* Mode Label Contract element */}
-        <div data-testid="timer-mode-label" className="text-xs font-black text-slate-500 mt-1">
-          {mode === 'work' ? '📖 공부 시간 (Work Mode)' : '🍡 쉬는 시간 (Break Mode)'}
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+          <div
+            data-testid="timer-display"
+            className="text-4xl sm:text-5xl font-black text-[#212124] tracking-wider font-mono select-none"
+          >
+            {formatTime(seconds)}
+          </div>
+          <div data-testid="timer-mode-label" className="text-xs font-black text-[#ff6f0f] mt-1 bg-orange-100 px-3 py-1 rounded-full">
+            {isRunning ? '🔥 토리와 열공 중!' : ' 준비 완료!'}
+          </div>
         </div>
       </div>
 
