@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ScheduleItem } from '../../types';
 import { renderScheduleIcon, getScheduleIconStyle } from '../../utils/iconHelper';
 import { getUserProfile, addSticker } from '../../services/storage';
@@ -22,10 +22,21 @@ export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, on
   const [showFlySticker, setShowFlySticker] = useState<boolean>(false);
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
 
+  // [요청 사항 1] React useRef 기반 팝업 무한 반복 방지 플래그 및 타이머 ID 참조
+  const isPopupShownRef = useRef<boolean>(false);
+  const mainTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const demoIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
   // Find currently active item or first incomplete item
   const activeItem = schedule.find((s) => !s.completed) || schedule[0];
   const activeIndex = schedule.findIndex((s) => s.id === activeItem?.id);
   const nextItem = schedule[activeIndex + 1] || null;
+
+  // Active item changed: Reset popup shown flag for new item
+  useEffect(() => {
+    isPopupShownRef.current = false;
+    setShowSuccessModal(false);
+  }, [activeItem?.id]);
 
   // Calculate duration in minutes from timeSlot (e.g. "09:00 - 10:00")
   useEffect(() => {
@@ -43,14 +54,23 @@ export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, on
     }
   }, [activeItem]);
 
-  // Real-time progress ticker (increasing percentage formula)
+  // [요청 사항 1] Real-time progress ticker with Cleanup return function
   useEffect(() => {
-    if (isDemoActive || showSuccessModal) return;
+    if (isDemoActive || showSuccessModal || isPopupShownRef.current) return;
 
-    const timer = setInterval(() => {
+    if (mainTimerRef.current) {
+      clearInterval(mainTimerRef.current);
+      mainTimerRef.current = null;
+    }
+
+    mainTimerRef.current = setInterval(() => {
       setElapsedMinutes((prev) => {
         const nextVal = prev + 1;
         if (nextVal >= totalMinutes) {
+          if (mainTimerRef.current) {
+            clearInterval(mainTimerRef.current);
+            mainTimerRef.current = null;
+          }
           triggerCompletionSuccess();
           return totalMinutes;
         }
@@ -58,8 +78,13 @@ export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, on
       });
     }, 5000);
 
-    return () => clearInterval(timer);
-  }, [totalMinutes, isDemoActive, showSuccessModal]);
+    return () => {
+      if (mainTimerRef.current) {
+        clearInterval(mainTimerRef.current);
+        mainTimerRef.current = null;
+      }
+    };
+  }, [totalMinutes, isDemoActive, showSuccessModal, activeItem?.id]);
 
   // Update percentage from elapsed minutes
   useEffect(() => {
@@ -72,28 +97,42 @@ export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, on
   // 10-Second Demo Simulation Trigger
   const handleStart10sDemo = () => {
     playSound('click');
+    if (demoIntervalRef.current) {
+      clearInterval(demoIntervalRef.current);
+      demoIntervalRef.current = null;
+    }
+    if (mainTimerRef.current) {
+      clearInterval(mainTimerRef.current);
+      mainTimerRef.current = null;
+    }
+
+    isPopupShownRef.current = false;
     setIsDemoActive(true);
     setElapsedPercent(0);
     setElapsedMinutes(0);
 
     let step = 0;
-    const interval = setInterval(() => {
+    demoIntervalRef.current = setInterval(() => {
       step += 10;
       setElapsedPercent(step);
       setElapsedMinutes(Math.round((step / 100) * totalMinutes));
 
       if (step >= 100) {
-        clearInterval(interval);
-        setTimeout(() => {
-          setIsDemoActive(false);
-          triggerCompletionSuccess();
-        }, 400);
+        if (demoIntervalRef.current) {
+          clearInterval(demoIntervalRef.current);
+          demoIntervalRef.current = null;
+        }
+        setIsDemoActive(false);
+        triggerCompletionSuccess();
       }
     }, 1000);
   };
 
-  // Trigger 100% Completion Celebration Modal & Award Sticker
+  // [요청 사항 1 & 3] Trigger 100% Completion Celebration Modal (Guarded once by isPopupShownRef)
   const triggerCompletionSuccess = () => {
+    if (isPopupShownRef.current) return; // 이미 팝업이 뜬 경우 중복 실행 완벽 차단!
+    isPopupShownRef.current = true;
+
     playSound('reward');
     setShowConfetti(true);
     setShowFlySticker(true);
@@ -118,6 +157,38 @@ export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, on
     setTimeout(() => {
       setShowConfetti(false);
     }, 5000);
+  };
+
+  // [요청 사항 3] 팝업 닫기 (X) 및 다음 미션 버튼 눌렀을 때 강제 clearInterval 종료 처리
+  const handleCloseSuccessModal = () => {
+    playSound('click');
+    if (mainTimerRef.current) {
+      clearInterval(mainTimerRef.current);
+      mainTimerRef.current = null;
+    }
+    if (demoIntervalRef.current) {
+      clearInterval(demoIntervalRef.current);
+      demoIntervalRef.current = null;
+    }
+    setIsDemoActive(false);
+    setShowSuccessModal(false);
+  };
+
+  const handleNextMission = () => {
+    playSound('click');
+    if (mainTimerRef.current) {
+      clearInterval(mainTimerRef.current);
+      mainTimerRef.current = null;
+    }
+    if (demoIntervalRef.current) {
+      clearInterval(demoIntervalRef.current);
+      demoIntervalRef.current = null;
+    }
+    setIsDemoActive(false);
+    setShowSuccessModal(false);
+    if (onSelectSlot && nextItem) {
+      onSelectSlot(nextItem);
+    }
   };
 
   if (!activeItem) {
@@ -312,7 +383,7 @@ export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, on
             >
               {/* Close Button */}
               <button
-                onClick={() => setShowSuccessModal(false)}
+                onClick={handleCloseSuccessModal}
                 className="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center font-bold transition-all"
               >
                 <X className="w-5 h-5" />
@@ -357,11 +428,7 @@ export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, on
               {/* Call to Action Button */}
               <button
                 type="button"
-                onClick={() => {
-                  playSound('click');
-                  setShowSuccessModal(false);
-                  if (onSelectSlot && nextItem) onSelectSlot(nextItem);
-                }}
+                onClick={handleNextMission}
                 className="w-full py-4 bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 hover:from-orange-600 hover:to-amber-600 text-slate-950 font-black text-base rounded-2xl shadow-xl border-2 border-yellow-300 flex items-center justify-center gap-2 active:scale-95 transition-all cursor-pointer ring-4 ring-orange-200"
               >
                 <Sparkles className="w-5 h-5 fill-slate-950" />
