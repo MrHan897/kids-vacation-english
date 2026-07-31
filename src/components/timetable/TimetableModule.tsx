@@ -5,7 +5,7 @@ import { DailyHistoryModal } from './DailyHistoryModal';
 import { playSound } from '../../services/audio';
 import { TimeSlot } from './TimeSlot';
 import { ActivityModal } from './ActivityModal';
-import { CircularClock } from './CircularClock';
+import { NowNextFocusView } from './NowNextFocusView';
 import {
   isAlarmEnabled,
   setAlarmEnabled,
@@ -195,8 +195,8 @@ export const TimetableModule: React.FC<TimetableModuleProps> = ({ onNavigateTab 
 
   return (
     <div data-testid="timetable-container" className="space-y-6">
-      {/* [1위 최상단] ☀️ 여름방학 일일 계획표 (24시간 파스텔 대형 원형 시계) */}
-      <CircularClock schedule={schedule} onSelectSlot={handleEdit} />
+      {/* [1위 최상단] 🚀 Tiimo & Routinery 스타일 Now & Next 포커스 뷰 */}
+      <NowNextFocusView schedule={schedule} onSelectSlot={handleEdit} />
 
       {/* [2위] 🎯 오늘의 목표 (독립 퀘스트 달성률 게이밍 카드) */}
       <motion.div
