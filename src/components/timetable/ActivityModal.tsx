@@ -191,13 +191,13 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
               </div>
             </div>
 
-            {/* [요청 사항] 카테고리 선택 - 아이콘 선택 정렬과 100% 동일하게 grid-cols-5 gap-2 pt-1 & w-full aspect-square rounded-2xl 적용 */}
+            {/* [요청 사항 1 & 2] 카테고리 선택 - 아이콘 선택과 100% 동일한 공통 .icon-grid-container & .icon-grid-item 레이아웃 */}
             <div>
               <label className="block text-xs font-extrabold text-slate-600 mb-1 flex items-center justify-between">
                 <span>카테고리 선택</span>
                 <span className="text-[10px] text-pink-500 font-bold">✨ 이모지를 터치하여 간편하게 선택해요!</span>
               </label>
-              <div data-testid="activity-category-select" className="grid grid-cols-5 gap-2 pt-1">
+              <div data-testid="activity-category-select" className="icon-grid-container">
                 {[
                   { id: 'study', label: '공부', emoji: '📖', bg: 'bg-sky-100', border: 'border-sky-300', color: 'text-sky-600' },
                   { id: 'play', label: '놀이', emoji: '🎮', bg: 'bg-pink-100', border: 'border-pink-300', color: 'text-pink-600' },
@@ -221,7 +221,7 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                         setCategory(catItem.id as ActivityCategory);
                       }}
                       title={catItem.label}
-                      className={`w-full aspect-square rounded-2xl border-2 flex items-center justify-center text-xl sm:text-2xl transition-all ${
+                      className={`icon-grid-item text-xl sm:text-2xl ${
                         isSelected
                           ? `${catItem.bg} ${catItem.border} ${catItem.color} shadow-lg scale-110 ring-4 ring-pink-200 border-pink-400 font-black`
                           : `bg-slate-50 border-slate-200 ${catItem.color} hover:bg-white hover:shadow-md opacity-80`
@@ -234,13 +234,13 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
               </div>
             </div>
 
-            {/* [요청 사항 3] 아이콘 선택 시인성 강화 (전체 파스텔톤 배경 채움 및 Scale 확대) */}
+            {/* [요청 사항 1 & 2] 아이콘 선택 - 공통 .icon-grid-container & .icon-grid-item 적용 */}
             <div>
               <label className="block text-xs font-extrabold text-slate-600 mb-1 flex items-center justify-between">
                 <span>아이콘 선택</span>
                 <span className="text-[10px] text-pink-500 font-bold">✨ 터치하여 톡톡 재미있게 선택해요!</span>
               </label>
-              <div className="grid grid-cols-5 gap-2 pt-1">
+              <div className="icon-grid-container">
                 {ICON_OPTIONS.map((item) => {
                   const IconComp = item.icon;
                   const isSelected = icon === item.id;
@@ -255,7 +255,7 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                         playSound('click');
                         setIcon(item.id);
                       }}
-                      className={`w-full aspect-square rounded-2xl border-2 flex items-center justify-center transition-all ${
+                      className={`icon-grid-item ${
                         isSelected
                           ? `${item.bg} ${item.border} ${item.color} shadow-md scale-110 ring-4 ring-orange-200 border-orange-400 font-black`
                           : `bg-slate-50 border-slate-200 ${item.color} hover:bg-white hover:shadow-sm opacity-70`

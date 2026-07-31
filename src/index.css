@@ -69,6 +69,29 @@
   }
 }
 
+/* Shared 5-Column Grid & Button Styles for Category & Icon Picker */
+.icon-grid-container {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+  padding-top: 0.25rem;
+  width: 100%;
+}
+
+.icon-grid-item {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 1rem;
+  border-width: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
+}
+
 /* Custom 64px Finger Touch Button Utility for Kids Mobile (SEED Box Button standard) */
 .btn-finger-64 {
   min-height: 64px;
