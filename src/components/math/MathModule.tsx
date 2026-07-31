@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { GradeLevel, MathQuestion } from '../../types';
-import { MATH_QUESTIONS } from '../../data/mathData';
+import { GradeLevel } from '../../types';
 import { playSound, speakText } from '../../services/audio';
 import { StarDustFX } from '../rewards/PraiseAnimation';
-import { Calculator, Award, CheckCircle2, XCircle, Sparkles, HelpCircle, ArrowRight, RefreshCw } from 'lucide-react';
+import { Calculator, Award, CheckCircle2, XCircle, Sparkles, ArrowRight, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface MathModuleProps {
@@ -11,8 +10,137 @@ interface MathModuleProps {
   onEarnSticker?: () => void;
 }
 
+export interface GeneratedQuestion {
+  question: string;
+  options: number[];
+  correctAnswerIndex: number;
+  explanation: string;
+  icon: string;
+}
+
+function getRandomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+// [요청 사항 1 & 2] 학년별 무작위 동적 문제 생성기 & 스마트 오답 셔플 알고리즘
+export function generateMathProblem(isChallengeMode: boolean): GeneratedQuestion {
+  let questionStr = '';
+  let answer = 0;
+  let explanationStr = '';
+  let iconEmoji = '🔢';
+
+  if (!isChallengeMode) {
+    // 2학년 기본 모드: 덧셈(10~99), 뺄셈(10~99 양수), 곱셈(2~9단)
+    const type = getRandomInt(1, 3);
+    if (type === 1) {
+      // 덧셈
+      const num1 = getRandomInt(10, 99);
+      const num2 = getRandomInt(10, 99);
+      answer = num1 + num2;
+      questionStr = `${num1} + ${num2} = ?`;
+      explanationStr = `${num1}에 ${num2}를 더하면 ${answer}가 됩니다! ➕`;
+      iconEmoji = '➕';
+    } else if (type === 2) {
+      // 뺄셈 (큰 수 - 작은 수 -> 양수 보장)
+      const a = getRandomInt(10, 99);
+      const b = getRandomInt(10, 99);
+      const big = Math.max(a, b);
+      const small = Math.min(a, b);
+      answer = big - small;
+      questionStr = `${big} - ${small} = ?`;
+      explanationStr = `${big}에서 ${small}을 빼면 ${answer}가 남습니다! ➖`;
+      iconEmoji = '➖';
+    } else {
+      // 곱셈 구구단 (2~9단)
+      const dan = getRandomInt(2, 9);
+      const num = getRandomInt(1, 9);
+      answer = dan * num;
+      questionStr = `${dan} × ${num} = ?`;
+      explanationStr = `${dan}단 구구단: ${dan} 곱하기 ${num}은 ${answer}입니다! ✖️`;
+      iconEmoji = '✖️';
+    }
+  } else {
+    // 3학년 챌린지 모드: 나누어 떨어지는 나눗셈, 3자리 수 덧셈/뺄셈
+    const type = getRandomInt(1, 3);
+    if (type === 1) {
+      // 나눗셈 (나누어 떨어지도록 A * B = C -> C ÷ A = B)
+      const a = getRandomInt(2, 9);
+      const b = getRandomInt(2, 9);
+      const c = a * b;
+      answer = b;
+      questionStr = `${c} ÷ ${a} = ?`;
+      explanationStr = `${a} × ${b} = ${c} 이므로, ${c} ÷ ${a} = ${b} 입니다! ➗`;
+      iconEmoji = '➗';
+    } else if (type === 2) {
+      // 3자리 수 덧셈
+      const num1 = getRandomInt(100, 999);
+      const num2 = getRandomInt(100, 999);
+      answer = num1 + num2;
+      questionStr = `${num1} + ${num2} = ?`;
+      explanationStr = `${num1}과 ${num2}의 합은 ${answer}입니다! 🚀`;
+      iconEmoji = '🔥';
+    } else {
+      // 3자리 수 뺄셈
+      const a = getRandomInt(100, 999);
+      const b = getRandomInt(100, 999);
+      const big = Math.max(a, b);
+      const small = Math.min(a, b);
+      answer = big - small;
+      questionStr = `${big} - ${small} = ?`;
+      explanationStr = `${big}에서 ${small}을 뺀 결과는 ${answer}입니다! 🎯`;
+      iconEmoji = '🎯';
+    }
+  }
+
+  // [요청 사항 2] 스마트 오답 (Distractor) 생성 (+1, -1, +10, -5 등 정답 근처 중복 없는 값)
+  const distractorSet = new Set<number>();
+  const potentialOffsets = shuffleArray([1, -1, 10, -5, 2, -2, 5, -10, 3, -3, 4, -4, 15, -15]);
+
+  for (const offset of potentialOffsets) {
+    const candidate = answer + offset;
+    if (candidate > 0 && candidate !== answer) {
+      distractorSet.add(candidate);
+    }
+    if (distractorSet.size >= 3) break;
+  }
+
+  let step = 1;
+  while (distractorSet.size < 3) {
+    const candidate = answer + step * 7;
+    if (candidate > 0 && candidate !== answer) {
+      distractorSet.add(candidate);
+    }
+    step++;
+  }
+
+  const distractors = Array.from(distractorSet).slice(0, 3);
+  const options = shuffleArray([answer, ...distractors]);
+  const correctAnswerIndex = options.indexOf(answer);
+
+  return {
+    question: questionStr,
+    options,
+    correctAnswerIndex,
+    explanation: explanationStr,
+    icon: iconEmoji,
+  };
+}
+
 export const MathModule: React.FC<MathModuleProps> = ({ grade = 'grade1', onEarnSticker }) => {
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [isChallengeMode, setIsChallengeMode] = useState<boolean>(false);
+  const [currentQuestion, setCurrentQuestion] = useState<GeneratedQuestion>(() =>
+    generateMathProblem(false)
+  );
+  const [questionCount, setQuestionCount] = useState<number>(1);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnswered, setIsAnswered] = useState<boolean>(false);
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
@@ -20,34 +148,20 @@ export const MathModule: React.FC<MathModuleProps> = ({ grade = 'grade1', onEarn
   const [showStarDust, setShowStarDust] = useState<boolean>(false);
   const [comboStreak, setComboStreak] = useState<number>(0);
 
-  // [요청 사항 1] +1학년 챌린지 모드 State
-  const [isChallengeMode, setIsChallengeMode] = useState<boolean>(false);
-
-  // 챌린지 모드 활성화 시 학년 레벨 +1단계 업그레이드 (예: 1학년->2학년, 2학년->3학년)
-  const effectiveGrade: GradeLevel = isChallengeMode
-    ? grade === 'grade1'
-      ? 'grade2'
-      : 'grade3'
-    : grade;
-
-  const currentQuestions = MATH_QUESTIONS.filter((q) => q.grade === effectiveGrade);
-  const currentQuestion: MathQuestion = currentQuestions[currentIndex] || currentQuestions[0];
-
+  // [요청 사항 1 & 3] +1학년 챌린지 모드 전환 시 동적 무한 문제 즉시 새로 생성
   const handleToggleChallenge = () => {
     playSound('reward');
     const nextChallenge = !isChallengeMode;
     setIsChallengeMode(nextChallenge);
-    setCurrentIndex(0);
+    setCurrentQuestion(generateMathProblem(nextChallenge));
     setSelectedOption(null);
     setIsAnswered(false);
     setIsCorrect(false);
     setComboStreak(0);
 
     const levelText = nextChallenge
-      ? grade === 'grade1'
-        ? '🔥 2학년 수준: 두 자릿수 덧셈/뺄셈 & 구구단 챌린지!'
-        : '🔥 3학년 수준: 나눗셈 & 분수 & 3자리 수 덧셈 챌린지!'
-      : '🎯 프로필 학년 수준으로 원복되었습니다.';
+      ? '🔥 3학년 챌린지 모드: 나눗셈 & 3자리 수 연산 무한 도전!'
+      : '🎯 2학년 기본 모드: 두 자릿수 덧셈/뺄셈 & 구구단 탐험!';
     speakText(levelText, 'ko-KR');
   };
 
@@ -56,7 +170,7 @@ export const MathModule: React.FC<MathModuleProps> = ({ grade = 'grade1', onEarn
     setSelectedOption(optionIdx);
     setIsAnswered(true);
 
-    const correct = optionIdx === currentQuestion.correctAnswer;
+    const correct = optionIdx === currentQuestion.correctAnswerIndex;
     setIsCorrect(correct);
 
     if (correct) {
@@ -68,7 +182,7 @@ export const MathModule: React.FC<MathModuleProps> = ({ grade = 'grade1', onEarn
       const nextCombo = comboStreak + 1;
       setComboStreak(nextCombo);
 
-      // Award 3-Combo Streak Bonus Sticker
+      // 3-Combo Streak Bonus Sticker
       if (nextCombo === 3) {
         if (onEarnSticker) onEarnSticker();
       }
@@ -81,20 +195,14 @@ export const MathModule: React.FC<MathModuleProps> = ({ grade = 'grade1', onEarn
     }
   };
 
+  // [요청 사항 3] 무한 플레이: '다음 문제' 버튼 클릭 시 동적 새 문제 생성 및 화면 갱신
   const handleNext = () => {
     playSound('click');
     setSelectedOption(null);
     setIsAnswered(false);
     setIsCorrect(false);
-    if (currentIndex + 1 < currentQuestions.length) {
-      setCurrentIndex((prev) => prev + 1);
-    } else {
-      // Completed math set mission! Award Set Sticker
-      setCurrentIndex(0);
-      setComboStreak(0);
-      speakText('수학 완주 미션을 성공했어요! 멋져요!', 'ko-KR');
-      if (onEarnSticker) onEarnSticker();
-    }
+    setQuestionCount((prev) => prev + 1);
+    setCurrentQuestion(generateMathProblem(isChallengeMode));
   };
 
   return (
@@ -111,7 +219,7 @@ export const MathModule: React.FC<MathModuleProps> = ({ grade = 'grade1', onEarn
               <Sparkles className="w-5 h-5 text-amber-500 fill-amber-300 animate-bounce" />
             </h2>
             <p className="text-xs text-slate-600 font-bold mt-1">
-              학년을 선택하고 재미있는 연산 & 도형 퀴즈를 풀며 스티커를 모아보세요!
+              무한으로 생성되는 연산 퀴즈를 풀며 스티커와 칭찬 코인을 모아보세요!
             </p>
           </div>
         </div>
@@ -123,21 +231,19 @@ export const MathModule: React.FC<MathModuleProps> = ({ grade = 'grade1', onEarn
         </div>
       </div>
 
-      {/* [요청 사항 1] Grade Title & +1학년 챌린지 모드 버튼 */}
+      {/* Grade Title & +1학년 챌린지 모드 버튼 */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between bg-white p-3.5 px-5 rounded-3xl border-2 border-amber-200 shadow-sm gap-3">
         <span className="text-xs sm:text-sm font-black text-amber-900 flex items-center gap-1.5">
           <Calculator className="w-4 h-4 text-amber-600" />
           <span>
-            {effectiveGrade === 'grade1'
-              ? '🐣 1학년: 기초 수 세기 & 10 이하 덧셈/뺄셈'
-              : effectiveGrade === 'grade2'
-              ? '🐥 2학년: 두 자리 덧셈/뺄셈 & 구구단 2~9단'
-              : '🔥 3학년 수준: 나눗셈 & 분수 & 3자리 수 덧셈'}
+            {isChallengeMode
+              ? '🔥 3학년 챌린지: 나눗셈 & 3자리 수 연산 무한 문제'
+              : '🐥 2학년 기본: 두 자릿수 덧셈/뺄셈 & 구구단 무한 문제'}
           </span>
         </span>
 
         <div className="flex items-center gap-2">
-          {/* [요청 사항 1] 🚀 +1학년 챌린지 모드 토글 버튼 */}
+          {/* 🚀 +1학년 챌린지 모드 토글 버튼 */}
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -155,7 +261,7 @@ export const MathModule: React.FC<MathModuleProps> = ({ grade = 'grade1', onEarn
           </motion.button>
 
           <span className="text-xs font-extrabold text-amber-800 bg-amber-100 px-3 py-1.5 rounded-full border border-amber-300 hidden sm:inline-block">
-            {isChallengeMode ? '🔥 선행학습 챌린지중' : '프로필 학년 자동 맞춤 🎯'}
+            {isChallengeMode ? '🔥 선행학습 챌린지중' : '기본 모드 무한 탐험 🎯'}
           </span>
         </div>
       </div>
@@ -164,15 +270,15 @@ export const MathModule: React.FC<MathModuleProps> = ({ grade = 'grade1', onEarn
       <div className="relative card-pastel bg-white border-3 border-amber-300 p-6 sm:p-8 space-y-6 shadow-cute overflow-hidden">
         {showStarDust && <StarDustFX />}
 
-        {/* Question Header & Counter + [요청 사항 3] Combo Badge */}
+        {/* Question Header & Counter + Combo Badge */}
         <div className="flex items-center justify-between border-b border-amber-100 pb-4">
           <div className="flex items-center gap-2 text-xs font-black text-amber-700 bg-amber-100 px-3 py-1.5 rounded-full border border-amber-200">
             <Calculator className="w-4 h-4 text-amber-600" />
-            <span>문제 {currentIndex + 1} / {currentQuestions.length}</span>
+            <span>무한 챌린지 문제 #{questionCount}</span>
           </div>
 
           <div className="flex items-center gap-3">
-            {/* [요청 사항 3] 2번 이상 연속 정답 시 "🔥 2 COMBO!" 뱃지가 통통 튀며(Bounce) 표시 */}
+            {/* 2번 이상 연속 정답 시 "🔥 2 COMBO!" 뱃지 표시 */}
             {comboStreak >= 2 && (
               <motion.div
                 initial={{ scale: 0, rotate: -10 }}
@@ -195,11 +301,11 @@ export const MathModule: React.FC<MathModuleProps> = ({ grade = 'grade1', onEarn
           </h3>
         </div>
 
-        {/* [요청 사항 2] 2x2 그리드 배열 + 3D 입체 버튼 스타일 (border-radius: 24px) */}
+        {/* 2x2 그리드 배열 + 3D 입체 버튼 스타일 */}
         <div className="grid grid-cols-2 gap-3.5 sm:gap-4">
           {currentQuestion.options.map((option, idx) => {
             const isThisSelected = selectedOption === idx;
-            const isThisCorrect = idx === currentQuestion.correctAnswer;
+            const isThisCorrect = idx === currentQuestion.correctAnswerIndex;
 
             let btnStyle =
               'bg-white border-3 border-amber-200 text-slate-800 shadow-[0_8px_0_#fde68a] hover:shadow-[0_10px_0_#fcd34d] hover:-translate-y-1 active:translate-y-2 active:shadow-[0_2px_0_#fcd34d]';
@@ -262,7 +368,7 @@ export const MathModule: React.FC<MathModuleProps> = ({ grade = 'grade1', onEarn
                 onClick={handleNext}
                 className="btn-finger-64 w-full sm:w-auto px-6 py-3 bg-slate-800 text-white font-extrabold rounded-2xl shadow-md flex items-center justify-center gap-2 shrink-0 border-2 border-slate-700 hover:bg-slate-900"
               >
-                <span>다음 문제</span>
+                <span>다음 무한 문제 도전</span>
                 <ArrowRight className="w-5 h-5" />
               </motion.button>
             </motion.div>
