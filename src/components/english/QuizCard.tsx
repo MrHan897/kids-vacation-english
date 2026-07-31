@@ -27,14 +27,20 @@ export const QuizCard: React.FC<QuizCardProps> = ({
   onCheckAnswer,
   onNextQuestion,
 }) => {
-  const [isListening, setIsListening] = useState(false);
-  const [speechText, setSpeechText] = useState('');
-  const [shake, setShake] = useState(false);
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [showFlyingCoin, setShowFlyingCoin] = useState(false);
+  const [isSupported, setIsSupported] = useState<boolean>(true);
+  const [isListening, setIsListening] = useState<boolean>(false);
+  const [speechText, setSpeechText] = useState<string>('');
+  const [shake, setShake] = useState<boolean>(false);
+  const [showConfetti, setShowConfetti] = useState<boolean>(false);
+  const [showFlyingCoin, setShowFlyingCoin] = useState<boolean>(false);
   const [userChatBubble, setUserChatBubble] = useState<string | null>(null);
 
+  // [요청 사항 1] 브라우저 지원 여부 사전 체크
   useEffect(() => {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    setIsSupported(!!SpeechRecognition);
+
     // Auto-speak English prompt when question changes
     if (question.englishText) {
       speakText(question.englishText, 'en-US');
@@ -51,13 +57,13 @@ export const QuizCard: React.FC<QuizCardProps> = ({
     }
   };
 
-  // Web Speech API (STT Speech Recognition)
+  // [요청 사항 2] Web Speech API STT 마이크 음성 인식 & 에러 핸들링
   const startSpeechRecognition = () => {
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      alert('이 브라우저는 음성 인식을 지원하지 않습니다. 모바일 크롬 브라우저를 이용해주세요!');
+      alert('이 브라우저는 마이크 음성 인식을 지원하지 않습니다. 아래 정답 버튼을 눌러주세요!');
       return;
     }
 
@@ -91,16 +97,29 @@ export const QuizCard: React.FC<QuizCardProps> = ({
       }
     };
 
-    recognition.onerror = () => {
+    // [요청 사항 2] 권한 거부 및 에러 발생 시 친절한 안내 및 뱃지 즉시 제거
+    recognition.onerror = (event: any) => {
       setIsListening(false);
-      setSpeechText('음성을 인식하지 못했어요. 마이크를 대고 다시 말씀해주세요!');
+      setSpeechText(''); // '듣고 있어요...' 뱃지 즉시 제거
+
+      if (event.error === 'not-allowed') {
+        alert('마이크 사용 권한이 필요해요! 브라우저 설정에서 마이크를 허용해 주세요. 🔒');
+      } else {
+        alert('목소리가 잘 안 들렸어요. 다시 마이크를 누르거나, 아래 버튼을 눌러서 정답을 맞춰주세요! 😊');
+      }
     };
 
     recognition.onend = () => {
       setIsListening(false);
     };
 
-    recognition.start();
+    try {
+      recognition.start();
+    } catch (err) {
+      setIsListening(false);
+      setSpeechText('');
+      alert('목소리가 잘 안 들렸어요. 다시 마이크를 누르거나, 아래 버튼을 눌러서 정답을 맞춰주세요! 😊');
+    }
   };
 
   const handleOptionClick = (idx: number) => {
@@ -238,22 +257,33 @@ export const QuizCard: React.FC<QuizCardProps> = ({
           </AnimatePresence>
         </div>
 
-        {/* [요청 사항 2] Web Speech API STT 마이크 음성 인식 버튼 */}
+        {/* [요청 사항 1 & 2] Web Speech API STT 마이크 음성 인식 버튼 및 미지원 브라우저 렌더링 */}
         <div className="flex flex-col items-center justify-center py-2 space-y-2">
-          <button
-            type="button"
-            onClick={startSpeechRecognition}
-            disabled={isSubmitted}
-            className={`px-6 py-3 rounded-full font-black text-xs sm:text-sm flex items-center gap-2.5 shadow-md transition-all active:scale-95 border-2 ${
-              isListening
-                ? 'bg-rose-500 text-white border-rose-600 animate-pulse ring-4 ring-rose-200'
-                : 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-purple-600 hover:from-purple-600 hover:to-indigo-600'
-            }`}
-          >
-            {isListening ? <Mic className="w-5 h-5 animate-spin" /> : <Mic className="w-5 h-5" />}
-            <span>{isListening ? '듣고 있어요... 영어로 말해보세요!' : '🎤 마이크로 영어 직접 말하기'}</span>
-          </button>
-          {speechText && (
+          {isSupported ? (
+            <button
+              type="button"
+              onClick={startSpeechRecognition}
+              disabled={isSubmitted}
+              className={`px-6 py-3 rounded-full font-black text-xs sm:text-sm flex items-center gap-2.5 shadow-md transition-all active:scale-95 border-2 ${
+                isListening
+                  ? 'bg-rose-500 text-white border-rose-600 animate-pulse ring-4 ring-rose-200'
+                  : 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-purple-600 hover:from-purple-600 hover:to-indigo-600'
+              }`}
+            >
+              {isListening ? <Mic className="w-5 h-5 animate-spin" /> : <Mic className="w-5 h-5" />}
+              <span>{isListening ? '듣고 있어요... 영어로 말해보세요!' : '🎤 마이크로 영어 직접 말하기'}</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="px-6 py-3 rounded-full font-black text-xs sm:text-sm flex items-center gap-2.5 bg-slate-200 text-slate-500 border-2 border-slate-300 shadow-none cursor-not-allowed select-none"
+            >
+              <MicOff className="w-5 h-5 text-slate-400" />
+              <span>📱 아래의 정답 버튼을 눌러주세요!</span>
+            </button>
+          )}
+          {isListening && speechText && (
             <span className="text-xs font-black text-purple-700 bg-purple-50 px-3 py-1 rounded-full border border-purple-200">
               {speechText}
             </span>
