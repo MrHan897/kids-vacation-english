@@ -32,6 +32,9 @@ export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, on
   const activeIndex = schedule.findIndex((s) => s.id === activeItem?.id);
   const nextItem = schedule[activeIndex + 1] || null;
 
+  // [요청 사항 1] 전체 완료 (100% ALL CLEAR) 상태 감지
+  const isAllClear = schedule.length > 0 && schedule.every((s) => s.completed);
+
   // Active item changed: Reset popup shown flag for new item
   useEffect(() => {
     isPopupShownRef.current = false;
@@ -40,7 +43,7 @@ export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, on
 
   // Calculate duration in minutes from timeSlot (e.g. "09:00 - 10:00")
   useEffect(() => {
-    if (!activeItem) return;
+    if (!activeItem || isAllClear) return;
     const timeStr = activeItem.timeSlot || activeItem.time || '09:00 - 10:00';
     const parts = timeStr.split('-');
     if (parts.length >= 2) {
@@ -52,11 +55,17 @@ export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, on
     } else {
       setTotalMinutes(60);
     }
-  }, [activeItem]);
+  }, [activeItem, isAllClear]);
 
   // [요청 사항 1] Real-time progress ticker with Cleanup return function
   useEffect(() => {
-    if (isDemoActive || showSuccessModal || isPopupShownRef.current) return;
+    if (isDemoActive || showSuccessModal || isPopupShownRef.current || isAllClear) {
+      if (mainTimerRef.current) {
+        clearInterval(mainTimerRef.current);
+        mainTimerRef.current = null;
+      }
+      return;
+    }
 
     if (mainTimerRef.current) {
       clearInterval(mainTimerRef.current);
@@ -84,7 +93,7 @@ export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, on
         mainTimerRef.current = null;
       }
     };
-  }, [totalMinutes, isDemoActive, showSuccessModal, activeItem?.id]);
+  }, [totalMinutes, isDemoActive, showSuccessModal, activeItem?.id, isAllClear]);
 
   // Update percentage from elapsed minutes
   useEffect(() => {
@@ -255,104 +264,157 @@ export const NowNextFocusView: React.FC<NowNextFocusViewProps> = ({ schedule, on
         </div>
       )}
 
-      {/* 1. [NOW] 현재 진행 중인 미션 게이미피케이션 퀘스트 카드 (28px 둥근 모서리 & 입체 펄스 효과) */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="card-pastel bg-gradient-to-br from-amber-50 via-orange-50/50 to-pink-50 border-4 border-amber-300 rounded-[28px] p-6 sm:p-8 shadow-[0_12px_36px_rgba(255,111,15,0.18)] relative overflow-hidden space-y-6 break-keep"
-      >
-        {/* NOW Header Badge & 10s Demo Button (Touch Friendly 1.5x Spacing) */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <span className="px-3.5 py-1.5 bg-[#ff6f0f] text-white font-black text-xs sm:text-sm rounded-full shadow-md flex items-center gap-1.5 animate-pulse">
-              <Play className="w-3.5 h-3.5 fill-white" /> NOW (지금 할 일)
-            </span>
-            <span className="text-xs sm:text-sm font-extrabold text-slate-500 flex items-center gap-1">
-              <Clock className="w-4 h-4 text-slate-400" /> {activeItem.timeSlot || activeItem.time}
-            </span>
-          </div>
+      {/* 1. [NOW] 현재 진행 중인 미션 카드 vs [요청 사항 1 & 2] 100% ALL CLEAR 대성공 축하 카드 */}
+      <AnimatePresence mode="wait">
+        {isAllClear ? (
+          <motion.div
+            key="all-clear-hero"
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="card-pastel bg-gradient-to-br from-amber-100 via-orange-100/80 to-yellow-100 border-4 border-amber-400 rounded-[28px] p-6 sm:p-8 shadow-[0_16px_40px_rgba(255,160,0,0.25)] text-center space-y-5 relative overflow-hidden break-keep"
+          >
+            {/* Background Star Glitter Animation */}
+            <div className="absolute top-3 left-4 text-2xl animate-pulse">✨</div>
+            <div className="absolute bottom-3 right-4 text-2xl animate-bounce">⭐</div>
 
-          <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={handleStart10sDemo}
-              disabled={isDemoActive}
-              className={`px-3.5 py-1.5 text-xs sm:text-sm font-black rounded-full border-2 shadow-sm flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer ${
-                isDemoActive
-                  ? 'bg-amber-400 text-slate-950 border-amber-500 animate-pulse ring-2 ring-amber-200'
-                  : 'bg-white text-orange-600 border-orange-300 hover:bg-orange-50'
-              }`}
-              title="10초 만에 100% 에너지 달성 팝업 체험해보기"
-            >
-              <Zap className="w-4 h-4 fill-current text-amber-500" />
-              <span>{isDemoActive ? '⚡ 10초 체험 중...' : '⚡ 10초 체험 모드'}</span>
-            </button>
-
-            <span className="text-xs sm:text-sm font-black text-[#ff6f0f] bg-orange-100/90 px-3 py-1 rounded-full border border-orange-200">
-              남은 시간 약 {remainingMinutes}분
-            </span>
-          </div>
-        </div>
-
-        {/* Hero Quest Center Content & Increasing SVG Energy Gauge (1.5x Spacing & Touch Chunking) */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-8 my-2">
-          {/* Item Details with "🔥 현재 미션:" Badge Header */}
-          <div className="flex items-center gap-4 sm:gap-6 text-center sm:text-left flex-1 min-w-0">
-            <div
-              className={`w-18 h-18 sm:w-20 sm:h-20 rounded-[24px] flex items-center justify-center text-3xl font-black shrink-0 ${iconStyle.bg} ${iconStyle.color} ${iconStyle.border} border-3 shadow-md`}
-            >
-              {renderScheduleIcon(activeItem.icon, activeItem.category, 'w-10 h-10')}
-            </div>
-            <div className="min-w-0 space-y-1">
-              <span className="inline-block text-xs sm:text-sm font-black text-orange-600 bg-orange-100 px-3 py-0.5 rounded-full border border-orange-200">
-                🔥 현재 미션
+            {/* ALL CLEAR Header Badge */}
+            <div className="flex items-center justify-center">
+              <span className="px-4 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-xs sm:text-sm rounded-full shadow-md flex items-center gap-1.5 ring-4 ring-amber-200 animate-pulse">
+                <Trophy className="w-4 h-4 fill-white" /> 👑 100% ALL CLEAR 👑
               </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-[#212124] tracking-tight leading-tight truncate">
-                {activeItem.title}
+            </div>
+
+            {/* [요청 사항 2] 큼직하고 화려하게 반짝이는 🏆 트로피 / 👑 100% 왕관 애니메이션 이모지 */}
+            <div className="py-2 flex items-center justify-center gap-3">
+              <span className="text-6xl sm:text-7xl animate-bounce drop-shadow-lg">🏆</span>
+              <span className="text-6xl sm:text-7xl animate-pulse drop-shadow-lg">👑</span>
+            </div>
+
+            {/* [요청 사항 2] 축하 텍스트 */}
+            <div className="space-y-2">
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+                🎉 우와! 오늘 하루 미션을 완벽하게 해냈어요!
               </h2>
-              {activeItem.notes ? (
-                <p className="text-xs sm:text-sm text-slate-500 font-bold truncate">
-                  {activeItem.notes}
-                </p>
-              ) : (
-                <p className="text-xs sm:text-sm text-[#868b94] font-bold">집중해서 퀘스트를 완성해보세요! 🚀</p>
-              )}
+              <p className="text-xs sm:text-sm font-black text-orange-700 bg-orange-200/90 px-4 py-1.5 rounded-full inline-block border border-orange-300 shadow-2xs">
+                모든 방학 시간표 일정을 달성하여 [집중왕 뱃지]가 수여되었습니다! 🏆
+              </p>
             </div>
-          </div>
 
-          {/* [요청 사항 1 & 2] 0% -> 100% 차오르는 퀘스트 에너지 게이지 SVG & Glow Pulse */}
-          <div className="relative w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center shrink-0">
-            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
-              {/* Background Track Circle */}
-              <circle cx="60" cy="60" r={radius} className="text-orange-100 stroke-current" strokeWidth="12" fill="none" />
-              
-              {/* Active Filling Progress Circle */}
-              <motion.circle
-                cx="60"
-                cy="60"
-                r={radius}
-                className="text-[#ff6f0f] stroke-current"
-                strokeWidth="12"
-                strokeDasharray={circumference}
-                strokeDashoffset={strokeDashoffset}
-                strokeLinecap="round"
-                fill="none"
-                initial={{ strokeDashoffset: circumference }}
-                animate={{ strokeDashoffset }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
-              />
-            </svg>
-
-            {/* Inner Center Text */}
-            <div className="absolute flex flex-col items-center justify-center text-center">
-              <span className="text-2xl sm:text-3xl font-black text-[#212124] tracking-tight">{elapsedPercent}%</span>
-              <span className="text-xs font-black text-orange-600 bg-orange-100 px-2.5 py-0.5 rounded-full mt-0.5 border border-orange-200">
-                에너지 달성!
-              </span>
+            {/* [요청 사항 2] 행동 유도 (CTA) 안내 문구 */}
+            <div className="p-4 bg-white/90 rounded-2xl border-2 border-amber-300 shadow-sm text-slate-800 font-extrabold text-sm sm:text-base space-y-1">
+              <p className="text-orange-600 font-black">
+                ⬇️ 아래의 보상 상자를 열어 아빠/엄마에게 확인을 받으세요! 🎁
+              </p>
+              <p className="text-xs text-slate-500 font-bold">
+                칭찬 도장을 받고 칭찬 코인을 적립해보세요!
+              </p>
             </div>
-          </div>
-        </div>
-      </motion.div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="active-quest-hero"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="card-pastel bg-gradient-to-br from-amber-50 via-orange-50/50 to-pink-50 border-4 border-amber-300 rounded-[28px] p-6 sm:p-8 shadow-[0_12px_36px_rgba(255,111,15,0.18)] relative overflow-hidden space-y-6 break-keep"
+          >
+            {/* NOW Header Badge & 10s Demo Button (Touch Friendly 1.5x Spacing) */}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <span className="px-3.5 py-1.5 bg-[#ff6f0f] text-white font-black text-xs sm:text-sm rounded-full shadow-md flex items-center gap-1.5 animate-pulse">
+                  <Play className="w-3.5 h-3.5 fill-white" /> NOW (지금 할 일)
+                </span>
+                <span className="text-xs sm:text-sm font-extrabold text-slate-500 flex items-center gap-1">
+                  <Clock className="w-4 h-4 text-slate-400" /> {activeItem.timeSlot || activeItem.time}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={handleStart10sDemo}
+                  disabled={isDemoActive}
+                  className={`px-3.5 py-1.5 text-xs sm:text-sm font-black rounded-full border-2 shadow-sm flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer ${
+                    isDemoActive
+                      ? 'bg-amber-400 text-slate-950 border-amber-500 animate-pulse ring-2 ring-amber-200'
+                      : 'bg-white text-orange-600 border-orange-300 hover:bg-orange-50'
+                  }`}
+                  title="10초 만에 100% 에너지 달성 팝업 체험해보기"
+                >
+                  <Zap className="w-4 h-4 fill-current text-amber-500" />
+                  <span>{isDemoActive ? '⚡ 10초 체험 중...' : '⚡ 10초 체험 모드'}</span>
+                </button>
+
+                <span className="text-xs sm:text-sm font-black text-[#ff6f0f] bg-orange-100/90 px-3 py-1 rounded-full border border-orange-200">
+                  남은 시간 약 {remainingMinutes}분
+                </span>
+              </div>
+            </div>
+
+            {/* Hero Quest Center Content & Increasing SVG Energy Gauge (1.5x Spacing & Touch Chunking) */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-6 sm:gap-8 my-2">
+              {/* Item Details with "🔥 현재 미션:" Badge Header */}
+              <div className="flex items-center gap-4 sm:gap-6 text-center sm:text-left flex-1 min-w-0">
+                <div
+                  className={`w-18 h-18 sm:w-20 sm:h-20 rounded-[24px] flex items-center justify-center text-3xl font-black shrink-0 ${iconStyle.bg} ${iconStyle.color} ${iconStyle.border} border-3 shadow-md`}
+                >
+                  {renderScheduleIcon(activeItem.icon, activeItem.category, 'w-10 h-10')}
+                </div>
+                <div className="min-w-0 space-y-1">
+                  <span className="inline-block text-xs sm:text-sm font-black text-orange-600 bg-orange-100 px-3 py-0.5 rounded-full border border-orange-200">
+                    🔥 현재 미션
+                  </span>
+                  <h2 className="text-2xl sm:text-3xl font-black text-[#212124] tracking-tight leading-tight truncate">
+                    {activeItem.title}
+                  </h2>
+                  {activeItem.notes ? (
+                    <p className="text-xs sm:text-sm text-slate-500 font-bold truncate">
+                      {activeItem.notes}
+                    </p>
+                  ) : (
+                    <p className="text-xs sm:text-sm text-[#868b94] font-bold">집중해서 퀘스트를 완성해보세요! 🚀</p>
+                  )}
+                </div>
+              </div>
+
+              {/* [요청 사항 1 & 2] 0% -> 100% 차오르는 퀘스트 에너지 게이지 SVG & Glow Pulse */}
+              <div className="relative w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center shrink-0">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                  {/* Background Track Circle */}
+                  <circle cx="60" cy="60" r={radius} className="text-orange-100 stroke-current" strokeWidth="12" fill="none" />
+                  
+                  {/* Active Filling Progress Circle */}
+                  <motion.circle
+                    cx="60"
+                    cy="60"
+                    r={radius}
+                    className="text-[#ff6f0f] stroke-current"
+                    strokeWidth="12"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeDashoffset}
+                    strokeLinecap="round"
+                    fill="none"
+                    initial={{ strokeDashoffset: circumference }}
+                    animate={{ strokeDashoffset }}
+                    transition={{ duration: 0.6, ease: 'easeOut' }}
+                  />
+                </svg>
+
+                {/* Inner Center Text */}
+                <div className="absolute flex flex-col items-center justify-center text-center">
+                  <span className="text-2xl sm:text-3xl font-black text-[#212124] tracking-tight">{elapsedPercent}%</span>
+                  <span className="text-xs font-black text-orange-600 bg-orange-100 px-2.5 py-0.5 rounded-full mt-0.5 border border-orange-200">
+                    에너지 달성!
+                  </span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 2. [NEXT] 다음 일정 예고 바 */}
       {nextItem && (
