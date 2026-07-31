@@ -110,13 +110,13 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
       onDragOver={(e) => onDragOver(e as unknown as React.DragEvent, index)}
       onDrop={(e) => onDrop(e as unknown as React.DragEvent, index)}
       data-testid="timetable-slot"
-      className={`p-4 rounded-3xl border-2 transition-all group relative flex items-center justify-between ${
+      className={`p-4 sm:p-5 rounded-[24px] border-2 transition-all group relative flex items-center justify-between gap-3 ${
         item.completed
-          ? 'bg-emerald-50/70 border-emerald-200 opacity-80 shadow-sm'
+          ? 'bg-emerald-50/80 border-emerald-300 opacity-85 shadow-2xs'
           : `${iconStyle.bg} ${iconStyle.border} hover:shadow-md`
       }`}
     >
-      <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
+      <div className="flex items-center gap-3.5 flex-1 min-w-0 pr-1">
         {/* Drag Handle */}
         <div className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors hidden sm:block">
           <GripVertical className="w-4 h-4" />
@@ -125,7 +125,7 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
         {/* Category Icon */}
         <div
           data-testid={`activity-icon-${item.icon || 'book'}`}
-          className={`w-11 h-11 rounded-2xl flex items-center justify-center font-bold shrink-0 ${
+          className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold shrink-0 ${
             item.completed ? 'bg-emerald-200 text-emerald-800' : `${iconStyle.bg} ${iconStyle.color} ${iconStyle.border} border-2`
           }`}
         >
@@ -133,34 +133,35 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
         </div>
 
         {/* Content Details */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 space-y-1">
+          {/* High Visibility Time Badge (Min 16px Bold) */}
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1">
-              <Clock className="w-3 h-3 text-slate-400" />
+            <span className="text-base font-black text-slate-800 bg-white/90 border border-slate-200 px-3 py-0.5 rounded-full shadow-2xs flex items-center gap-1.5">
+              <Clock className="w-4 h-4 text-[#ff6f0f]" />
               {displayTime}
             </span>
-            <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${iconStyle.badge}`}>
+            <span className={`text-xs font-extrabold px-2.5 py-0.5 rounded-full ${iconStyle.badge}`}>
               {categoryStyle.label}
             </span>
           </div>
 
           <h3
-            className={`font-extrabold text-sm sm:text-base leading-tight mt-0.5 truncate ${
-              item.completed ? 'line-through text-slate-400' : 'text-slate-800'
+            className={`font-black text-base sm:text-lg leading-tight truncate ${
+              item.completed ? 'line-through text-slate-400' : 'text-[#212124]'
             }`}
           >
             {item.title}
           </h3>
 
           {item.notes && (
-            <p className="text-xs text-slate-400 truncate mt-0.5 font-medium">{item.notes}</p>
+            <p className="text-xs text-slate-500 truncate font-semibold">{item.notes}</p>
           )}
         </div>
       </div>
 
       {/* Action Controls */}
-      <div className="flex items-center gap-1.5 shrink-0">
-        {/* Edit Button */}
+      <div className="flex items-center gap-1 shrink-0">
+        {/* Edit Button (Subtle & De-emphasized) */}
         <button
           type="button"
           data-testid="edit-slot-btn"
@@ -169,13 +170,13 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
             playSound('click');
             onEdit(item);
           }}
-          className="p-2 text-slate-400 hover:text-sky-600 hover:bg-sky-100/60 rounded-xl transition-all"
+          className="p-1.5 text-slate-300 hover:text-sky-600 hover:bg-sky-50 rounded-xl transition-all opacity-60 hover:opacity-100"
           title="일정 수정"
         >
-          <Edit3 className="w-4 h-4" />
+          <Edit3 className="w-3.5 h-3.5" />
         </button>
 
-        {/* Delete Button */}
+        {/* Delete Button (Subtle & De-emphasized) */}
         <button
           type="button"
           data-testid="delete-slot-btn"
@@ -184,13 +185,13 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
             playSound('click');
             onDelete(item.id);
           }}
-          className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-100/60 rounded-xl transition-all"
+          className="p-1.5 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all opacity-60 hover:opacity-100"
           title="일정 삭제"
         >
-          <Trash2 className="w-4 h-4" />
+          <Trash2 className="w-3.5 h-3.5" />
         </button>
 
-        {/* Complete Toggle Button (64px Touch Target) */}
+        {/* 1.5x Enlarged Check Circle Toggle Button (36px+ Touch Icon) */}
         <button
           type="button"
           data-testid="complete-activity-btn"
@@ -198,13 +199,13 @@ export const TimeSlot: React.FC<TimeSlotProps> = ({
             e.stopPropagation();
             onToggleComplete(item.id);
           }}
-          className="w-12 h-12 flex items-center justify-center rounded-2xl p-2 transition-all active:scale-90 select-none hover:bg-slate-100/80"
+          className="w-14 h-14 flex items-center justify-center rounded-full transition-all active:scale-90 select-none hover:bg-slate-100/80"
           title={item.completed ? '미완료로 표시' : '완료로 표시'}
         >
           {item.completed ? (
-            <CheckCircle2 className="w-7 h-7 text-emerald-500 fill-emerald-100" />
+            <CheckCircle2 className="w-9 h-9 text-emerald-500 fill-emerald-100 stroke-[2.5]" />
           ) : (
-            <Circle className="w-7 h-7 text-slate-300 hover:text-slate-500" />
+            <Circle className="w-9 h-9 text-slate-300 hover:text-slate-500 stroke-[2.5]" />
           )}
         </button>
       </div>
