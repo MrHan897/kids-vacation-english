@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AnalyticsSummary } from '../../types';
 import { getAnalyticsData } from '../../services/storage';
 import { playSound } from '../../services/audio';
-import { ShieldAlert, KeyRound, Activity, BarChart3, Users, Clock, Eye, Trash2, X, Lock } from 'lucide-react';
+import { Activity, BarChart3, Clock, Eye, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface DeveloperDashboardModalProps {
@@ -11,26 +11,11 @@ interface DeveloperDashboardModalProps {
 }
 
 export const DeveloperDashboardModal: React.FC<DeveloperDashboardModalProps> = ({ isOpen, onClose }) => {
-  const [passwordInput, setPasswordInput] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authError, setAuthError] = useState(false);
-  const [analyticsData, setAnalyticsData] = useState<AnalyticsSummary>(() => getAnalyticsData());
+  const [analyticsData] = useState<AnalyticsSummary>(() => getAnalyticsData());
 
-  if (!isOpen) return null;
-
-  const handlePasswordSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Default Secret Developer Pin: 7777
-    if (passwordInput === '7777' || passwordInput === 'admin' || passwordInput === '0000') {
-      playSound('reward');
-      setIsAuthenticated(true);
-      setAuthError(false);
-      setAnalyticsData(getAnalyticsData());
-    } else {
-      playSound('click');
-      setAuthError(true);
-    }
-  };
+  // 이 데이터는 브라우저 로컬 저장소에 있으므로 클라이언트 PIN은 보안 경계가 될 수 없다.
+  // 프로덕션 번들에서는 대시보드를 렌더링하지 않고 로컬 개발 모드에서만 제공한다.
+  if (!import.meta.env.DEV || !isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
@@ -59,9 +44,9 @@ export const DeveloperDashboardModal: React.FC<DeveloperDashboardModalProps> = (
           <div>
             <div className="flex items-center gap-2">
               <span className="px-2.5 py-0.5 bg-yellow-400 text-slate-950 font-black text-[10px] rounded-full border border-yellow-300">
-                🔒 SECRET DEVELOPER ONLY
+                LOCAL DEVELOPMENT ONLY
               </span>
-              <span className="text-[10px] font-bold text-indigo-300">비공개 개발자 관리자 전용</span>
+              <span className="text-[10px] font-bold text-indigo-300">프로덕션 빌드에서는 제외됨</span>
             </div>
             <h3 className="text-xl sm:text-2xl font-black text-yellow-300 flex items-center gap-2 mt-0.5">
               비공개 이용자 분석 대시보드
@@ -69,46 +54,7 @@ export const DeveloperDashboardModal: React.FC<DeveloperDashboardModalProps> = (
           </div>
         </div>
 
-        {/* Secret Auth Challenge if not authenticated */}
-        {!isAuthenticated ? (
-          <form onSubmit={handlePasswordSubmit} className="space-y-4 py-4 text-center">
-            <div className="w-16 h-16 rounded-full bg-indigo-900/80 border-2 border-indigo-400 flex items-center justify-center text-3xl mx-auto shadow-inner text-yellow-300">
-              <Lock className="w-8 h-8" />
-            </div>
-
-            <div>
-              <h4 className="text-base font-black text-white">개발자 인증 암호 필요</h4>
-              <p className="text-xs font-bold text-indigo-300 mt-1">
-                이용 내역 및 대시보드는 나(학부모/개발자)만 볼 수 있습니다. (초기 암호: <code className="text-yellow-300 bg-black/40 px-1.5 py-0.5 rounded">7777</code>)
-              </p>
-            </div>
-
-            <div className="max-w-xs mx-auto space-y-2">
-              <input
-                type="password"
-                placeholder="인증 암호 4자리 입력 (7777)"
-                value={passwordInput}
-                onChange={(e) => {
-                  setPasswordInput(e.target.value);
-                  setAuthError(false);
-                }}
-                className="w-full text-center px-4 py-3 bg-slate-950 border-2 border-indigo-500 rounded-2xl text-yellow-300 font-black text-lg focus:outline-none focus:border-yellow-400 tracking-widest placeholder:text-xs placeholder:tracking-normal"
-              />
-              {authError && (
-                <p className="text-xs font-black text-rose-400">⚠️ 암호가 올바르지 않습니다. (초기 암호: 7777)</p>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              className="px-6 py-3 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-slate-950 font-black text-xs sm:text-sm rounded-2xl shadow-lg transition-all"
-            >
-              대시보드 암행 승인 🔓
-            </button>
-          </form>
-        ) : (
-          /* Authenticated Dashboard Content */
-          <div className="space-y-6">
+        <div className="space-y-6">
             {/* Realtime Key Metrics KPI Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="bg-indigo-950/80 p-3.5 rounded-2xl border border-indigo-700/60 flex flex-col justify-between">
@@ -178,19 +124,8 @@ export const DeveloperDashboardModal: React.FC<DeveloperDashboardModalProps> = (
               <p className="text-[11px] font-bold text-slate-400">
                 🔒 일반 유저 화면 및 네비게이션에는 이 대시보드가 표시되지 않습니다.
               </p>
-              <button
-                onClick={() => {
-                  playSound('click');
-                  setIsAuthenticated(false);
-                  setPasswordInput('');
-                }}
-                className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-black text-xs rounded-xl border border-slate-700"
-              >
-                암행 잠금 🔒
-              </button>
             </div>
           </div>
-        )}
       </motion.div>
     </div>
   );
