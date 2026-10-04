@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>야담 공장 — Python·AI API 기반 콘텐츠 제작 자동화</title>
+<meta name="description" content="Python, YouTube Data API, Google Flow 자동화, 이미지 정리 및 영상 합성 파이프라인을 연결한 개인 바이브코딩 프로젝트"/>
+<style>
+:root{--bg:#0b1220;--card:#121d31;--line:#263552;--text:#eef4ff;--muted:#9fb0c8;--blue:#24a6ff;--violet:#7557ff;--green:#14c78c;--pink:#ee2a7b}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Noto Sans KR",sans-serif;background:linear-gradient(180deg,#08101c,#0e1727 50%,#08101c);color:var(--text);line-height:1.65}
+.wrap{max-width:1080px;margin:auto;padding:64px 22px 88px}.badge{display:inline-block;padding:8px 12px;border:1px solid #315080;border-radius:999px;color:#aecdff;background:#10213b;font-size:13px}
+h1{font-size:clamp(36px,7vw,68px);line-height:1.05;margin:22px 0 18px;letter-spacing:-.04em}.lead{font-size:20px;color:var(--muted);max-width:780px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:42px}.card{background:rgba(18,29,49,.92);border:1px solid var(--line);border-radius:24px;padding:24px}.num{font-size:13px;color:#8ebfff;margin-bottom:12px}.card h2{font-size:22px;margin:0 0 10px}.card p{margin:0;color:var(--muted)}
+.flow{margin-top:26px}.flow .card{margin-bottom:14px}.step{display:flex;gap:16px;align-items:flex-start}.dot{flex:0 0 44px;height:44px;border-radius:14px;display:grid;place-items:center;font-weight:800;background:#173b61;color:#75c7ff}
+.skills{display:flex;flex-wrap:wrap;gap:10px;margin-top:30px}.chip{padding:8px 12px;border-radius:999px;background:#101d31;border:1px solid #253957;color:#bfd4ef;font-size:13px}
+.note{margin-top:38px;padding:22px;border-left:4px solid var(--green);background:#0f1d29;color:#b8c8d9;border-radius:0 18px 18px 0}
+footer{margin-top:54px;padding-top:24px;border-top:1px solid var(--line);color:#8193ad;font-size:13px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding-top:42px}h1{font-size:42px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<span class="badge">개인 바이브코딩 프로젝트 · 개발/테스트 중</span>
+<h1>야담 공장<br>AI 콘텐츠 제작 자동화</h1>
+<p class="lead">반복적인 콘텐츠 제작 업무를 Python과 API로 연결해, <b>사전조사 → 이미지 생성 → 파일 정리 → 영상 합성</b>까지 한 흐름으로 자동화하는 개인 프로젝트입니다.</p>
+
+<section class="grid" aria-label="핵심 기능">
+  <article class="card"><div class="num">01 / RESEARCH</div><h2>YouTube Data API 사전조사</h2><p>키워드와 최소 조회수 조건으로 인기 야담 콘텐츠 후보를 조사하고, 다음 제작 단계에서 사용할 자료를 정리합니다.</p></article>
+  <article class="card"><div class="num">02 / IMAGE</div><h2>Google Flow 이미지 생성 자동화</h2><p>프롬프트 목록을 순차 입력해 이미지 생성을 반복 수행하는 매크로를 구현하고 테스트하고 있습니다.</p></article>
+  <article class="card"><div class="num">03 / PRODUCTION</div><h2>정리·검수·영상 합성</h2><p>생성 파일 자동 정리와 누락 검사 후 음성·자막·이미지를 결합하는 제작 단계까지 연결합니다.</p></article>
+</section>
+
+<section class="flow">
+  <article class="card step"><div class="dot">1</div><div><h2>기획 및 인기 자료 조사</h2><p>YouTube Data API를 이용해 검색 조건을 설정하고 콘텐츠 후보를 수집합니다.</p></div></article>
+  <article class="card step"><div class="dot" style="background:#23205d;color:#aa9cff">2</div><div><h2>AI 이미지 대량 생성</h2><p>Google Flow에 다수의 프롬프트를 순차 입력하는 자동화 도구를 직접 구현했습니다.</p></div></article>
+  <article class="card step"><div class="dot" style="background:#073d31;color:#67e2bc">3</div><div><h2>이미지 자동 정리 및 누락 검사</h2><p>에피소드별 파일을 정리하고 제작 과정에서 빠진 이미지가 없는지 확인하도록 구성했습니다.</p></div></article>
+  <article class="card step"><div class="dot" style="background:#49132c;color:#ff85b4">4</div><div><h2>음성·SRT·이미지 영상 합성</h2><p>반복 제작 단계를 하나의 GUI 런처에서 실행할 수 있도록 통합하는 중입니다.</p></div></article>
+</section>
+
+<div class="skills">
+<span class="chip">Python</span><span class="chip">YouTube Data API</span><span class="chip">Google Flow</span><span class="chip">GUI 자동화</span><span class="chip">파일 파이프라인</span><span class="chip">바이브코딩</span>
+</div>
+
+<div class="note"><b>프로젝트 목적</b><br>완성된 상용 서비스가 아니라, 비전공자가 바이브코딩을 독학하며 API 연동·반복작업 자동화·GUI 통합을 실제로 구현하고 검증하는 과정입니다. 현재 기능별 테스트와 개선을 진행 중입니다.</div>
+
+<footer>Public portfolio for project experience verification · API 키, 계정정보, 내부 프롬프트 원본 등 민감정보는 공개하지 않습니다.</footer>
+</main>
+</body>
+</html>
